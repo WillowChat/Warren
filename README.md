@@ -9,11 +9,18 @@ A Java IRC framework. Still very much in development.
  * Implementing a protocol,
  * Getting better at testing,
  * Producing a framework,
+ * Testing a framework,
  * Scope for both simple and complex goals.
 * Personal use,
  * Twitch bots,
  * GitHub helper bots.
 * Fun.
+
+# Usage
+
+TBD.
+
+There is no run target, it is a library.
 
 # TODO
 
@@ -54,11 +61,12 @@ A Java IRC framework. Still very much in development.
 * ~~License (chose BSD 2-clause)~~,
  * Consider whether to release,
 * ~~Testing~~,
- * 100% coverage for message serialisation / deserialisation.
-* Full session tests (check state of things afterwards are as expected)
+ * 100% coverage for message serialisation / deserialisation,
+* Full session tests (check state of things afterwards are as expected),
+* Non SSL connections (disabled by default).
 
 ##Code License
-Copyright © 2015, Sky Welch
+Copyright © 2015, Sky Welch  
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
