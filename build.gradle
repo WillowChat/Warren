@@ -1,28 +1,21 @@
-apply plugin: 'java'
-//apply plugin: 'findbugs'
-apply plugin: 'idea'
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.0'
+    }
+}
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'com.github.johnrengelman.shadow' version '1.2.0'
+}
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
-}
-
-def loadProperties(propsFilename) {
-    def props = new Properties()
-    new File(propsFilename).withInputStream {
-        stream -> props.load(stream)
-    }
-    return new ConfigSlurper().parse(props)
-}
-
-def config = loadProperties("build.properties")
-def env = System.getenv()
-
-jar {
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-}
 
 repositories {
     mavenCentral()
@@ -38,6 +31,25 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.0.4-beta'
 }
+
+shadowJar {
+    relocate 'com.google', 'engineer.carrot.warren.shaded.com.google'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+def loadProperties(propsFilename) {
+    def props = new Properties()
+    new File(propsFilename).withInputStream {
+        stream -> props.load(stream)
+    }
+    return new ConfigSlurper().parse(props)
+}
+
+def config = loadProperties("build.properties")
+def env = System.getenv()
 
 task buildInfo {
     if (env.BUILD_NUMBER != null) {

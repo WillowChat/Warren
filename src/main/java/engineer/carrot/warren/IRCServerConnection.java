@@ -58,8 +58,7 @@ public class IRCServerConnection implements IBotDelegate {
 
     EventBus eventBus;
 
-    public IRCServerConnection(EventBus eventBus, String server, int port, String nickname) {
-        this.eventBus = eventBus;
+    public IRCServerConnection(String server, int port, String nickname) {
         this.server = server;
         this.port = port;
         this.nickname = nickname;
@@ -71,6 +70,7 @@ public class IRCServerConnection implements IBotDelegate {
 
     public void initialise() {
         this.outgoingQueue = new MessageQueue();
+        this.eventBus = new EventBus();
 
         this.messageGson = new Gson();
 
@@ -98,7 +98,6 @@ public class IRCServerConnection implements IBotDelegate {
         this.addMessageHandlerPairToMap(new NamReplyMessage(), new NamReplyHandler());
         this.addMessageHandlerPairToMap(new ISupportMessage(), new ISupportHandler());
 
-
         for (IMessageHandler handler : this.commandDelegateMap.values()) {
             handler.setBotDelegate(this);
             handler.setOutgoingQueue(this.outgoingQueue);
@@ -107,6 +106,10 @@ public class IRCServerConnection implements IBotDelegate {
 
         this.joiningChannelManager = new ChannelManager();
         this.joinedChannelManager = new ChannelManager();
+    }
+
+    public void registerListener(Object object) {
+        this.eventBus.register(object);
     }
 
     public void addMessageToMap(IMessage message) {
