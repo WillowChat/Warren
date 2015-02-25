@@ -86,7 +86,11 @@ public class Hostmask {
     @Override
     public String toString() {
         // "Test!~test@test.domain"
-        return this.user + "!" + this.host + "@" + this.server;
+        if (!this.containsHost() || !this.containsServer()) {
+            return this.user;
+        } else {
+            return this.user + "!" + this.host + "@" + this.server;
+        }
     }
 
     public static class Builder {
