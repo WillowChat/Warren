@@ -1,9 +1,9 @@
 package engineer.carrot.warren.irc.handlers;
 
 import com.google.common.eventbus.EventBus;
-import engineer.carrot.warren.util.IMessageQueue;
-import engineer.carrot.warren.irc.messages.IMessage;
 import engineer.carrot.warren.IBotDelegate;
+import engineer.carrot.warren.irc.messages.IMessage;
+import engineer.carrot.warren.util.IMessageQueue;
 
 import javax.annotation.Nonnull;
 

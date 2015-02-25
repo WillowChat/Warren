@@ -1,8 +1,8 @@
 package engineer.carrot.warren.irc.handlers.RPL;
 
-import engineer.carrot.warren.irc.messages.RPL.NoTopicMessage;
 import engineer.carrot.warren.event.TopicNotifyEvent;
 import engineer.carrot.warren.irc.handlers.MessageHandler;
+import engineer.carrot.warren.irc.messages.RPL.NoTopicMessage;
 
 import javax.annotation.Nonnull;
 

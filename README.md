@@ -43,6 +43,7 @@ There is no run target, it is a library. See the building instructions.
 * Connection state,
 * Channel state (keeping track of who is currently in a channel),
 * User state,
+ * This includes tracking Users somewhere, adding references to them to Channels, etc
 * Server state (finish ISupport),
 * ~~Configurability~~,
 * ~~Nullable / Not Null annotations~~,

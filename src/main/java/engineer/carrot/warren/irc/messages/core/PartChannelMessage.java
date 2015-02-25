@@ -1,9 +1,9 @@
 package engineer.carrot.warren.irc.messages.core;
 
 import engineer.carrot.warren.irc.Hostmask;
+import engineer.carrot.warren.irc.messages.IMessage;
 import engineer.carrot.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.irc.messages.MessageCodes;
-import engineer.carrot.warren.irc.messages.IMessage;
 
 import javax.annotation.Nonnull;
 

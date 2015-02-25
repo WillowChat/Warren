@@ -2,8 +2,8 @@ package engineer.carrot.warren.irc.handlers.core;
 
 import engineer.carrot.warren.event.ServerPingEvent;
 import engineer.carrot.warren.irc.handlers.MessageHandler;
-import engineer.carrot.warren.irc.messages.core.PongMessage;
 import engineer.carrot.warren.irc.messages.core.PingMessage;
+import engineer.carrot.warren.irc.messages.core.PongMessage;
 
 import javax.annotation.Nonnull;
 

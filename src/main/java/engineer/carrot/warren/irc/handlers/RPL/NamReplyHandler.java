@@ -1,9 +1,9 @@
 package engineer.carrot.warren.irc.handlers.RPL;
 
 import com.google.gson.Gson;
-import engineer.carrot.warren.irc.messages.RPL.NamReplyMessage;
 import engineer.carrot.warren.irc.Channel;
 import engineer.carrot.warren.irc.handlers.MessageHandler;
+import engineer.carrot.warren.irc.messages.RPL.NamReplyMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

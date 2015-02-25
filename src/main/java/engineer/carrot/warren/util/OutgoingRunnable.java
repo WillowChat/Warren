@@ -1,9 +1,9 @@
 package engineer.carrot.warren.util;
 
 import com.google.common.base.Strings;
+import engineer.carrot.warren.irc.CharacterCodes;
 import engineer.carrot.warren.irc.messages.IMessage;
 import engineer.carrot.warren.irc.messages.IRCMessage;
-import engineer.carrot.warren.irc.CharacterCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

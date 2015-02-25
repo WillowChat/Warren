@@ -2,9 +2,9 @@ package engineer.carrot.warren.irc.messages.RPL;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import engineer.carrot.warren.irc.messages.MessageCodes;
-import engineer.carrot.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.irc.messages.IMessage;
+import engineer.carrot.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.irc.messages.MessageCodes;
 
 import javax.annotation.Nonnull;
 import java.util.List;

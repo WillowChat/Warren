@@ -1,7 +1,7 @@
 package engineer.carrot.warren.irc.messages.core;
 
-import engineer.carrot.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.irc.messages.IMessage;
+import engineer.carrot.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.irc.messages.MessageCodes;
 
 import javax.annotation.Nonnull;
