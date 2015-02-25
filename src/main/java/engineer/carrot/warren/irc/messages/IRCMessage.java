@@ -1,9 +1,10 @@
-package engineer.carrot.warren;
+package engineer.carrot.warren.irc.messages;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import engineer.carrot.warren.irc.CharacterCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +25,8 @@ public class IRCMessage {
 
     public String command;
 
-    static int MAX_LENGTH = 510;
-    static int MIN_LENGTH = 3;
+    public static int MAX_LENGTH = 510;
+    public static int MIN_LENGTH = 3;
 
     private IRCMessage(Builder builder) {
         this.tags = builder.tags;

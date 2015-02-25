@@ -1,4 +1,4 @@
-package engineer.carrot.warren;
+package engineer.carrot.warren.irc;
 
 import javax.annotation.Nonnull;
 import java.util.List;

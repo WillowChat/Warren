@@ -1,4 +1,4 @@
-package engineer.carrot.warren;
+package engineer.carrot.warren.irc;
 
 public class User {
     public String name;

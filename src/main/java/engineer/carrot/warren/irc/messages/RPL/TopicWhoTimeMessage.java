@@ -1,7 +1,7 @@
 package engineer.carrot.warren.irc.messages.RPL;
 
-import engineer.carrot.warren.Hostmask;
-import engineer.carrot.warren.IRCMessage;
+import engineer.carrot.warren.irc.Hostmask;
+import engineer.carrot.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.irc.messages.MessageCodes;
 import engineer.carrot.warren.irc.messages.IMessage;
 

@@ -1,4 +1,4 @@
-package engineer.carrot.warren;
+package engineer.carrot.warren.irc;
 
 public class CharacterCodes {
     public static final char LF = 0xA;

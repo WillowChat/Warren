@@ -1,6 +1,7 @@
-package engineer.carrot.warren;
+package engineer.carrot.warren.irc;
 
 import com.google.common.base.Strings;
+import engineer.carrot.warren.irc.messages.IRCMessage;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

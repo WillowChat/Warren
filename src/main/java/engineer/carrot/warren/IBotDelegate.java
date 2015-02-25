@@ -1,5 +1,7 @@
 package engineer.carrot.warren;
 
+import engineer.carrot.warren.irc.Channel;
+
 import java.util.List;
 import java.util.Set;
 

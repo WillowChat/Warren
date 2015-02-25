@@ -1,6 +1,6 @@
 package engineer.carrot.warren.event;
 
-import engineer.carrot.warren.Hostmask;
+import engineer.carrot.warren.irc.Hostmask;
 
 public class UserJoinedChannelEvent extends Event {
     public Hostmask user;

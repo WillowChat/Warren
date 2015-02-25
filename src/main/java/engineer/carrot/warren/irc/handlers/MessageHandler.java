@@ -3,7 +3,7 @@ package engineer.carrot.warren.irc.handlers;
 import com.google.common.eventbus.EventBus;
 import engineer.carrot.warren.event.Event;
 import engineer.carrot.warren.IBotDelegate;
-import engineer.carrot.warren.IMessageQueue;
+import engineer.carrot.warren.util.IMessageQueue;
 import engineer.carrot.warren.irc.messages.IMessage;
 
 public abstract class MessageHandler<M extends IMessage> implements IMessageHandler<M> {

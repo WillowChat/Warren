@@ -1,4 +1,4 @@
-package engineer.carrot.warren;
+package engineer.carrot.warren.util;
 
 import engineer.carrot.warren.irc.messages.IMessage;
 

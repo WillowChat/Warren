@@ -3,8 +3,8 @@ package engineer.carrot.warren.irc.messages.RPL;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import engineer.carrot.warren.irc.messages.MessageCodes;
-import engineer.carrot.warren.CharacterCodes;
-import engineer.carrot.warren.IRCMessage;
+import engineer.carrot.warren.irc.CharacterCodes;
+import engineer.carrot.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.irc.messages.IMessage;
 
 import javax.annotation.Nonnull;

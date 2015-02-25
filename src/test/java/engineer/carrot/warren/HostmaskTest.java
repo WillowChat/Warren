@@ -1,5 +1,7 @@
 package engineer.carrot.warren;
 
+import engineer.carrot.warren.irc.CharacterCodes;
+import engineer.carrot.warren.irc.Hostmask;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

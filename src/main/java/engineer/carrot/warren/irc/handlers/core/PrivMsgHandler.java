@@ -1,6 +1,6 @@
 package engineer.carrot.warren.irc.handlers.core;
 
-import engineer.carrot.warren.Channel;
+import engineer.carrot.warren.irc.Channel;
 import engineer.carrot.warren.event.ChannelMessageEvent;
 import engineer.carrot.warren.event.PrivateMessageEvent;
 import engineer.carrot.warren.irc.handlers.MessageHandler;

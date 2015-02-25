@@ -1,6 +1,7 @@
 package engineer.carrot.warren;
 
 import com.google.common.collect.Lists;
+import engineer.carrot.warren.irc.messages.IRCMessage;
 import org.junit.Test;
 
 import java.util.List;

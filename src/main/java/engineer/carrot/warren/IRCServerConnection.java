@@ -4,10 +4,12 @@ import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import com.google.gson.Gson;
 import engineer.carrot.warren.event.ServerConnectedEvent;
+import engineer.carrot.warren.irc.Channel;
 import engineer.carrot.warren.irc.handlers.RPL.*;
 import engineer.carrot.warren.irc.handlers.core.JoinHandler;
 import engineer.carrot.warren.irc.handlers.core.PartHandler;
 import engineer.carrot.warren.irc.messages.IMessage;
+import engineer.carrot.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.irc.messages.RPL.*;
 import engineer.carrot.warren.irc.messages.core.*;
 import engineer.carrot.warren.event.ServerDisconnectedEvent;
@@ -15,6 +17,9 @@ import engineer.carrot.warren.irc.handlers.IMessageHandler;
 import engineer.carrot.warren.irc.handlers.core.PingHandler;
 import engineer.carrot.warren.irc.handlers.core.PrivMsgHandler;
 import engineer.carrot.warren.ssl.WrappedSSLSocketFactory;
+import engineer.carrot.warren.util.IMessageQueue;
+import engineer.carrot.warren.util.MessageQueue;
+import engineer.carrot.warren.util.OutgoingRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,32 +36,32 @@ import java.util.Map;
 import java.util.Set;
 
 public class IRCServerConnection implements IBotDelegate {
-    final Logger LOGGER = LoggerFactory.getLogger(IRCServerConnection.class);
-    Gson messageGson;
+    private final Logger LOGGER = LoggerFactory.getLogger(IRCServerConnection.class);
+    private Gson messageGson;
 
-    String nickname;
-    String login;
-    String realname;
-    String server;
-    int port;
+    private String nickname;
+    private String login;
+    private String realname;
+    private String server;
+    private int port;
 
-    Map<String, IMessageHandler> commandDelegateMap;
-    Map<String, Class<? extends IMessage>> messageMap;
+    private Map<String, IMessageHandler> commandDelegateMap;
+    private Map<String, Class<? extends IMessage>> messageMap;
 
-    ChannelManager joiningChannelManager;
-    ChannelManager joinedChannelManager;
+    private ChannelManager joiningChannelManager;
+    private ChannelManager joinedChannelManager;
 
-    IMessageQueue outgoingQueue;
-    Thread outgoingThread;
+    private IMessageQueue outgoingQueue;
+    private Thread outgoingThread;
 
-    boolean useFingerprints = false;
-    Set<String> acceptedCertificatesForHost;
+    private boolean useFingerprints = false;
+    private Set<String> acceptedCertificatesForHost;
 
-    boolean loginToNickserv = false;
-    String nickservPassword;
-    List<String> autoJoinChannels;
+    private boolean loginToNickserv = false;
+    private String nickservPassword;
+    private List<String> autoJoinChannels;
 
-    EventBus eventBus;
+    private EventBus eventBus;
 
     public IRCServerConnection(String server, int port, String nickname) {
         this.server = server;
@@ -68,7 +73,7 @@ public class IRCServerConnection implements IBotDelegate {
         this.initialise();
     }
 
-    public void initialise() {
+    private void initialise() {
         this.outgoingQueue = new MessageQueue();
         this.eventBus = new EventBus();
 
@@ -112,11 +117,11 @@ public class IRCServerConnection implements IBotDelegate {
         this.eventBus.register(object);
     }
 
-    public void addMessageToMap(IMessage message) {
+    private void addMessageToMap(IMessage message) {
         this.messageMap.put(message.getCommandID(), message.getClass());
     }
 
-    public void addMessageHandlerPairToMap(IMessage message, IMessageHandler handler) {
+    private void addMessageHandlerPairToMap(IMessage message, IMessageHandler handler) {
         if (this.messageMap.containsKey(message.getCommandID())) {
             throw new RuntimeException("Cannot add a message handler pair when said message is already in the map: " + message.getCommandID());
         }
@@ -253,7 +258,7 @@ public class IRCServerConnection implements IBotDelegate {
     }
 
     @Nullable
-    public IMessage createTypedMessageFromCommandCode(@Nonnull String commandCode) {
+    private IMessage createTypedMessageFromCommandCode(@Nonnull String commandCode) {
         Class<? extends IMessage> clazzMessage = this.messageMap.get(commandCode);
         if (clazzMessage == null) {
             return null;
@@ -270,11 +275,11 @@ public class IRCServerConnection implements IBotDelegate {
         return null;
     }
 
-    public void postDisconnectedEvent() {
+    private void postDisconnectedEvent() {
         this.eventBus.post(new ServerDisconnectedEvent());
     }
 
-    public void cleanupOutgoingThread() {
+    private void cleanupOutgoingThread() {
         if (this.outgoingThread == null) {
             return;
         }

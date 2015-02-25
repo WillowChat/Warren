@@ -1,7 +1,7 @@
 package engineer.carrot.warren.irc.messages.core;
 
 import com.google.common.collect.Lists;
-import engineer.carrot.warren.IRCMessage;
+import engineer.carrot.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.irc.messages.MessageCodes;
 import org.junit.Test;
 

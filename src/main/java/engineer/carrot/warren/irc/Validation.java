@@ -1,4 +1,4 @@
-package engineer.carrot.warren;
+package engineer.carrot.warren.irc;
 
 public class Validation {
     public boolean serverNameValid(String serverName) {

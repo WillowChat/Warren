@@ -1,6 +1,7 @@
 package engineer.carrot.warren;
 
 import com.google.common.collect.Maps;
+import engineer.carrot.warren.irc.Channel;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
