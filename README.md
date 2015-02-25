@@ -20,7 +20,7 @@ A Java IRC framework. Still very much in development.
 
 TBD.
 
-There is no run target, it is a library.
+There is no run target, it is a library. See the building instructions.
 
 # TODO
 
@@ -83,6 +83,7 @@ This project uses Gradle and IntelliJ IDEA for pretty easy setup and building. T
 The general idea:
 * **Setup**: `./gradlew clean idea`
 * **Building**: `./gradlew build`
+* **Producing an all-in-one Jar**: `./gradlew build shadowJar`
 
 If you run in to odd Gradle issues, doing `./gradlew clean` usually fixes it.
 
