@@ -27,5 +27,7 @@ public class EndOfMOTDHandler extends MessageHandler<EndOfMOTDMessage> {
         if (!autoJoinChannels.isEmpty()) {
             this.botDelegate.joinChannels(autoJoinChannels);
         }
+
+        this.incomingHandler.setNextExpectedCommandToAnything();
     }
 }

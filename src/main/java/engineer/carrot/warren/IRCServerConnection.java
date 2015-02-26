@@ -2,20 +2,14 @@ package engineer.carrot.warren;
 
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
-import com.google.gson.Gson;
 import engineer.carrot.warren.event.ServerConnectedEvent;
 import engineer.carrot.warren.event.ServerDisconnectedEvent;
 import engineer.carrot.warren.irc.Channel;
-import engineer.carrot.warren.irc.handlers.IMessageHandler;
-import engineer.carrot.warren.irc.handlers.RPL.*;
-import engineer.carrot.warren.irc.handlers.core.JoinHandler;
-import engineer.carrot.warren.irc.handlers.core.PartHandler;
-import engineer.carrot.warren.irc.handlers.core.PingHandler;
-import engineer.carrot.warren.irc.handlers.core.PrivMsgHandler;
-import engineer.carrot.warren.irc.messages.IMessage;
 import engineer.carrot.warren.irc.messages.IRCMessage;
-import engineer.carrot.warren.irc.messages.RPL.*;
-import engineer.carrot.warren.irc.messages.core.*;
+import engineer.carrot.warren.irc.messages.core.ChangeNicknameMessage;
+import engineer.carrot.warren.irc.messages.core.JoinChannelsMessage;
+import engineer.carrot.warren.irc.messages.core.PrivMsgMessage;
+import engineer.carrot.warren.irc.messages.core.UserMessage;
 import engineer.carrot.warren.ssl.WrappedSSLSocketFactory;
 import engineer.carrot.warren.util.IMessageQueue;
 import engineer.carrot.warren.util.MessageQueue;
@@ -23,8 +17,6 @@ import engineer.carrot.warren.util.OutgoingRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.net.ssl.SSLSocket;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,21 +24,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class IRCServerConnection implements IBotDelegate {
     private final Logger LOGGER = LoggerFactory.getLogger(IRCServerConnection.class);
-    private Gson messageGson;
 
     private String nickname;
     private String login;
     private String realname;
     private String server;
     private int port;
-
-    private Map<String, IMessageHandler> commandDelegateMap;
-    private Map<String, Class<? extends IMessage>> messageMap;
 
     private ChannelManager joiningChannelManager;
     private ChannelManager joinedChannelManager;
@@ -63,6 +50,8 @@ public class IRCServerConnection implements IBotDelegate {
 
     private EventBus eventBus;
 
+    private IncomingHandler incomingHandler;
+
     public IRCServerConnection(String server, int port, String nickname) {
         this.server = server;
         this.port = port;
@@ -76,38 +65,7 @@ public class IRCServerConnection implements IBotDelegate {
     private void initialise() {
         this.outgoingQueue = new MessageQueue();
         this.eventBus = new EventBus();
-
-        this.messageGson = new Gson();
-
-        this.commandDelegateMap = Maps.newHashMap();
-        this.messageMap = Maps.newHashMap();
-
-        // TODO: Find this automatically with annotations or something
-
-        this.addMessageToMap(new CreatedMessage());
-        this.addMessageToMap(new MOTDMessage());
-        this.addMessageToMap(new MOTDStartMessage());
-        this.addMessageToMap(new NoticeMessage());
-        this.addMessageToMap(new PongMessage());
-        this.addMessageToMap(new TopicWhoTimeMessage());
-        this.addMessageToMap(new YourHostMessage());
-
-        this.addMessageHandlerPairToMap(new EndOfMOTDMessage(), new EndOfMOTDHandler());
-        this.addMessageHandlerPairToMap(new NoTopicMessage(), new NoTopicHandler());
-        this.addMessageHandlerPairToMap(new TopicMessage(), new TopicHandler());
-        this.addMessageHandlerPairToMap(new WelcomeMessage(), new WelcomeHandler());
-        this.addMessageHandlerPairToMap(new JoinedChannelMessage(), new JoinHandler());
-        this.addMessageHandlerPairToMap(new PartChannelMessage(), new PartHandler());
-        this.addMessageHandlerPairToMap(new PingMessage(), new PingHandler());
-        this.addMessageHandlerPairToMap(new PrivMsgMessage(), new PrivMsgHandler());
-        this.addMessageHandlerPairToMap(new NamReplyMessage(), new NamReplyHandler());
-        this.addMessageHandlerPairToMap(new ISupportMessage(), new ISupportHandler());
-
-        for (IMessageHandler handler : this.commandDelegateMap.values()) {
-            handler.setBotDelegate(this);
-            handler.setOutgoingQueue(this.outgoingQueue);
-            handler.setEventBus(this.eventBus);
-        }
+        this.incomingHandler = new IncomingHandler(this, this.outgoingQueue, this.eventBus);
 
         this.joiningChannelManager = new ChannelManager();
         this.joinedChannelManager = new ChannelManager();
@@ -115,19 +73,6 @@ public class IRCServerConnection implements IBotDelegate {
 
     public void registerListener(Object object) {
         this.eventBus.register(object);
-    }
-
-    private void addMessageToMap(IMessage message) {
-        this.messageMap.put(message.getCommandID(), message.getClass());
-    }
-
-    private void addMessageHandlerPairToMap(IMessage message, IMessageHandler handler) {
-        if (this.messageMap.containsKey(message.getCommandID())) {
-            throw new RuntimeException("Cannot add a message handler pair when said message is already in the map: " + message.getCommandID());
-        }
-
-        this.messageMap.put(message.getCommandID(), message.getClass());
-        this.commandDelegateMap.put(message.getCommandID(), handler);
     }
 
     public void setNickservPassword(String password) {
@@ -226,53 +171,12 @@ public class IRCServerConnection implements IBotDelegate {
                 return;
             }
 
-//            LOGGER.info("Raw message: " + serverResponse);
-            if (!this.messageMap.containsKey(message.command)) {
-                LOGGER.info("Unknown: {}", message.buildPrettyOutput());
-                continue;
+            boolean failedToHandleMessage = this.incomingHandler.handleIRCMessage(message, serverResponse);
+            if (!failedToHandleMessage) {
+                LOGGER.error("Failed to handle message. Original: {}", serverResponse);
+                return;
             }
-
-            IMessage typedMessage = this.createTypedMessageFromCommandCode(message.command);
-            if (typedMessage == null) {
-                LOGGER.error("Failed to make a message for code. Not processing: {}", message.command);
-                continue;
-            }
-
-            boolean wellFormed = typedMessage.isMessageWellFormed(message);
-            if (!wellFormed) {
-                LOGGER.error("Message was not well formed. Not processing: {}", serverResponse);
-                continue;
-            }
-
-            // The IRCMessage being well formed guarantees that we can build() the correct typed message from it
-            typedMessage.build(message);
-
-            IMessageHandler messageHandler = this.commandDelegateMap.get(message.command);
-            if (messageHandler == null) {
-                LOGGER.info("{}: {}", message.command, messageGson.toJson(typedMessage));
-                continue;
-            }
-
-            messageHandler.handleMessage(typedMessage);
         }
-    }
-
-    @Nullable
-    private IMessage createTypedMessageFromCommandCode(@Nonnull String commandCode) {
-        Class<? extends IMessage> clazzMessage = this.messageMap.get(commandCode);
-        if (clazzMessage == null) {
-            return null;
-        }
-
-        try {
-            return clazzMessage.newInstance();
-        } catch (InstantiationException e) {
-            LOGGER.error("Failed to instantiate new message: {}", e);
-        } catch (IllegalAccessException e) {
-            LOGGER.error("Failed to instantiate new message, access exception: {}", e);
-        }
-
-        return null;
     }
 
     private void postDisconnectedEvent() {

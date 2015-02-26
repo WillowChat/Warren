@@ -2,6 +2,7 @@ package engineer.carrot.warren.irc.handlers;
 
 import com.google.common.eventbus.EventBus;
 import engineer.carrot.warren.IBotDelegate;
+import engineer.carrot.warren.IIncomingHandler;
 import engineer.carrot.warren.irc.messages.IMessage;
 import engineer.carrot.warren.util.IMessageQueue;
 
@@ -13,6 +14,8 @@ public interface IMessageHandler<M extends IMessage> {
     public void setOutgoingQueue(IMessageQueue outgoingQueue);
 
     public void setEventBus(EventBus eventBus);
+
+    public void setIncomingHandler(IIncomingHandler incomingHandler);
 
     public void handleMessage(@Nonnull M message);
 }
