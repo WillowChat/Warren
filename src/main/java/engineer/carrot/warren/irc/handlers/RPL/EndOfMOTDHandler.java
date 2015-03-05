@@ -14,7 +14,7 @@ public class EndOfMOTDHandler extends MessageHandler<EndOfMOTDMessage> {
     @Override
     public void handleMessage(@Nonnull EndOfMOTDMessage message) {
         // TODO: Post EndOfMOTD event
-        // TODO: Collate MOTD messages in to one, throw a single event for it?
+        // TODO: Collate MOTD messages in to one, throw a single  event for it?
 
         LOGGER.info("End of MOTD");
 
