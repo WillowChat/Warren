@@ -1,7 +1,7 @@
 warren
 =====
 
-A Java IRC framework. Still very much in development.
+A Java IRC framework for personal use (but open-sourced).
 
 # Why?
 
@@ -15,12 +15,6 @@ A Java IRC framework. Still very much in development.
  * Twitch bots,
  * GitHub helper bots.
 * Fun.
-
-# Usage
-
-TBD.
-
-There is no run target, it is a library. See the building instructions.
 
 # TODO
 
