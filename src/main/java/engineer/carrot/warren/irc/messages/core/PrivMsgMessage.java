@@ -1,6 +1,8 @@
 package engineer.carrot.warren.irc.messages.core;
 
+import engineer.carrot.warren.irc.Channel;
 import engineer.carrot.warren.irc.Hostmask;
+import engineer.carrot.warren.irc.User;
 import engineer.carrot.warren.irc.messages.IMessage;
 import engineer.carrot.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.irc.messages.MessageCodes;

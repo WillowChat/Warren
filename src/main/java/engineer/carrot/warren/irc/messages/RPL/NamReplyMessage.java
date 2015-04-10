@@ -2,6 +2,7 @@ package engineer.carrot.warren.irc.messages.RPL;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import engineer.carrot.warren.irc.Hostmask;
 import engineer.carrot.warren.irc.messages.IMessage;
 import engineer.carrot.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.irc.messages.MessageCodes;
@@ -14,7 +15,7 @@ public class NamReplyMessage implements IMessage {
     public String forUser;
     public String channelVisibility;
     public String forChannel;
-    public List<String> users;
+    public List<Hostmask> hostmasks;
 
     @Override
     public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
@@ -28,7 +29,15 @@ public class NamReplyMessage implements IMessage {
         this.forUser = message.parameters.get(0);
         this.channelVisibility = message.parameters.get(1);
         this.forChannel = message.parameters.get(2);
-        this.users = Lists.newArrayList(Splitter.on(' ').split(message.parameters.get(3)));
+
+        List<String> names = Lists.newArrayList(Splitter.on(' ').split(message.parameters.get(3)));
+        List<Hostmask> hostmasks = Lists.newArrayList();
+
+        for (String name : names) {
+            hostmasks.add(new Hostmask.Builder().user(name).build());
+        }
+
+        this.hostmasks = hostmasks;
     }
 
     @Nonnull

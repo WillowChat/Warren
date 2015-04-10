@@ -1,10 +1,12 @@
 package engineer.carrot.warren.event;
 
+import engineer.carrot.warren.irc.Channel;
+
 public class TopicNotifyEvent extends Event {
-    public String forChannel;
+    public Channel forChannel;
     public String contents;
 
-    public TopicNotifyEvent(String forChannel, String contents) {
+    public TopicNotifyEvent(Channel forChannel, String contents) {
         super();
 
         this.forChannel = forChannel;

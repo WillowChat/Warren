@@ -1,5 +1,7 @@
 package engineer.carrot.warren.irc;
 
+import engineer.carrot.warren.UserManager;
+
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
@@ -18,32 +20,43 @@ public class Channel {
         this.userAccessMap = builder.userAccessMap;
     }
 
-    public void parseNewUserList(List<String> users) {
-        this.users.clear();
-        this.userAccessMap.clear();
-
-        for (String userString : users) {
-            this.addUser(userString);
-        }
-    }
-
     public void removeUser(User user) {
-        this.users.remove(user.name);
+        this.users.remove(user.getName());
     }
 
-    public void addUser(String userString) {
-        // TODO: Strip supported modes from front based on 005 message in connection setup
+    public void addUser(User user, AccessLevel level) {
+        this.users.put(user.getName(), user);
+        this.userAccessMap.put(user.getName(), level);
+    }
 
-        AccessLevel level = AccessLevel.NONE;
+    public boolean containsUser(User user) {
+        return this.users.containsKey(user.getName());
+    }
 
-        if (userString.startsWith("@") || userString.startsWith("+") || userString.startsWith("~") || userString.startsWith("%")) {
-            level = AccessLevel.parseFromIdentifier(userString.charAt(0));
-            userString = userString.substring(1);
+    @Nonnull
+    public User getOrCreateUser(Hostmask hostmask, UserManager userManager) {
+        User user = userManager.getOrCreateUser(hostmask);
+        if (!this.containsUser(user)) {
+            AccessLevel level = AccessLevel.NONE;
+
+            String userString = hostmask.user;
+            char possibleIdentifier = userString.charAt(0);
+            if (AccessLevel.isKnownIdentifier(possibleIdentifier)) {
+                level = AccessLevel.parseFromIdentifier(possibleIdentifier);
+
+                // Trim access modifier from username
+                user.hostmask.user = user.hostmask.user.substring(1);
+            }
+
+            this.addUser(user, level);
         }
 
-        User user = new User(userString);
-        this.users.put(user.name, user);
-        this.userAccessMap.put(user.name, level);
+        return user;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 
     public static class Builder {

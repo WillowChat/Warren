@@ -2,6 +2,7 @@ package engineer.carrot.warren.irc.handlers.core;
 
 import engineer.carrot.warren.event.UserPartedChannelEvent;
 import engineer.carrot.warren.irc.Channel;
+import engineer.carrot.warren.irc.User;
 import engineer.carrot.warren.irc.handlers.MessageHandler;
 import engineer.carrot.warren.irc.messages.core.PartChannelMessage;
 import org.slf4j.Logger;
@@ -20,6 +21,10 @@ public class PartHandler extends MessageHandler<PartChannelMessage> {
             return;
         }
 
-        this.postEvent(new UserPartedChannelEvent(message.user, message.channel, message.message));
+        User user = channel.getOrCreateUser(message.user, this.botDelegate.getUserManager());
+        channel.removeUser(user);
+
+        LOGGER.info("<{}> left {}: '{}'", user.getName(), channel.name, message.message);
+        this.postEvent(new UserPartedChannelEvent(user, channel, message.message));
     }
 }

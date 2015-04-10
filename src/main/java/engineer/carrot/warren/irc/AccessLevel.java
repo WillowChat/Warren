@@ -21,4 +21,8 @@ public enum AccessLevel {
                 return null;
         }
     }
+
+    public static boolean isKnownIdentifier(char identifier) {
+        return identifier == CharacterCodes.AT;
+    }
 }

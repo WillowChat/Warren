@@ -27,7 +27,7 @@ public class IncomingHandler implements IIncomingHandler {
     private final Logger LOGGER = LoggerFactory.getLogger(IncomingHandler.class);
     private final Gson messageGson = new Gson();
 
-    private IBotDelegate botDelegate;
+    private IWarrenDelegate botDelegate;
     private IMessageQueue outgoingQueue;
     private EventBus eventBus;
 
@@ -36,7 +36,7 @@ public class IncomingHandler implements IIncomingHandler {
 
     private Set<String> nextExpectedCommands;
 
-    public IncomingHandler(IBotDelegate botDelegate, IMessageQueue outgoingQueue, EventBus eventBus) {
+    public IncomingHandler(IWarrenDelegate botDelegate, IMessageQueue outgoingQueue, EventBus eventBus) {
         this.botDelegate = botDelegate;
         this.outgoingQueue = outgoingQueue;
         this.eventBus = eventBus;

@@ -3,6 +3,7 @@ package engineer.carrot.warren.irc.handlers.core;
 import engineer.carrot.warren.event.ClientJoinedChannelEvent;
 import engineer.carrot.warren.event.UserJoinedChannelEvent;
 import engineer.carrot.warren.irc.Channel;
+import engineer.carrot.warren.irc.User;
 import engineer.carrot.warren.irc.handlers.MessageHandler;
 import engineer.carrot.warren.irc.messages.core.JoinedChannelMessage;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ public class JoinHandler extends MessageHandler<JoinedChannelMessage> {
         if (message.user.user.equalsIgnoreCase(this.botDelegate.getBotNickname())) {
             this.botDelegate.moveJoiningChannelToJoined(message.channel);
 
-            this.postEvent(new ClientJoinedChannelEvent(message.channel));
+            this.postEvent(new ClientJoinedChannelEvent(this.botDelegate.getJoinedChannels().getChannel(message.channel)));
         } else {
             Channel channel = this.botDelegate.getJoinedChannels().getChannel(message.channel);
             if (channel == null) {
@@ -27,7 +28,9 @@ public class JoinHandler extends MessageHandler<JoinedChannelMessage> {
                 return;
             }
 
-            this.postEvent(new UserJoinedChannelEvent(message.user, message.channel));
+            User user = channel.getOrCreateUser(message.user, this.botDelegate.getUserManager());
+            LOGGER.info("<{}> joined {}", user.getName(), channel.name);
+            this.postEvent(new UserJoinedChannelEvent(user, channel));
         }
     }
 }

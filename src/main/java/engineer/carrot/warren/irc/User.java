@@ -1,9 +1,13 @@
 package engineer.carrot.warren.irc;
 
 public class User {
-    public String name;
+    public Hostmask hostmask;
 
-    public User(String name) {
-        this.name = name;
+    public User(Hostmask hostmask) {
+        this.hostmask = hostmask;
+    }
+
+    public String getName() {
+        return this.hostmask.user;
     }
 }

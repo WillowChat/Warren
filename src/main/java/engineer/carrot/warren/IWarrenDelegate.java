@@ -5,12 +5,14 @@ import engineer.carrot.warren.irc.Channel;
 import java.util.List;
 import java.util.Set;
 
-public interface IBotDelegate {
+public interface IWarrenDelegate {
     public String getBotNickname();
 
     public ChannelManager getJoiningChannels();
 
     public ChannelManager getJoinedChannels();
+
+    public UserManager getUserManager();
 
     public void joinChannels(List<String> channels);
 

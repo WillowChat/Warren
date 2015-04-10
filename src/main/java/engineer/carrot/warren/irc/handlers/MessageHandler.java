@@ -1,20 +1,20 @@
 package engineer.carrot.warren.irc.handlers;
 
 import com.google.common.eventbus.EventBus;
-import engineer.carrot.warren.IBotDelegate;
+import engineer.carrot.warren.IWarrenDelegate;
 import engineer.carrot.warren.IIncomingHandler;
 import engineer.carrot.warren.event.Event;
 import engineer.carrot.warren.irc.messages.IMessage;
 import engineer.carrot.warren.util.IMessageQueue;
 
 public abstract class MessageHandler<M extends IMessage> implements IMessageHandler<M> {
-    protected IBotDelegate botDelegate;
+    protected IWarrenDelegate botDelegate;
     protected IMessageQueue outgoingQueue;
     protected IIncomingHandler incomingHandler;
     private EventBus eventBus;
 
     @Override
-    public void setBotDelegate(IBotDelegate botDelegate) {
+    public void setBotDelegate(IWarrenDelegate botDelegate) {
         this.botDelegate = botDelegate;
     }
 

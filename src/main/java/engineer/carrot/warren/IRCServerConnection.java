@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
-public class IRCServerConnection implements IBotDelegate {
+public class IRCServerConnection implements IWarrenDelegate {
     private final Logger LOGGER = LoggerFactory.getLogger(IRCServerConnection.class);
 
     private String nickname;
@@ -37,6 +37,8 @@ public class IRCServerConnection implements IBotDelegate {
 
     private ChannelManager joiningChannelManager;
     private ChannelManager joinedChannelManager;
+
+    private UserManager userManager;
 
     private IMessageQueue outgoingQueue;
     private Thread outgoingThread;
@@ -66,6 +68,8 @@ public class IRCServerConnection implements IBotDelegate {
         this.outgoingQueue = new MessageQueue();
         this.eventBus = new EventBus();
         this.incomingHandler = new IncomingHandler(this, this.outgoingQueue, this.eventBus);
+
+        this.userManager = new UserManager();
 
         this.joiningChannelManager = new ChannelManager();
         this.joinedChannelManager = new ChannelManager();
@@ -214,6 +218,11 @@ public class IRCServerConnection implements IBotDelegate {
     @Override
     public ChannelManager getJoinedChannels() {
         return this.joinedChannelManager;
+    }
+
+    @Override
+    public UserManager getUserManager() {
+        return this.userManager;
     }
 
     @Override

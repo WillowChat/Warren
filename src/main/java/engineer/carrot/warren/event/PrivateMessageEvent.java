@@ -1,13 +1,14 @@
 package engineer.carrot.warren.event;
 
 import engineer.carrot.warren.irc.Hostmask;
+import engineer.carrot.warren.irc.User;
 
 public class PrivateMessageEvent extends Event {
-    public Hostmask fromUser;
+    public User fromUser;
     public String directedTo;
     public String contents;
 
-    public PrivateMessageEvent(Hostmask fromUser, String directedTo, String contents) {
+    public PrivateMessageEvent(User fromUser, String directedTo, String contents) {
         super();
 
         this.fromUser = fromUser;

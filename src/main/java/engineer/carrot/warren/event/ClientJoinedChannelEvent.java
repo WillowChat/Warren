@@ -1,9 +1,11 @@
 package engineer.carrot.warren.event;
 
-public class ClientJoinedChannelEvent extends Event {
-    public String channel;
+import engineer.carrot.warren.irc.Channel;
 
-    public ClientJoinedChannelEvent(String channel) {
+public class ClientJoinedChannelEvent extends Event {
+    public Channel channel;
+
+    public ClientJoinedChannelEvent(Channel channel) {
         super();
 
         this.channel = channel;

@@ -1,12 +1,14 @@
 package engineer.carrot.warren.event;
 
+import engineer.carrot.warren.irc.Channel;
 import engineer.carrot.warren.irc.Hostmask;
+import engineer.carrot.warren.irc.User;
 
 public class UserJoinedChannelEvent extends Event {
-    public Hostmask user;
-    public String channel;
+    public User user;
+    public Channel channel;
 
-    public UserJoinedChannelEvent(Hostmask user, String channel) {
+    public UserJoinedChannelEvent(User user, Channel channel) {
         super();
 
         this.user = user;
