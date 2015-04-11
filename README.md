@@ -20,7 +20,8 @@ A Java IRC framework for personal use (but open-sourced).
 
 [RFC 2812](https://tools.ietf.org/html/rfc2812)
 
-* Server Connection cleanup / separation,
+* ~~Server Connection cleanup / separation~~,
+ * Still needs cleaning up a little,
 * ~~Combine incoming and outgoing messages~~,
 * ~~NickServ / password / file?~~,
 * ~~High level events, not protocol dependent (channel message, PM, join, leave, etc)~~,
@@ -35,9 +36,10 @@ A Java IRC framework for personal use (but open-sourced).
 * Unit testing (especially message parsing),
 * CAP state (including SASL),
 * Connection state,
-* Channel state (keeping track of who is currently in a channel),
-* User state,
- * This includes tracking Users somewhere, adding references to them to Channels, etc
+* ~~Channel state (keeping track of who is currently in a channel)~~,
+* ~~User state~~,
+ * ~~This includes tracking Users somewhere, adding references to them to Channels, etc~~
+* Tracking mode changes,
 * Server state (finish ISupport),
 * ~~Configurability~~,
 * ~~Nullable / Not Null annotations~~,
