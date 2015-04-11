@@ -3,7 +3,6 @@ package engineer.carrot.warren.irc;
 import engineer.carrot.warren.UserManager;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.Map;
 
 public class Channel {
@@ -27,6 +26,15 @@ public class Channel {
     public void addUser(User user, AccessLevel level) {
         this.users.put(user.getName(), user);
         this.userAccessMap.put(user.getName(), level);
+    }
+
+    public boolean doesUserHaveAccessLevel(User user, AccessLevel accessLevel) {
+        if (!this.users.containsKey(user.getName())) {
+            return false;
+        }
+
+        AccessLevel level = this.userAccessMap.getOrDefault(user.getName(), AccessLevel.NONE);
+        return (level == accessLevel);
     }
 
     public boolean containsUser(User user) {

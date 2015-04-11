@@ -1,8 +1,8 @@
 package engineer.carrot.warren.irc.handlers;
 
 import com.google.common.eventbus.EventBus;
-import engineer.carrot.warren.IWarrenDelegate;
 import engineer.carrot.warren.IIncomingHandler;
+import engineer.carrot.warren.IWarrenDelegate;
 import engineer.carrot.warren.event.Event;
 import engineer.carrot.warren.irc.messages.IMessage;
 import engineer.carrot.warren.util.IMessageQueue;

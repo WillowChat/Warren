@@ -1,7 +1,6 @@
 package engineer.carrot.warren;
 
 import com.google.common.collect.Maps;
-import engineer.carrot.warren.irc.Channel;
 import engineer.carrot.warren.irc.Hostmask;
 import engineer.carrot.warren.irc.User;
 
