@@ -17,6 +17,9 @@ public enum AccessLevel {
             case CharacterCodes.AT:
                 return OP;
 
+            case CharacterCodes.PLUS:
+                return VOICE;
+
             default:
                 return null;
         }

@@ -51,9 +51,6 @@ public class Channel {
             char possibleIdentifier = userString.charAt(0);
             if (AccessLevel.isKnownIdentifier(possibleIdentifier)) {
                 level = AccessLevel.parseFromIdentifier(possibleIdentifier);
-
-                // Trim access modifier from username
-                user.hostmask.user = user.hostmask.user.substring(1);
             }
 
             this.addUser(user, level);
