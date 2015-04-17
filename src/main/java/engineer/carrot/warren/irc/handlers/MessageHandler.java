@@ -6,8 +6,12 @@ import engineer.carrot.warren.IWarrenDelegate;
 import engineer.carrot.warren.event.Event;
 import engineer.carrot.warren.irc.messages.IMessage;
 import engineer.carrot.warren.util.IMessageQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class MessageHandler<M extends IMessage> implements IMessageHandler<M> {
+    private final Logger LOGGER = LoggerFactory.getLogger(MessageHandler.class);
+
     protected IWarrenDelegate botDelegate;
     protected IMessageQueue outgoingQueue;
     protected IIncomingHandler incomingHandler;
@@ -34,6 +38,7 @@ public abstract class MessageHandler<M extends IMessage> implements IMessageHand
     }
 
     protected void postEvent(Event event) {
+        LOGGER.info("Posting framework event: {}", event.getPrettyString());
         this.eventBus.post(event);
     }
 }

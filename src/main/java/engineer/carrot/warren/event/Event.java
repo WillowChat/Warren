@@ -14,4 +14,8 @@ public class Event {
     public long getTimestamp() {
         return this.timestamp;
     }
+
+    public String getPrettyString() {
+        return this.getClass().getName();
+    }
 }
