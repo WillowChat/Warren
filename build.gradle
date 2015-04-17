@@ -69,7 +69,7 @@ task buildInfo {
     }
 }
 
-group = "engineer.carrot"
+group = "engineer.carrot.warren"
 version = "${config.framework_version}.${project.buildInfo.build_number}"
 
 // Maven deployment
