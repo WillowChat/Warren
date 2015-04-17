@@ -70,3 +70,20 @@ task buildInfo {
 }
 
 version = "${config.framework_version}.${project.buildInfo.build_number}"
+
+// Maven deployment
+apply plugin: 'maven'
+
+if (!project.hasProperty("DEPLOY_DIR")) {
+    ext.DEPLOY_DIR = null
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file://${DEPLOY_DIR}")
+        }
+    }
+}
+
+uploadArchives.onlyIf { return DEPLOY_DIR != null }
