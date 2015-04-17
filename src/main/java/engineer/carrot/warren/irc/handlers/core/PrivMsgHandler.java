@@ -25,7 +25,7 @@ public class PrivMsgHandler extends MessageHandler<PrivMsgMessage> {
             User fromUser = channel.getOrCreateUser(message.fromUser, this.botDelegate.getUserManager());
 
             if (channel == null) {
-                LOGGER.warn("Got a message from a channel that the bot doesn't think it's in! {} {}", fromUser.getName(), message.contents);
+                LOGGER.warn("Got a message from a channel that the bot doesn't think it's in! {} {}", fromUser.getNameWithoutAccess(), message.contents);
             } else {
                 this.postEvent(new ChannelMessageEvent(fromUser, channel, message.contents));
             }

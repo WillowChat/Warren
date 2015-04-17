@@ -44,11 +44,11 @@ public class UserManager {
     }
 
     public boolean addUser(@Nonnull User user) {
-        if (this.containsUser(user.getName())) {
+        if (this.containsUser(user.getNameWithoutAccess())) {
             return false;
         }
 
-        this.users.put(user.getName(), user);
+        this.users.put(user.getNameWithoutAccess(), user);
         return true;
     }
 

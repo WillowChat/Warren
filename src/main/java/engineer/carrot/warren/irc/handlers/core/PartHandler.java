@@ -24,7 +24,7 @@ public class PartHandler extends MessageHandler<PartChannelMessage> {
         User user = channel.getOrCreateUser(message.user, this.botDelegate.getUserManager());
         channel.removeUser(user);
 
-        LOGGER.info("<{}> left {}: '{}'", user.getName(), channel.name, message.message);
+        LOGGER.info("<{}> left {}: '{}'", user.getNameWithoutAccess(), channel.name, message.message);
         this.postEvent(new UserPartedChannelEvent(user, channel, message.message));
     }
 }

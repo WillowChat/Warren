@@ -20,25 +20,25 @@ public class Channel {
     }
 
     public void removeUser(User user) {
-        this.users.remove(user.getName());
+        this.users.remove(user.getNameWithoutAccess());
     }
 
     public void addUser(User user, AccessLevel level) {
-        this.users.put(user.getName(), user);
-        this.userAccessMap.put(user.getName(), level);
+        this.users.put(user.getNameWithoutAccess(), user);
+        this.userAccessMap.put(user.getNameWithoutAccess(), level);
     }
 
     public boolean doesUserHaveAccessLevel(User user, AccessLevel accessLevel) {
-        if (!this.users.containsKey(user.getName())) {
+        if (!this.users.containsKey(user.getNameWithoutAccess())) {
             return false;
         }
 
-        AccessLevel level = this.userAccessMap.getOrDefault(user.getName(), AccessLevel.NONE);
+        AccessLevel level = this.userAccessMap.getOrDefault(user.getNameWithoutAccess(), AccessLevel.NONE);
         return (level == accessLevel);
     }
 
     public boolean containsUser(User user) {
-        return this.users.containsKey(user.getName());
+        return this.users.containsKey(user.getNameWithoutAccess());
     }
 
     @Nonnull

@@ -29,7 +29,7 @@ public class JoinHandler extends MessageHandler<JoinedChannelMessage> {
             }
 
             User user = channel.getOrCreateUser(message.user, this.botDelegate.getUserManager());
-            LOGGER.info("<{}> joined {}", user.getName(), channel.name);
+            LOGGER.info("<{}> joined {}", user.getNameWithoutAccess(), channel.name);
             this.postEvent(new UserJoinedChannelEvent(user, channel));
         }
     }
