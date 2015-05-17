@@ -16,13 +16,19 @@ public class PartChannelMessage implements IMessage {
     public void populateFromIRCMessage(IRCMessage message) {
         this.user = Hostmask.parseFromString(message.prefix);
         this.channel = message.parameters.get(0);
-        this.message = message.parameters.get(1);
+
+        if (message.parameters.size() > 1) {
+            this.message = message.parameters.get(1);
+        } else {
+            this.message = "";
+        }
     }
 
     @Override
     public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
         // {"prefix":"test!~t@test","parameters":["#test","Part message"],"command":"PART"}
-        return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(2));
+        // {"prefix":"AbcdefghIJK!~abcdef@111.111.11.11","parameters":["#test"],"command":"PART"}
+        return (message.isPrefixSetAndNotEmpty() && message.isParametersAtLeastExpectedLength(1));
     }
 
     @Override
