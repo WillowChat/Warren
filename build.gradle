@@ -33,11 +33,11 @@ dependencies {
 }
 
 shadowJar {
-    relocate 'com.google', 'engineer.carrot.warren.shaded.com.google'
+    relocate 'com.google', 'engineer.carrot.warren.warren.shaded.com.google'
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
+    gradleVersion = '2.4'
 }
 
 def loadProperties(propsFilename) {
