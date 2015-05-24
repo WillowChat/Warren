@@ -33,7 +33,11 @@ dependencies {
 }
 
 shadowJar {
-    relocate 'com.google', 'engineer.carrot.warren.warren.shaded.com.google'
+    relocate 'com', 'engineer.carrot.warren.warren.shaded.com'
+    relocate 'edu', 'engineer.carrot.warren.warren.shaded.edu'
+    relocate 'javax', 'engineer.carrot.warren.warren.shaded.javax'
+    relocate 'net', 'engineer.carrot.warren.warren.shaded.net'
+    relocate 'org', 'engineer.carrot.warren.warren.shaded.org'
 }
 
 task wrapper(type: Wrapper) {
@@ -74,9 +78,19 @@ version = "${config.framework_version}.${project.buildInfo.build_number}"
 
 // Maven deployment
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 if (!project.hasProperty("DEPLOY_DIR")) {
     ext.DEPLOY_DIR = null
+}
+
+publishing {
+    publications {
+        shadow(MavenPublication) {
+            from components.java
+            artifact shadowJar
+        }
+    }
 }
 
 uploadArchives {
