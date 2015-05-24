@@ -78,19 +78,9 @@ version = "${config.framework_version}.${project.buildInfo.build_number}"
 
 // Maven deployment
 apply plugin: 'maven'
-apply plugin: 'maven-publish'
 
-if (!project.hasProperty("DEPLOY_DIR")) {
-    ext.DEPLOY_DIR = null
-}
-
-publishing {
-    publications {
-        shadow(MavenPublication) {
-            from components.java
-            artifact shadowJar
-        }
-    }
+artifacts {
+    archives shadowJar
 }
 
 uploadArchives {
