@@ -33,11 +33,11 @@ dependencies {
 }
 
 shadowJar {
-    relocate 'com', 'engineer.carrot.warren.warren.shaded.com'
-    relocate 'edu', 'engineer.carrot.warren.warren.shaded.edu'
-    relocate 'javax', 'engineer.carrot.warren.warren.shaded.javax'
-    relocate 'net', 'engineer.carrot.warren.warren.shaded.net'
-    relocate 'org', 'engineer.carrot.warren.warren.shaded.org'
+    relocate 'com.google', 'engineer.carrot.warren.warren.repack.com.google'
+    relocate 'edu.umd.cs.findbugs.annotations', 'engineer.carrot.warren.warren.repack.edu.umd.cs.findbugs.annotations'
+    relocate 'javax.annotation', 'engineer.carrot.warren.warren.repack.javax.annotation'
+    relocate 'net.jcip.annotations', 'engineer.carrot.warren.warren.repack.net.jcip.annotations'
+    relocate 'org.slf4j', 'engineer.carrot.warren.warren.repack.org.slf4j'
 }
 
 task wrapper(type: Wrapper) {
@@ -78,6 +78,10 @@ version = "${config.framework_version}.${project.buildInfo.build_number}"
 
 // Maven deployment
 apply plugin: 'maven'
+
+if (!project.hasProperty("DEPLOY_DIR")) {
+    ext.DEPLOY_DIR = null
+}
 
 artifacts {
     archives shadowJar
