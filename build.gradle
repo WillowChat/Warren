@@ -33,11 +33,14 @@ dependencies {
 }
 
 shadowJar {
+    dependencies {
+        exclude(dependency('org.slf4j:slf4j-api:.*'))
+    }
+
     relocate 'com.google', 'engineer.carrot.warren.warren.repack.com.google'
     relocate 'edu.umd.cs.findbugs.annotations', 'engineer.carrot.warren.warren.repack.edu.umd.cs.findbugs.annotations'
     relocate 'javax.annotation', 'engineer.carrot.warren.warren.repack.javax.annotation'
     relocate 'net.jcip.annotations', 'engineer.carrot.warren.warren.repack.net.jcip.annotations'
-    relocate 'org.slf4j', 'engineer.carrot.warren.warren.repack.org.slf4j'
 }
 
 task wrapper(type: Wrapper) {
