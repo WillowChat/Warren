@@ -35,9 +35,10 @@ dependencies {
 shadowJar {
     dependencies {
         exclude(dependency('org.slf4j:slf4j-api:.*'))
+        exclude(dependency('com.google.guava:guava:.*'))
     }
 
-    relocate 'com.google', 'engineer.carrot.warren.warren.repack.com.google'
+    relocate 'com.google.gson', 'engineer.carrot.warren.warren.repack.com.google.gson'
     relocate 'edu.umd.cs.findbugs.annotations', 'engineer.carrot.warren.warren.repack.edu.umd.cs.findbugs.annotations'
     relocate 'javax.annotation', 'engineer.carrot.warren.warren.repack.javax.annotation'
     relocate 'net.jcip.annotations', 'engineer.carrot.warren.warren.repack.net.jcip.annotations'
