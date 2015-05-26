@@ -7,6 +7,7 @@ import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 import javax.annotation.Nonnull;
 
 public class PongMessage implements IMessage {
+    private String pongAuthor;
     private String pongToken;
 
     public PongMessage() {
@@ -23,8 +24,14 @@ public class PongMessage implements IMessage {
     }
 
     @Override
+    public void populateFromIRCMessage(IRCMessage message) {
+        this.pongAuthor = message.parameters.get(0);
+        this.pongToken = message.parameters.get(1);
+    }
+
+    @Override
     public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
-        return (!message.isPrefixSet() && message.isParametersExactlyExpectedLength(1));
+        return (message.isParametersAtLeastExpectedLength(2));
     }
 
     @Override

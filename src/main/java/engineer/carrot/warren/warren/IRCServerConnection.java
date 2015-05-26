@@ -6,10 +6,7 @@ import engineer.carrot.warren.warren.event.ServerConnectedEvent;
 import engineer.carrot.warren.warren.event.ServerDisconnectedEvent;
 import engineer.carrot.warren.warren.irc.Channel;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
-import engineer.carrot.warren.warren.irc.messages.core.ChangeNicknameMessage;
-import engineer.carrot.warren.warren.irc.messages.core.JoinChannelsMessage;
-import engineer.carrot.warren.warren.irc.messages.core.PrivMsgMessage;
-import engineer.carrot.warren.warren.irc.messages.core.UserMessage;
+import engineer.carrot.warren.warren.irc.messages.core.*;
 import engineer.carrot.warren.warren.ssl.WrappedSSLSocketFactory;
 import engineer.carrot.warren.warren.util.IMessageQueue;
 import engineer.carrot.warren.warren.util.MessageQueue;
@@ -22,12 +19,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
 public class IRCServerConnection implements IWarrenDelegate {
     private final Logger LOGGER = LoggerFactory.getLogger(IRCServerConnection.class);
+    private static final int SOCKET_TIMEOUT_MS = 60 * 1000;
 
     private String nickname;
     private String login;
@@ -104,6 +103,7 @@ public class IRCServerConnection implements IWarrenDelegate {
 
         try {
             clientSocket = ssf.disableDHEKeyExchange(ssf.createSocket(server, port));
+            clientSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
             clientSocket.startHandshake();
             //LOGGER.info(new Gson().toJson(clientSocket.getEnabledCipherSuites()));
         } catch (IOException e) {
@@ -132,9 +132,15 @@ public class IRCServerConnection implements IWarrenDelegate {
         this.outgoingQueue.addMessageToQueue(new UserMessage(this.login, "8", this.realname));
 
         while (true) {
-            String serverResponse = null;
+            String serverResponse;
+
             try {
                 serverResponse = inFromServer.readLine();
+            } catch (SocketTimeoutException e) {
+                // Socket read timed out - try to write a PING and read again
+
+                this.outgoingQueue.addMessageToQueue(new PingMessage("idle"));
+                continue;
             } catch (IOException e) {
                 LOGGER.error("Connection died: {}", e);
 
