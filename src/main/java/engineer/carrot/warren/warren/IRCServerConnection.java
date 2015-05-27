@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class IRCServerConnection implements IWarrenDelegate {
     private final Logger LOGGER = LoggerFactory.getLogger(IRCServerConnection.class);
-    private static final int SOCKET_TIMEOUT_MS = 60 * 1000;
+    private static final long SOCKET_TIMEOUT_NS = 60 * 1000000000L;
 
     private String nickname;
     private String login;
@@ -105,7 +105,7 @@ public class IRCServerConnection implements IWarrenDelegate {
 
         try {
             clientSocket = ssf.disableDHEKeyExchange(ssf.createSocket(server, port));
-            clientSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
+            clientSocket.setSoTimeout(1000); // Read once a second for interrupts
             clientSocket.startHandshake();
             //LOGGER.info(new Gson().toJson(clientSocket.getEnabledCipherSuites()));
         } catch (IOException e) {
@@ -132,15 +132,20 @@ public class IRCServerConnection implements IWarrenDelegate {
         this.outgoingQueue.addMessageToQueue(new ChangeNicknameMessage(this.nickname));
         this.outgoingQueue.addMessageToQueue(new UserMessage(this.login, "8", this.realname));
 
+        long lastResponseTime = System.nanoTime();
+
         while (!Thread.currentThread().isInterrupted()) {
             String serverResponse;
 
             try {
                 serverResponse = this.currentReader.readLine();
             } catch (SocketTimeoutException e) {
-                // Socket read timed out - try to write a PING and read again
+                if ((System.nanoTime() - lastResponseTime) > SOCKET_TIMEOUT_NS) {
+                    // Socket read timed out - try to write a PING and read again
 
-                this.outgoingQueue.addMessageToQueue(new PingMessage("idle"));
+                    this.outgoingQueue.addMessageToQueue(new PingMessage("idle"));
+                    lastResponseTime = System.nanoTime();
+                }
                 continue;
             } catch (IOException e) {
                 LOGGER.error("Connection died: {}", e);
@@ -166,6 +171,7 @@ public class IRCServerConnection implements IWarrenDelegate {
                 return;
             }
 
+            lastResponseTime = System.nanoTime();
             IRCMessage message = IRCMessage.parseFromLine(serverResponse);
 
             if (message == null) {
