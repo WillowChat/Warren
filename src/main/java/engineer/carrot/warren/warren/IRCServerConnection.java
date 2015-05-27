@@ -53,6 +53,8 @@ public class IRCServerConnection implements IWarrenDelegate {
 
     private IncomingHandler incomingHandler;
 
+    private BufferedReader currentReader;
+
     public IRCServerConnection(String server, int port, String nickname) {
         this.server = server;
         this.port = port;
@@ -112,11 +114,10 @@ public class IRCServerConnection implements IWarrenDelegate {
             return;
         }
 
-        BufferedReader inFromServer;
         OutputStreamWriter outToServer;
         try {
             outToServer = new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8);
-            inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+            this.currentReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -125,17 +126,17 @@ public class IRCServerConnection implements IWarrenDelegate {
         this.eventBus.post(new ServerConnectedEvent());
 
         Runnable outgoingRunnable = new OutgoingRunnable(this.outgoingQueue, outToServer);
-        outgoingThread = new Thread(outgoingRunnable);
-        outgoingThread.start();
+        this.outgoingThread = new Thread(outgoingRunnable);
+        this.outgoingThread.start();
 
         this.outgoingQueue.addMessageToQueue(new ChangeNicknameMessage(this.nickname));
         this.outgoingQueue.addMessageToQueue(new UserMessage(this.login, "8", this.realname));
 
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             String serverResponse;
 
             try {
-                serverResponse = inFromServer.readLine();
+                serverResponse = this.currentReader.readLine();
             } catch (SocketTimeoutException e) {
                 // Socket read timed out - try to write a PING and read again
 
@@ -150,6 +151,7 @@ public class IRCServerConnection implements IWarrenDelegate {
                     LOGGER.error("Failed to close socket: {}", e1);
                 }
 
+                this.currentReader = null;
                 this.postDisconnectedEvent();
                 this.cleanupOutgoingThread();
                 return;
@@ -158,6 +160,7 @@ public class IRCServerConnection implements IWarrenDelegate {
             if (serverResponse == null) {
                 LOGGER.error("Server response null");
 
+                this.currentReader = null;
                 this.postDisconnectedEvent();
                 this.cleanupOutgoingThread();
                 return;
@@ -168,6 +171,7 @@ public class IRCServerConnection implements IWarrenDelegate {
             if (message == null) {
                 LOGGER.error("Parsed message was null");
 
+                this.currentReader = null;
                 this.postDisconnectedEvent();
                 this.cleanupOutgoingThread();
                 return;
@@ -176,17 +180,35 @@ public class IRCServerConnection implements IWarrenDelegate {
             if (message.command == null || message.command.length() < 3) {
                 LOGGER.error("Malformed command in message");
 
+                this.currentReader = null;
                 this.postDisconnectedEvent();
                 this.cleanupOutgoingThread();
                 return;
             }
 
-            boolean failedToHandleMessage = this.incomingHandler.handleIRCMessage(message, serverResponse);
-            if (!failedToHandleMessage) {
+            boolean handledMessage = this.incomingHandler.handleIRCMessage(message, serverResponse);
+            if (!handledMessage) {
                 LOGGER.error("Failed to handle message. Original: {}", serverResponse);
+
+                this.currentReader = null;
+                this.postDisconnectedEvent();
+                this.cleanupOutgoingThread();
                 return;
             }
         }
+    }
+
+    public boolean disconnect() {
+        if (this.currentReader == null) {
+            return false;
+        }
+
+        try {
+            this.currentReader.close();
+        } catch (IOException e) {
+        }
+
+        return true;
     }
 
     private void postDisconnectedEvent() {
