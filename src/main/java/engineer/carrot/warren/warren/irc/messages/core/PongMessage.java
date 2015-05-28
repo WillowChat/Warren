@@ -1,12 +1,13 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
+import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 import javax.annotation.Nonnull;
 
-public class PongMessage implements IMessage {
+public class PongMessage extends AbstractMessage {
     private String pongAuthor;
     private String pongToken;
 

@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.Hostmask;
+import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
@@ -8,7 +9,7 @@ import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class PrivMsgMessage implements IMessage {
+public class PrivMsgMessage extends AbstractMessage {
     @Nullable
     public Hostmask fromUser;
     public String toTarget;

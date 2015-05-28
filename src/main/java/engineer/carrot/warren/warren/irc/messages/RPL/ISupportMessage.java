@@ -3,6 +3,7 @@ package engineer.carrot.warren.warren.irc.messages.RPL;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
@@ -11,7 +12,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
-public class ISupportMessage implements IMessage {
+public class ISupportMessage extends AbstractMessage {
     public String forServer;
     public String forUser;
     public Map<String, String> parameters;

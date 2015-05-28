@@ -5,24 +5,16 @@ import engineer.carrot.warren.warren.irc.messages.util.NoOpException;
 import javax.annotation.Nonnull;
 
 public interface IMessage {
-    public default void populateFromIRCMessage(IRCMessage message) {
-        throw new NoOpException();
-    }
+    void populateFromIRCMessage(IRCMessage message);
 
     @Nonnull
-    public default IMessage build(IRCMessage message) {
-        this.populateFromIRCMessage(message);
-
-        return this;
-    }
+    IMessage build(IRCMessage message);
 
     @Nonnull
-    public default IRCMessage buildServerOutput() {
-        throw new NoOpException();
-    }
+    IRCMessage buildServerOutput();
 
-    public boolean isMessageWellFormed(@Nonnull IRCMessage message);
+    boolean isMessageWellFormed(@Nonnull IRCMessage message);
 
     @Nonnull
-    public String getCommandID();
+    String getCommandID();
 }

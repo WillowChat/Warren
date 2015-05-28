@@ -1,5 +1,6 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
+import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
@@ -7,7 +8,7 @@ import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class NoticeMessage implements IMessage {
+public class NoticeMessage extends AbstractMessage {
     @Nullable
     public String fromUser;
     public String toTarget;

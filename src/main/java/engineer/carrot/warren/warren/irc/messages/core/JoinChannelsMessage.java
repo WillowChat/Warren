@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import com.google.common.base.Joiner;
+import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
@@ -9,7 +10,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
-public class JoinChannelsMessage implements IMessage {
+public class JoinChannelsMessage extends AbstractMessage {
     private List<String> channels;
 
     public JoinChannelsMessage(String... channels) {

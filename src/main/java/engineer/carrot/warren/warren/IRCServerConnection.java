@@ -4,7 +4,9 @@ import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import engineer.carrot.warren.warren.event.ServerConnectedEvent;
 import engineer.carrot.warren.warren.event.ServerDisconnectedEvent;
+import engineer.carrot.warren.warren.irc.AccessLevel;
 import engineer.carrot.warren.warren.irc.Channel;
+import engineer.carrot.warren.warren.irc.User;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.core.*;
 import engineer.carrot.warren.warren.ssl.WrappedSSLSocketFactory;
@@ -266,7 +268,7 @@ public class IRCServerConnection implements IWarrenDelegate {
     @Override
     public void joinChannels(List<String> channels) {
         for (String channel : channels) {
-            this.joiningChannelManager.addChannel(new Channel.Builder().name(channel).users(Maps.newHashMap()).userAccessMap(Maps.newHashMap()).build());
+            this.joiningChannelManager.addChannel(new Channel.Builder().name(channel).users(Maps.<String, User>newHashMap()).userAccessMap(Maps.<String, AccessLevel>newHashMap()).build());
         }
 
         this.outgoingQueue.addMessageToQueue(new JoinChannelsMessage(channels));

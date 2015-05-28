@@ -1,12 +1,13 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
+import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 import javax.annotation.Nonnull;
 
-public class UserMessage implements IMessage {
+public class UserMessage extends AbstractMessage {
     private String user;
     private String mode;
     private String realname;

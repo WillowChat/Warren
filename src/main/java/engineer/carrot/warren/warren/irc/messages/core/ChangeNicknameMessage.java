@@ -1,12 +1,13 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
+import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 import javax.annotation.Nonnull;
 
-public class ChangeNicknameMessage implements IMessage {
+public class ChangeNicknameMessage extends AbstractMessage {
     @Nonnull
     public String nickname;
 
