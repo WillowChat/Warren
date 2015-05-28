@@ -1,7 +1,5 @@
 package engineer.carrot.warren.warren.irc.messages;
 
-import engineer.carrot.warren.warren.irc.messages.util.NoOpException;
-
 import javax.annotation.Nonnull;
 
 public interface IMessage {

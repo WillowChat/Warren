@@ -1,7 +1,6 @@
 package engineer.carrot.warren.warren.irc.messages.util;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 
 public abstract class ServerTargetContentsMessage extends AbstractMessage {

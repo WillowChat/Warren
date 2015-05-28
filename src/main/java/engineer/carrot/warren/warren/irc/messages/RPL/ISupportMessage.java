@@ -4,7 +4,6 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 

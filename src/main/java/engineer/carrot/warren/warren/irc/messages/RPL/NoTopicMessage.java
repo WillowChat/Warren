@@ -1,7 +1,6 @@
 package engineer.carrot.warren.warren.irc.messages.RPL;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 

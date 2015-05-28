@@ -2,7 +2,6 @@ package engineer.carrot.warren.warren.irc.messages.core;
 
 import com.google.common.base.Joiner;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 

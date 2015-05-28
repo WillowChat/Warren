@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.Set;
 public class IRCServerConnection implements IWarrenDelegate {
     private final Logger LOGGER = LoggerFactory.getLogger(IRCServerConnection.class);
     private static final long SOCKET_TIMEOUT_NS = 60 * 1000000000L;
+    private static final int SOCKET_INTERRUPT_TIMEOUT_MS = 1 * 1000;
 
     private String nickname;
     private String login;
@@ -50,6 +52,7 @@ public class IRCServerConnection implements IWarrenDelegate {
     private boolean loginToNickserv = false;
     private String nickservPassword;
     private List<String> autoJoinChannels;
+    private boolean shouldUsePlaintext = false;
 
     private EventBus eventBus;
 
@@ -91,29 +94,44 @@ public class IRCServerConnection implements IWarrenDelegate {
         this.autoJoinChannels = channels;
     }
 
+    public void setSocketShouldUsePlaintext(boolean shouldUsePlaintext) {
+        this.shouldUsePlaintext = shouldUsePlaintext;
+    }
+
     public void setForciblyAcceptedCertificates(Set<String> certificateFingerprints) {
         this.useFingerprints = true;
         this.acceptedCertificatesForHost = certificateFingerprints;
     }
 
     public void connect() {
-        WrappedSSLSocketFactory ssf = new WrappedSSLSocketFactory();
+        Socket clientSocket;
 
-        if (this.useFingerprints) {
-            ssf.forciblyAcceptCertificatesWithSHA1Fingerprints(this.acceptedCertificatesForHost);
-        }
+        if (this.shouldUsePlaintext) {
+            try {
+                clientSocket = new Socket(server, port);
+                clientSocket.setSoTimeout(SOCKET_INTERRUPT_TIMEOUT_MS); // Read once a second for interrupts
+            } catch (IOException e) {
+                LOGGER.error("Failed to set up plaintext socket");
+                e.printStackTrace();
+                return;
+            }
+        } else {
+            WrappedSSLSocketFactory ssf = new WrappedSSLSocketFactory();
 
-        SSLSocket clientSocket;
+            if (this.useFingerprints) {
+                ssf.forciblyAcceptCertificatesWithSHA1Fingerprints(this.acceptedCertificatesForHost);
+            }
 
-        try {
-            clientSocket = ssf.disableDHEKeyExchange(ssf.createSocket(server, port));
-            clientSocket.setSoTimeout(1000); // Read once a second for interrupts
-            clientSocket.startHandshake();
-            //LOGGER.info(new Gson().toJson(clientSocket.getEnabledCipherSuites()));
-        } catch (IOException e) {
-            LOGGER.error("Failed to set up socket and start handshake");
-            e.printStackTrace();
-            return;
+            try {
+                clientSocket = ssf.disableDHEKeyExchange(ssf.createSocket(server, port));
+                clientSocket.setSoTimeout(SOCKET_INTERRUPT_TIMEOUT_MS); // Read once a second for interrupts
+                ((SSLSocket) clientSocket).startHandshake();
+                //LOGGER.info(new Gson().toJson(clientSocket.getEnabledCipherSuites()));
+            } catch (IOException e) {
+                LOGGER.error("Failed to set up socket and start handshake");
+                e.printStackTrace();
+                return;
+            }
         }
 
         OutputStreamWriter outToServer;
