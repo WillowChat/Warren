@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.irc;
 
 public class User {
     public Hostmask hostmask;
-    String usernameWithoutAccess;
+    private String usernameWithoutAccess;
 
     public User(Hostmask hostmask) {
         this.hostmask = hostmask;
@@ -11,7 +11,7 @@ public class User {
     }
 
     private String trimAccess(String user) {
-        String trimmedName = this.hostmask.user;
+        String trimmedName = user;
         if (AccessLevel.isKnownIdentifier(trimmedName.charAt(0))) {
             trimmedName = trimmedName.substring(1);
         }

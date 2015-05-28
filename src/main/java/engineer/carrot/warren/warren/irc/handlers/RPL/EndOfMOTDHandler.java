@@ -1,5 +1,6 @@
 package engineer.carrot.warren.warren.irc.handlers.RPL;
 
+import engineer.carrot.warren.warren.event.EndOfMOTDEvent;
 import engineer.carrot.warren.warren.irc.handlers.MessageHandler;
 import engineer.carrot.warren.warren.irc.messages.RPL.EndOfMOTDMessage;
 import org.slf4j.Logger;
@@ -29,5 +30,7 @@ public class EndOfMOTDHandler extends MessageHandler<EndOfMOTDMessage> {
         }
 
         this.incomingHandler.setNextExpectedCommandToAnything();
+
+        this.postEvent(new EndOfMOTDEvent());
     }
 }

@@ -202,6 +202,10 @@ public class IRCServerConnection implements IWarrenDelegate {
                 return;
             }
         }
+
+        this.currentReader = null;
+        this.postDisconnectedEvent();
+        this.cleanupOutgoingThread();
     }
 
     public boolean disconnect() {
