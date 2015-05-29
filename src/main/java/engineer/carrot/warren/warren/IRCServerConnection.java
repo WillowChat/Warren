@@ -60,12 +60,12 @@ public class IRCServerConnection implements IWarrenDelegate {
 
     private BufferedReader currentReader;
 
-    public IRCServerConnection(String server, int port, String nickname) {
+    public IRCServerConnection(String server, int port, String nickname, String login) {
         this.server = server;
         this.port = port;
         this.nickname = nickname;
-        this.login = this.nickname.substring(0, 1);
-        this.realname = this.login;
+        this.login = login;
+        this.realname = login;
 
         this.initialise();
     }
