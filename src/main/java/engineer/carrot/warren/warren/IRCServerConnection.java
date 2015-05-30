@@ -176,19 +176,13 @@ public class IRCServerConnection implements IWarrenDelegate {
                     LOGGER.error("Failed to close socket: {}", e1);
                 }
 
-                this.currentReader = null;
-                this.postDisconnectedEvent();
-                this.cleanupOutgoingThread();
-                return;
+                break;
             }
 
             if (serverResponse == null) {
                 LOGGER.error("Server response null");
 
-                this.currentReader = null;
-                this.postDisconnectedEvent();
-                this.cleanupOutgoingThread();
-                return;
+                break;
             }
 
             lastResponseTime = System.nanoTime();
@@ -197,33 +191,24 @@ public class IRCServerConnection implements IWarrenDelegate {
             if (message == null) {
                 LOGGER.error("Parsed message was null");
 
-                this.currentReader = null;
-                this.postDisconnectedEvent();
-                this.cleanupOutgoingThread();
-                return;
+                break;
             }
 
             if (message.command == null || message.command.length() < 3) {
                 LOGGER.error("Malformed command in message");
 
-                this.currentReader = null;
-                this.postDisconnectedEvent();
-                this.cleanupOutgoingThread();
-                return;
+                break;
             }
 
             boolean handledMessage = this.incomingHandler.handleIRCMessage(message, serverResponse);
             if (!handledMessage) {
                 LOGGER.error("Failed to handle message. Original: {}", serverResponse);
 
-                this.currentReader = null;
-                this.postDisconnectedEvent();
-                this.cleanupOutgoingThread();
-                return;
+                break;
             }
         }
 
-        this.currentReader = null;
+        this.disconnect();
         this.postDisconnectedEvent();
         this.cleanupOutgoingThread();
     }
