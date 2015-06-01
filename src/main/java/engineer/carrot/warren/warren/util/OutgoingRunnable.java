@@ -28,7 +28,7 @@ public class OutgoingRunnable implements Runnable {
             try {
                 message = outgoingQueue.popQueueIndefinitely();
             } catch (InterruptedException e) {
-                LOGGER.error("Outgoing runnable interrupted, quitting: {}", e);
+                LOGGER.info("Outgoing runnable interrupted, quitting");
 
                 return;
             }

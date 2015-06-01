@@ -240,7 +240,7 @@ public class IRCServerConnection implements IWarrenDelegate {
         try {
             this.outgoingThread.join();
         } catch (InterruptedException e) {
-            LOGGER.error("Failed to join() on outgoing thread during cleanup: {}", e);
+
         }
 
         return;
