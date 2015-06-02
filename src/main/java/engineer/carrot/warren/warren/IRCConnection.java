@@ -1,6 +1,9 @@
 package engineer.carrot.warren.warren;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import engineer.carrot.warren.warren.event.ServerConnectedEvent;
 import engineer.carrot.warren.warren.event.ServerDisconnectedEvent;
@@ -16,6 +19,7 @@ import engineer.carrot.warren.warren.util.OutgoingRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.net.ssl.SSLSocket;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,8 +31,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
-public class IRCServerConnection implements IWarrenDelegate {
-    private final Logger LOGGER = LoggerFactory.getLogger(IRCServerConnection.class);
+public class IRCConnection implements IWarrenDelegate {
+    private final Logger LOGGER = LoggerFactory.getLogger(IRCConnection.class);
     private static final long SOCKET_TIMEOUT_NS = 60 * 1000000000L;
     private static final int SOCKET_INTERRUPT_TIMEOUT_MS = 1 * 1000;
 
@@ -37,6 +41,12 @@ public class IRCServerConnection implements IWarrenDelegate {
     private String realname;
     private String server;
     private int port;
+    private boolean loginToNickserv = false;
+    private String nickservPassword;
+    private List<String> autoJoinChannels;
+    private boolean plaintext = false;
+    private boolean useFingerprints = false;
+    private Set<String> fingerprints;
 
     private ChannelManager joiningChannelManager;
     private ChannelManager joinedChannelManager;
@@ -46,29 +56,30 @@ public class IRCServerConnection implements IWarrenDelegate {
     private IMessageQueue outgoingQueue;
     private Thread outgoingThread;
 
-    private boolean useFingerprints = false;
-    private Set<String> acceptedCertificatesForHost;
-
-    private boolean loginToNickserv = false;
-    private String nickservPassword;
-    private List<String> autoJoinChannels;
-    private boolean shouldUsePlaintext = false;
-
     private EventBus eventBus;
 
     private IncomingHandler incomingHandler;
-
     private BufferedReader currentReader;
 
-    public IRCServerConnection(String server, int port, String nickname, String login) {
-        this.server = server;
-        this.port = port;
-        this.nickname = nickname;
-        this.login = login;
-        this.realname = login;
+    private IRCConnection(Builder builder) {
+        this.server = builder.server;
+        this.port = builder.port;
+        this.nickname = builder.nickname;
+        this.login = builder.login;
+        this.realname = builder.login;
 
         this.initialise();
+
+        this.setSocketShouldUsePlaintext(builder.plaintext);
+        this.setAcceptedFingerprints(builder.fingerprints);
+
+        this.setNickservPassword(builder.nickservPassword);
+        this.setAutoJoinChannels(builder.channels);
+
+        this.registerListeners(builder.listeners);
     }
+
+    // Initialisation
 
     private void initialise() {
         this.outgoingQueue = new MessageQueue();
@@ -81,57 +92,43 @@ public class IRCServerConnection implements IWarrenDelegate {
         this.joinedChannelManager = new ChannelManager();
     }
 
-    public void registerListener(Object object) {
-        this.eventBus.register(object);
+    private void setSocketShouldUsePlaintext(boolean shouldUsePlaintext) {
+        this.plaintext = shouldUsePlaintext;
     }
 
-    public void setNickservPassword(String password) {
-        this.loginToNickserv = true;
+    private void setAcceptedFingerprints(Set<String> fingerprints) {
+        this.useFingerprints = !fingerprints.isEmpty();
+        this.fingerprints = fingerprints;
+    }
+
+    private void setNickservPassword(String password) {
+        this.loginToNickserv = !Strings.isNullOrEmpty(password);
         this.nickservPassword = password;
     }
 
-    public void setAutoJoinChannels(List<String> channels) {
+    private void setAutoJoinChannels(List<String> channels) {
         this.autoJoinChannels = channels;
     }
 
-    public void setSocketShouldUsePlaintext(boolean shouldUsePlaintext) {
-        this.shouldUsePlaintext = shouldUsePlaintext;
+    private void registerListeners(List<Object> objects) {
+        for (Object object : objects) {
+            this.eventBus.register(object);
+        }
     }
 
-    public void setForciblyAcceptedCertificates(Set<String> certificateFingerprints) {
-        this.useFingerprints = true;
-        this.acceptedCertificatesForHost = certificateFingerprints;
-    }
+    // Public lifecycle
 
     public void connect() {
         Socket clientSocket;
-
-        if (this.shouldUsePlaintext) {
-            try {
-                clientSocket = new Socket(server, port);
-                clientSocket.setSoTimeout(SOCKET_INTERRUPT_TIMEOUT_MS); // Read once a second for interrupts
-            } catch (IOException e) {
-                LOGGER.error("Failed to set up plaintext socket");
-                e.printStackTrace();
-                return;
-            }
+        if (this.plaintext) {
+            clientSocket = this.createPlaintextSocket(this.server, this.port);
         } else {
-            WrappedSSLSocketFactory ssf = new WrappedSSLSocketFactory();
+            clientSocket = this.createTLSSocket(this.server, this.port, this.useFingerprints, this.fingerprints);
+        }
 
-            if (this.useFingerprints) {
-                ssf.forciblyAcceptCertificatesWithSHA1Fingerprints(this.acceptedCertificatesForHost);
-            }
-
-            try {
-                clientSocket = ssf.disableDHEKeyExchange(ssf.createSocket(server, port));
-                clientSocket.setSoTimeout(SOCKET_INTERRUPT_TIMEOUT_MS); // Read once a second for interrupts
-                ((SSLSocket) clientSocket).startHandshake();
-                //LOGGER.info(new Gson().toJson(clientSocket.getEnabledCipherSuites()));
-            } catch (IOException e) {
-                LOGGER.error("Failed to set up socket and start handshake");
-                e.printStackTrace();
-                return;
-            }
+        if (clientSocket == null) {
+            LOGGER.error("Failed to create socket for connection");
+            return;
         }
 
         OutputStreamWriter outToServer;
@@ -226,6 +223,46 @@ public class IRCServerConnection implements IWarrenDelegate {
         return true;
     }
 
+    // Private helpers
+
+    @Nullable
+    private Socket createPlaintextSocket(String server, int port) {
+        Socket socket;
+        try {
+            socket = new Socket(server, port);
+            socket.setSoTimeout(SOCKET_INTERRUPT_TIMEOUT_MS); // Read once a second for interrupts
+        } catch (IOException e) {
+            LOGGER.error("Failed to set up plaintext socket");
+            e.printStackTrace();
+            return null;
+        }
+
+        return socket;
+    }
+
+    @Nullable
+    private Socket createTLSSocket(String server, int port, boolean useFingerprints, Set<String> fingerprints) {
+        Socket socket;
+        WrappedSSLSocketFactory ssf = new WrappedSSLSocketFactory();
+
+        if (useFingerprints) {
+            ssf.forciblyAcceptCertificatesWithSHA1Fingerprints(fingerprints);
+        }
+
+        try {
+            socket = ssf.disableDHEKeyExchange(ssf.createSocket(server, port));
+            socket.setSoTimeout(SOCKET_INTERRUPT_TIMEOUT_MS); // Read once a second for interrupts
+            ((SSLSocket) socket).startHandshake();
+            //LOGGER.info(new Gson().toJson(clientSocket.getEnabledCipherSuites()));
+        } catch (IOException e) {
+            LOGGER.error("Failed to set up socket and start handshake");
+            e.printStackTrace();
+            return null;
+        }
+
+        return socket;
+    }
+
     private void postDisconnectedEvent() {
         this.eventBus.post(new ServerDisconnectedEvent());
     }
@@ -244,6 +281,84 @@ public class IRCServerConnection implements IWarrenDelegate {
         }
 
         return;
+    }
+
+    public static class Builder {
+        public String server = "";
+        public int port = 6667;
+        public String nickname = "";
+        public String login = "";
+        public List<Object> listeners = Lists.newArrayList();
+        public String nickservPassword = "";
+        public List<String> channels = Lists.newArrayList();
+        public boolean plaintext = false;
+        public Set<String> fingerprints = Sets.newHashSet();
+
+        public Builder server(String server) {
+            this.server = server;
+            return this;
+        }
+
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public Builder nickname(String nickname) {
+            this.nickname = nickname;
+            return this;
+        }
+
+        public Builder login(String login) {
+            this.login = login;
+            return this;
+        }
+
+        public Builder listener(Object listener) {
+            this.listeners.add(listener);
+            return this;
+        }
+
+        public Builder listeners(List<Object> listeners) {
+            this.listeners.addAll(listeners);
+            return this;
+        }
+
+        public Builder nickservPassword(String password) {
+            this.nickservPassword = password;
+            return this;
+        }
+
+        public Builder channel(String channel) {
+            this.channels.add(channel);
+            return this;
+        }
+
+        public Builder channels(List<String> channels) {
+            this.channels.addAll(channels);
+            return this;
+        }
+
+        public Builder plaintext(boolean plaintext) {
+            this.plaintext = plaintext;
+            return this;
+        }
+
+        public Builder fingerprint(String fingerprint) {
+            this.fingerprints.add(fingerprint);
+            return this;
+        }
+
+        public Builder fingerprints(Set<String> fingerprints) {
+            this.fingerprints.addAll(fingerprints);
+            return this;
+        }
+
+        public IRCConnection build() {
+            // TODO: Parameter verification
+
+            return new IRCConnection(this);
+        }
     }
 
     // IBotDelegate
