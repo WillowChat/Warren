@@ -20,6 +20,7 @@ A Java IRC framework for personal use (but open-sourced).
 
 [RFC 2812](https://tools.ietf.org/html/rfc2812)
 
+* **Make relevant TODOs Issues**
 * ~~Server Connection cleanup / separation~~,
  * Still needs cleaning up a little,
 * ~~Combine incoming and outgoing messages~~,
