@@ -2,16 +2,12 @@ package engineer.carrot.warren.warren.irc;
 
 import engineer.carrot.warren.warren.UserManager;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class Channel {
-    @Nonnull
-    public String name;
-    @Nonnull
-    public Map<String, User> users;
-    @Nonnull
-    public Map<String, AccessLevel> userAccessMap;
+    public final String name;
+    public final Map<String, User> users;
+    public final Map<String, AccessLevel> userAccessMap;
 
     private Channel(Builder builder) {
         this.name = builder.name;
@@ -23,7 +19,7 @@ public class Channel {
         this.users.remove(user.getNameWithoutAccess());
     }
 
-    public void addUser(User user, AccessLevel level) {
+    private void addUser(User user, AccessLevel level) {
         this.users.put(user.getNameWithoutAccess(), user);
         this.userAccessMap.put(user.getNameWithoutAccess(), level);
     }
@@ -37,11 +33,10 @@ public class Channel {
         return (level == accessLevel);
     }
 
-    public boolean containsUser(User user) {
+    private boolean containsUser(User user) {
         return this.users.containsKey(user.getNameWithoutAccess());
     }
 
-    @Nonnull
     public User getOrCreateUser(Hostmask hostmask, UserManager userManager) {
         User user = userManager.getOrCreateUser(hostmask);
         if (!this.containsUser(user)) {

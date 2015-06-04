@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren.irc.handlers.multi;
 
-public interface IMultiMessageHandler {
+interface IMultiMessageHandler {
     public void startConstructing();
 
     public boolean isConstructing();

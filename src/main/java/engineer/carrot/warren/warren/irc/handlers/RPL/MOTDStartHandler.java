@@ -7,13 +7,11 @@ import engineer.carrot.warren.warren.irc.messages.RPL.MOTDStartMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-
 public class MOTDStartHandler extends MessageHandler<MOTDStartMessage> {
-    final Logger LOGGER = LoggerFactory.getLogger(MOTDStartHandler.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(MOTDStartHandler.class);
 
     @Override
-    public void handleMessage(@Nonnull MOTDStartMessage message) {
+    public void handleMessage(MOTDStartMessage message) {
         LOGGER.info("Starting MOTD: {} says '{}'", message.forServer, message.contents);
 
         this.incomingHandler.setNextExpectedCommands(Sets.newHashSet(MessageCodes.RPL.MOTD, MessageCodes.RPL.ENDOFMOTD));

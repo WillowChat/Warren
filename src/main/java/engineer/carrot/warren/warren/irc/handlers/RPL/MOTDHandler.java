@@ -7,13 +7,11 @@ import engineer.carrot.warren.warren.irc.messages.RPL.MOTDMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-
 public class MOTDHandler extends MessageHandler<MOTDMessage> {
-    final Logger LOGGER = LoggerFactory.getLogger(MOTDHandler.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(MOTDHandler.class);
 
     @Override
-    public void handleMessage(@Nonnull MOTDMessage message) {
+    public void handleMessage(MOTDMessage message) {
         LOGGER.info("MOTD: {} adds '{}'", message.forServer, message.contents);
 
         this.incomingHandler.setNextExpectedCommands(Sets.newHashSet(MessageCodes.RPL.MOTD, MessageCodes.RPL.ENDOFMOTD));

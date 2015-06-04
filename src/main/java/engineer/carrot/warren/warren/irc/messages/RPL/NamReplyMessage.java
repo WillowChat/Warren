@@ -7,18 +7,17 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class NamReplyMessage extends AbstractMessage {
-    public String forServer;
+    private String forServer;
     public String forUser;
-    public String channelVisibility;
+    private String channelVisibility;
     public String forChannel;
     public List<Hostmask> hostmasks;
 
     @Override
-    public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
+    public boolean isMessageWellFormed(IRCMessage message) {
         // {"prefix":"server","parameters":["nickname","@","#Channel","NormalUser +voiced @op @zsh"],"command":"353"}
         return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(4));
     }
@@ -40,7 +39,6 @@ public class NamReplyMessage extends AbstractMessage {
         this.hostmasks = hostmasks;
     }
 
-    @Nonnull
     @Override
     public String getCommandID() {
         return MessageCodes.RPL.NAMREPLY;

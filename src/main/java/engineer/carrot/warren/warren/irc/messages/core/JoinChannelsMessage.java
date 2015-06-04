@@ -5,12 +5,11 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
 public class JoinChannelsMessage extends AbstractMessage {
-    private List<String> channels;
+    private final List<String> channels;
 
     public JoinChannelsMessage(String... channels) {
         this.channels = Arrays.asList(channels);
@@ -26,7 +25,7 @@ public class JoinChannelsMessage extends AbstractMessage {
     }
 
     @Override
-    public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
+    public boolean isMessageWellFormed(IRCMessage message) {
         // {"prefix":"test!~t@test","parameters":["#test"],"command":"JOIN"}
         return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(1));
     }

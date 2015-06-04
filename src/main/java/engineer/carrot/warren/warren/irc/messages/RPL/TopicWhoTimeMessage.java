@@ -5,14 +5,12 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
-
 public class TopicWhoTimeMessage extends AbstractMessage {
-    public String forServer;
-    public String forUser;
-    public String forChannel;
-    public Hostmask byUser;
-    public long atTime;
+    private String forServer;
+    private String forUser;
+    private String forChannel;
+    private Hostmask byUser;
+    private long atTime;
 
     @Override
     public void populateFromIRCMessage(IRCMessage message) {
@@ -28,7 +26,6 @@ public class TopicWhoTimeMessage extends AbstractMessage {
         return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(4));
     }
 
-    @Nonnull
     @Override
     public String getCommandID() {
         return MessageCodes.RPL.TOPICWHOTIME;

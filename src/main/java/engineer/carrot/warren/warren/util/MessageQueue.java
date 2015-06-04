@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class MessageQueue implements IMessageQueue {
-    final Logger LOGGER = LoggerFactory.getLogger(MessageQueue.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(MessageQueue.class);
 
     private LinkedBlockingQueue<IMessage> queue;
 
@@ -16,7 +16,7 @@ public class MessageQueue implements IMessageQueue {
         this.initialise();
     }
 
-    public void initialise() {
+    private void initialise() {
         this.queue = new LinkedBlockingQueue<>();
     }
 

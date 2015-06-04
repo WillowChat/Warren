@@ -13,13 +13,11 @@ import engineer.carrot.warren.warren.irc.messages.core.PrivMsgMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-
 public class PrivMsgHandler extends MessageHandler<PrivMsgMessage> {
-    final Logger LOGGER = LoggerFactory.getLogger(PrivMsgHandler.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(PrivMsgHandler.class);
 
     @Override
-    public void handleMessage(@Nonnull PrivMsgMessage message) {
+    public void handleMessage(PrivMsgMessage message) {
         String contents = message.contents;
         CtcpEnum ctcp = CtcpEnum.NONE;
 

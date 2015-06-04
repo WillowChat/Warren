@@ -4,17 +4,14 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
-
 public class PingMessage extends AbstractMessage {
-    @Nonnull
     public String pingToken;
 
     public PingMessage() {
 
     }
 
-    public PingMessage(@Nonnull String pingToken) {
+    public PingMessage(String pingToken) {
         this.pingToken = pingToken;
     }
 

@@ -4,14 +4,13 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class NoticeMessage extends AbstractMessage {
     @Nullable
-    public String fromUser;
-    public String toTarget;
-    public String contents;
+    private String fromUser;
+    private String toTarget;
+    private String contents;
 
     public NoticeMessage() {
 
@@ -42,7 +41,7 @@ public class NoticeMessage extends AbstractMessage {
     }
 
     @Override
-    public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
+    public boolean isMessageWellFormed(IRCMessage message) {
         // {"prefix":"server","parameters":["*","contents"],"command":"NOTICE"}
         // {"parameters":["*","contents"],"command":"NOTICE"}
         return message.isParametersExactlyExpectedLength(2);

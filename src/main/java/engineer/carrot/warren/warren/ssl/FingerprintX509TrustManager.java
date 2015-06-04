@@ -11,10 +11,10 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Set;
 
-public class FingerprintX509TrustManager implements X509TrustManager {
-    final Logger LOGGER = LoggerFactory.getLogger(FingerprintX509TrustManager.class);
+class FingerprintX509TrustManager implements X509TrustManager {
+    private final Logger LOGGER = LoggerFactory.getLogger(FingerprintX509TrustManager.class);
 
-    public Set<String> forciblyAcceptedSHA1Fingerprints;
+    private final Set<String> forciblyAcceptedSHA1Fingerprints;
 
     public FingerprintX509TrustManager(Set<String> forciblyAcceptedSHA1Fingerprints) {
         this.forciblyAcceptedSHA1Fingerprints = forciblyAcceptedSHA1Fingerprints;

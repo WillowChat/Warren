@@ -4,9 +4,9 @@ import engineer.carrot.warren.warren.irc.Channel;
 import engineer.carrot.warren.warren.irc.User;
 
 public class UserPartedChannelEvent extends Event {
-    public User user;
-    public Channel channel;
-    public String message;
+    public final User user;
+    public final Channel channel;
+    public final String message;
 
     public UserPartedChannelEvent(User user, Channel channel, String message) {
         super();

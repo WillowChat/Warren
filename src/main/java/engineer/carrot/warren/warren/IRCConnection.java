@@ -36,11 +36,11 @@ public class IRCConnection implements IWarrenDelegate {
     private static final long SOCKET_TIMEOUT_NS = 60 * 1000000000L;
     private static final int SOCKET_INTERRUPT_TIMEOUT_MS = 1 * 1000;
 
-    private String nickname;
-    private String login;
-    private String realname;
-    private String server;
-    private int port;
+    private final String nickname;
+    private final String login;
+    private final String realname;
+    private final String server;
+    private final int port;
     private boolean loginToNickserv = false;
     private String nickservPassword;
     private List<String> autoJoinChannels;
@@ -210,7 +210,7 @@ public class IRCConnection implements IWarrenDelegate {
         this.cleanupOutgoingThread();
     }
 
-    public boolean disconnect() {
+    private boolean disconnect() {
         if (this.currentReader == null) {
             return false;
         }
@@ -288,11 +288,11 @@ public class IRCConnection implements IWarrenDelegate {
         public int port = 6667;
         public String nickname = "";
         public String login = "";
-        public List<Object> listeners = Lists.newArrayList();
+        public final List<Object> listeners = Lists.newArrayList();
         public String nickservPassword = "";
-        public List<String> channels = Lists.newArrayList();
+        public final List<String> channels = Lists.newArrayList();
         public boolean plaintext = false;
-        public Set<String> fingerprints = Sets.newHashSet();
+        public final Set<String> fingerprints = Sets.newHashSet();
 
         public Builder server(String server) {
             this.server = server;

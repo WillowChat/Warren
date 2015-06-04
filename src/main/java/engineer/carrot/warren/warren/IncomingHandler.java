@@ -18,7 +18,6 @@ import engineer.carrot.warren.warren.util.IMessageQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
@@ -27,9 +26,9 @@ public class IncomingHandler implements IIncomingHandler {
     private final Logger LOGGER = LoggerFactory.getLogger(IncomingHandler.class);
     private final Gson messageGson = new Gson();
 
-    private IWarrenDelegate botDelegate;
-    private IMessageQueue outgoingQueue;
-    private EventBus eventBus;
+    private final IWarrenDelegate botDelegate;
+    private final IMessageQueue outgoingQueue;
+    private final EventBus eventBus;
 
     private Map<String, IMessageHandler> commandDelegateMap;
     private Map<String, Class<? extends IMessage>> messageMap;
@@ -97,7 +96,7 @@ public class IncomingHandler implements IIncomingHandler {
     }
 
     @Nullable
-    private IMessage createTypedMessageFromCommandCode(@Nonnull String commandCode) {
+    private IMessage createTypedMessageFromCommandCode(String commandCode) {
         Class<? extends IMessage> clazzMessage = this.messageMap.get(commandCode);
         if (clazzMessage == null) {
             return null;

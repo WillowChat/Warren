@@ -7,13 +7,11 @@ import engineer.carrot.warren.warren.irc.messages.RPL.TopicMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-
 public class TopicHandler extends MessageHandler<TopicMessage> {
     private final Logger LOGGER = LoggerFactory.getLogger(TopicHandler.class);
 
     @Override
-    public void handleMessage(@Nonnull TopicMessage message) {
+    public void handleMessage(TopicMessage message) {
         Channel channel = this.botDelegate.getJoinedChannels().getChannel(message.forChannel);
         if (channel == null) {
             LOGGER.warn("Got a topic message for a channel we aren't in: {} '{}'", message.forChannel, message.contents);

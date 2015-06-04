@@ -5,7 +5,6 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class PrivMsgMessage extends AbstractMessage {
@@ -46,7 +45,7 @@ public class PrivMsgMessage extends AbstractMessage {
     }
 
     @Override
-    public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
+    public boolean isMessageWellFormed(IRCMessage message) {
         // {"prefix":"otherperson!~op@somehostmask.io","parameters":["MY NICKNAME","private message"],"command":"PRIVMSG"}
         // {"prefix":"beecat!beecat@beecat.","parameters":["#rsspam","channel message"],"command":"PRIVMSG"}
 

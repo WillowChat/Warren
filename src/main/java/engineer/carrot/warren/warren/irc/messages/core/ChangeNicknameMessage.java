@@ -4,11 +4,8 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
-
 public class ChangeNicknameMessage extends AbstractMessage {
-    @Nonnull
-    public String nickname;
+    private String nickname;
 
     public ChangeNicknameMessage() {
 
@@ -24,7 +21,7 @@ public class ChangeNicknameMessage extends AbstractMessage {
     }
 
     @Override
-    public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
+    public boolean isMessageWellFormed(IRCMessage message) {
         return (!message.isPrefixSet() && message.isParametersExactlyExpectedLength(1));
     }
 

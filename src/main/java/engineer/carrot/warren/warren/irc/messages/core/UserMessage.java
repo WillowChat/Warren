@@ -4,14 +4,12 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
-
 public class UserMessage extends AbstractMessage {
-    private String user;
-    private String mode;
-    private String realname;
+    private final String user;
+    private final String mode;
+    private final String realname;
 
-    public UserMessage(@Nonnull String user, @Nonnull String mode, @Nonnull String realname) {
+    public UserMessage(String user, String mode, String realname) {
         this.user = user;
         this.mode = mode;
         this.realname = realname;
@@ -23,7 +21,7 @@ public class UserMessage extends AbstractMessage {
     }
 
     @Override
-    public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
+    public boolean isMessageWellFormed(IRCMessage message) {
         return (!message.isPrefixSet() && message.isParametersExactlyExpectedLength(4));
     }
 

@@ -4,11 +4,9 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
-
 public class TopicMessage extends AbstractMessage {
-    public String forServer;
-    public String forUser;
+    private String forServer;
+    private String forUser;
     public String forChannel;
     public String contents;
 
@@ -21,7 +19,7 @@ public class TopicMessage extends AbstractMessage {
     }
 
     @Override
-    public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
+    public boolean isMessageWellFormed(IRCMessage message) {
         // Parsed message: {"prefix":"server","parameters":["bot nickname","#channel","topic message,"command":"332"}
         return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(3));
     }

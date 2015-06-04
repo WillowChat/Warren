@@ -2,8 +2,6 @@ package engineer.carrot.warren.warren.irc.messages;
 
 import engineer.carrot.warren.warren.irc.messages.util.NoOpException;
 
-import javax.annotation.Nonnull;
-
 public abstract class AbstractMessage implements IMessage {
     @Override
     public void populateFromIRCMessage(IRCMessage message) {
@@ -11,7 +9,6 @@ public abstract class AbstractMessage implements IMessage {
     }
 
     @Override
-    @Nonnull
     public IMessage build(IRCMessage message) {
         this.populateFromIRCMessage(message);
 
@@ -19,7 +16,6 @@ public abstract class AbstractMessage implements IMessage {
     }
 
     @Override
-    @Nonnull
     public IRCMessage buildServerOutput() {
         throw new NoOpException();
     }

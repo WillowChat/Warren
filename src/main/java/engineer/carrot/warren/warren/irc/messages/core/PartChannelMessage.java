@@ -5,8 +5,6 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
-
 public class PartChannelMessage extends AbstractMessage {
     public Hostmask user;
     public String channel;
@@ -25,7 +23,7 @@ public class PartChannelMessage extends AbstractMessage {
     }
 
     @Override
-    public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
+    public boolean isMessageWellFormed(IRCMessage message) {
         // {"prefix":"test!~t@test","parameters":["#test","Part message"],"command":"PART"}
         // {"prefix":"AbcdefghIJK!~abcdef@111.111.11.11","parameters":["#test"],"command":"PART"}
         return (message.isPrefixSetAndNotEmpty() && message.isParametersAtLeastExpectedLength(1));

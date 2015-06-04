@@ -3,11 +3,11 @@ package engineer.carrot.warren.warren.event;
 public class Event {
     private long timestamp;
 
-    public Event() {
+    Event() {
         this.setTimestampToNow();
     }
 
-    public void setTimestampToNow() {
+    private void setTimestampToNow() {
         this.timestamp = System.currentTimeMillis();
     }
 

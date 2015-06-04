@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren.irc;
 
-public class Validation {
+class Validation {
     public boolean serverNameValid(String serverName) {
         return false;
     }

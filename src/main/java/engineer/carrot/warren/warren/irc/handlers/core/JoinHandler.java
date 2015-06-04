@@ -9,13 +9,11 @@ import engineer.carrot.warren.warren.irc.messages.core.JoinedChannelMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-
 public class JoinHandler extends MessageHandler<JoinedChannelMessage> {
     private final Logger LOGGER = LoggerFactory.getLogger(JoinHandler.class);
 
     @Override
-    public void handleMessage(@Nonnull JoinedChannelMessage message) {
+    public void handleMessage(JoinedChannelMessage message) {
         // TODO: Is this valid if the bot changes nicknames directly after joining a channel?
         if (message.user.user.equalsIgnoreCase(this.botDelegate.getBotNickname())) {
             this.botDelegate.moveJoiningChannelToJoined(message.channel);

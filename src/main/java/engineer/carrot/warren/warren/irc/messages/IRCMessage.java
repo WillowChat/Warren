@@ -8,7 +8,6 @@ import engineer.carrot.warren.warren.irc.CharacterCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
@@ -17,16 +16,16 @@ public class IRCMessage {
     private static final Logger LOGGER = LoggerFactory.getLogger(IRCMessage.class);
 
     @Nullable
-    public Map<String, String> tags;
+    private final Map<String, String> tags;
     @Nullable
-    public String prefix;
+    public final String prefix;
     @Nullable
-    public List<String> parameters;
+    public final List<String> parameters;
 
-    public String command;
+    public final String command;
 
-    public static int MAX_LENGTH = 510;
-    public static int MIN_LENGTH = 3;
+    public static final int MAX_LENGTH = 510;
+    public static final int MIN_LENGTH = 3;
 
     private IRCMessage(Builder builder) {
         this.tags = builder.tags;
@@ -40,7 +39,7 @@ public class IRCMessage {
     }
 
     @Nullable
-    public static IRCMessage parseFromLine(@Nonnull String line) {
+    public static IRCMessage parseFromLine(String line) {
         int length = line.length();
         if (length > MAX_LENGTH || length < MIN_LENGTH) {
             return null;
@@ -252,7 +251,6 @@ public class IRCMessage {
         return output;
     }
 
-    @Nonnull
     public static String buildParametersString(List<String> parameters) {
         StringBuilder builder = new StringBuilder();
 

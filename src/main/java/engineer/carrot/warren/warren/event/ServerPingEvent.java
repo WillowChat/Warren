@@ -1,8 +1,8 @@
 package engineer.carrot.warren.warren.event;
 
 public class ServerPingEvent extends Event {
-    public String pingToken;
-    public String pongToken;
+    public final String pingToken;
+    public final String pongToken;
 
     public ServerPingEvent(String pingToken, String pongToken) {
         super();

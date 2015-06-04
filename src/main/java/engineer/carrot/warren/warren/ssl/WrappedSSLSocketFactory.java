@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 public class WrappedSSLSocketFactory extends SSLSocketFactory {
-    final Logger LOGGER = LoggerFactory.getLogger(WrappedSSLSocketFactory.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(WrappedSSLSocketFactory.class);
 
     private SSLSocketFactory factory;
 

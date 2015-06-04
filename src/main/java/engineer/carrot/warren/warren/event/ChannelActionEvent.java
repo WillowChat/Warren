@@ -4,9 +4,9 @@ import engineer.carrot.warren.warren.irc.Channel;
 import engineer.carrot.warren.warren.irc.User;
 
 public class ChannelActionEvent extends Event {
-    public User fromUser;
-    public Channel channel;
-    public String contents;
+    public final User fromUser;
+    public final Channel channel;
+    public final String contents;
 
     public ChannelActionEvent(User fromUser, Channel channel, String contents) {
         super();

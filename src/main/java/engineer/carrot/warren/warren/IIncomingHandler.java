@@ -5,9 +5,9 @@ import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import java.util.Set;
 
 public interface IIncomingHandler {
-    public void setNextExpectedCommands(Set<String> nextExpectedCommands);
+    void setNextExpectedCommands(Set<String> nextExpectedCommands);
 
-    public void setNextExpectedCommandToAnything();
+    void setNextExpectedCommandToAnything();
 
-    public boolean handleIRCMessage(IRCMessage message, String originalLine);
+    boolean handleIRCMessage(IRCMessage message, String originalLine);
 }

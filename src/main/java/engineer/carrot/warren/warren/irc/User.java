@@ -1,8 +1,8 @@
 package engineer.carrot.warren.warren.irc;
 
 public class User {
-    public Hostmask hostmask;
-    private String usernameWithoutAccess;
+    private final Hostmask hostmask;
+    private final String usernameWithoutAccess;
 
     public User(Hostmask hostmask) {
         this.hostmask = hostmask;

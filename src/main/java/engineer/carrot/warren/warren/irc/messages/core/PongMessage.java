@@ -4,8 +4,6 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nonnull;
-
 public class PongMessage extends AbstractMessage {
     private String pongAuthor;
     private String pongToken;
@@ -30,7 +28,7 @@ public class PongMessage extends AbstractMessage {
     }
 
     @Override
-    public boolean isMessageWellFormed(@Nonnull IRCMessage message) {
+    public boolean isMessageWellFormed(IRCMessage message) {
         return (message.isParametersAtLeastExpectedLength(2));
     }
 

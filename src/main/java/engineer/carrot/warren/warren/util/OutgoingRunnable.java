@@ -11,10 +11,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 public class OutgoingRunnable implements Runnable {
-    final Logger LOGGER = LoggerFactory.getLogger(OutgoingRunnable.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(OutgoingRunnable.class);
 
-    private IMessageQueue outgoingQueue;
-    private OutputStreamWriter outToServer;
+    private final IMessageQueue outgoingQueue;
+    private final OutputStreamWriter outToServer;
 
     public OutgoingRunnable(IMessageQueue outgoingQueue, OutputStreamWriter outToServer) {
         this.outgoingQueue = outgoingQueue;

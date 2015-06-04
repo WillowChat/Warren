@@ -9,13 +9,11 @@ import engineer.carrot.warren.warren.irc.messages.RPL.NamReplyMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-
 public class NamReplyHandler extends MessageHandler<NamReplyMessage> {
-    final Logger LOGGER = LoggerFactory.getLogger(NamReplyHandler.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(NamReplyHandler.class);
 
     @Override
-    public void handleMessage(@Nonnull NamReplyMessage message) {
+    public void handleMessage(NamReplyMessage message) {
         // TODO: Add to buffer and process in ENDOFNAMES (366) instead (could be multiple NAMREPLYs)
 
         if (!message.forUser.equalsIgnoreCase(this.botDelegate.getBotNickname())) {

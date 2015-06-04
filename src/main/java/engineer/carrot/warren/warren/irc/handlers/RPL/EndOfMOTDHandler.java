@@ -6,14 +6,13 @@ import engineer.carrot.warren.warren.irc.messages.RPL.EndOfMOTDMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class EndOfMOTDHandler extends MessageHandler<EndOfMOTDMessage> {
-    final Logger LOGGER = LoggerFactory.getLogger(EndOfMOTDHandler.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(EndOfMOTDHandler.class);
 
     @Override
-    public void handleMessage(@Nonnull EndOfMOTDMessage message) {
+    public void handleMessage(EndOfMOTDMessage message) {
         // TODO: Post EndOfMOTD event
         // TODO: Collate MOTD messages in to one, throw a single  event for it?
 

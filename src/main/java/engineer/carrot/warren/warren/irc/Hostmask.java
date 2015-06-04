@@ -3,19 +3,17 @@ package engineer.carrot.warren.warren.irc;
 import com.google.common.base.Strings;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class Hostmask {
-    @Nonnull
-    public String user;
+    public final String user;
     @Nullable
-    public String host;
+    public final String host;
     @Nullable
-    public String server;
+    public final String server;
 
-    public static final int MAX_LENGTH = IRCMessage.MAX_LENGTH;
-    public static final int MIN_LENGTH = IRCMessage.MIN_LENGTH;
+    private static final int MAX_LENGTH = IRCMessage.MAX_LENGTH;
+    private static final int MIN_LENGTH = IRCMessage.MIN_LENGTH;
 
     private Hostmask(Builder builder) {
         this.user = builder.user;
@@ -59,15 +57,15 @@ public class Hostmask {
         return builder.build();
     }
 
-    public boolean containsUser() {
+    private boolean containsUser() {
         return !Strings.isNullOrEmpty(this.user);
     }
 
-    public boolean containsHost() {
+    private boolean containsHost() {
         return !Strings.isNullOrEmpty(this.host);
     }
 
-    public boolean containsServer() {
+    private boolean containsServer() {
         return !Strings.isNullOrEmpty(this.server);
     }
 

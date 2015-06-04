@@ -6,29 +6,29 @@ import java.util.List;
 import java.util.Set;
 
 public interface IWarrenDelegate {
-    public String getBotNickname();
+    String getBotNickname();
 
-    public ChannelManager getJoiningChannels();
+    ChannelManager getJoiningChannels();
 
-    public ChannelManager getJoinedChannels();
+    ChannelManager getJoinedChannels();
 
-    public UserManager getUserManager();
+    UserManager getUserManager();
 
-    public void joinChannels(List<String> channels);
+    void joinChannels(List<String> channels);
 
-    public void moveJoiningChannelToJoined(String channel);
+    void moveJoiningChannelToJoined(String channel);
 
-    public void sendPMToUser(String user, String contents);
+    void sendPMToUser(String user, String contents);
 
-    public void sendMessageToChannel(Channel channel, String contents);
+    void sendMessageToChannel(Channel channel, String contents);
 
-    public boolean shouldIdentify();
+    boolean shouldIdentify();
 
-    public String getIdentifyPassword();
+    String getIdentifyPassword();
 
-    public List<String> getAutoJoinChannels();
+    List<String> getAutoJoinChannels();
 
-    public void setPrefixes(Set<Character> prefixes);
+    void setPrefixes(Set<Character> prefixes);
 
-    public Set<Character> getPrefixes();
+    Set<Character> getPrefixes();
 }

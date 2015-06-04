@@ -4,8 +4,8 @@ import engineer.carrot.warren.warren.irc.Channel;
 import engineer.carrot.warren.warren.irc.User;
 
 public class UserJoinedChannelEvent extends Event {
-    public User user;
-    public Channel channel;
+    public final User user;
+    public final Channel channel;
 
     public UserJoinedChannelEvent(User user, Channel channel) {
         super();

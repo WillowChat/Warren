@@ -6,7 +6,6 @@ public class CtcpHelper {
     public static final String CTCP = Character.toString(CharacterCodes.CTCP);
 
     public static boolean isMessageCTCP(String message) {
-        boolean isCTCP = false;
         if (message.startsWith(CTCP) && message.endsWith(CTCP)) {
             return true;
         }
