@@ -4,15 +4,15 @@ import com.google.common.collect.Sets;
 import engineer.carrot.warren.warren.irc.handlers.MessageHandler;
 import engineer.carrot.warren.warren.irc.handlers.multi.IMotdMultiHandler;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
-import engineer.carrot.warren.warren.irc.messages.RPL.MOTDMessage;
+import engineer.carrot.warren.warren.irc.messages.RPL.MotdMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MotdHandler extends MessageHandler<MOTDMessage> {
+public class MotdHandler extends MessageHandler<MotdMessage> {
     private final Logger LOGGER = LoggerFactory.getLogger(MotdHandler.class);
 
     @Override
-    public void handleMessage(MOTDMessage message) {
+    public void handleMessage(MotdMessage message) {
         IMotdMultiHandler handler = this.incomingHandler.getMotdHandler();
         if (!handler.isConstructing()) {
             LOGGER.warn("MOTD handler doesn't think it's constructing an MOTD yet - ignoring MOTD message");

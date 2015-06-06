@@ -4,17 +4,17 @@ import com.google.common.collect.Lists;
 import engineer.carrot.warren.warren.event.MotdEvent;
 import engineer.carrot.warren.warren.irc.handlers.MessageHandler;
 import engineer.carrot.warren.warren.irc.handlers.multi.IMotdMultiHandler;
-import engineer.carrot.warren.warren.irc.messages.RPL.MOTDEndMessage;
+import engineer.carrot.warren.warren.irc.messages.RPL.MotdEndMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class MotdEndHandler extends MessageHandler<MOTDEndMessage> {
+public class MotdEndHandler extends MessageHandler<MotdEndMessage> {
     private final Logger LOGGER = LoggerFactory.getLogger(MotdEndHandler.class);
 
     @Override
-    public void handleMessage(MOTDEndMessage message) {
+    public void handleMessage(MotdEndMessage message) {
         IMotdMultiHandler handler = this.incomingHandler.getMotdHandler();
         MotdEvent event = null;
 

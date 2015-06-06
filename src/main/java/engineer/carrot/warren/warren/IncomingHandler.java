@@ -66,9 +66,9 @@ public class IncomingHandler implements IIncomingHandler {
         this.addMessageToMap(new TopicWhoTimeMessage());
         this.addMessageToMap(new YourHostMessage());
 
-        this.addMessageHandlerPairToMap(new MOTDStartMessage(), new MotdStartHandler());
-        this.addMessageHandlerPairToMap(new MOTDMessage(), new MotdHandler());
-        this.addMessageHandlerPairToMap(new MOTDEndMessage(), new MotdEndHandler());
+        this.addMessageHandlerPairToMap(new MotdStartMessage(), new MotdStartHandler());
+        this.addMessageHandlerPairToMap(new MotdMessage(), new MotdHandler());
+        this.addMessageHandlerPairToMap(new MotdEndMessage(), new MotdEndHandler());
         this.addMessageHandlerPairToMap(new NoTopicMessage(), new NoTopicHandler());
         this.addMessageHandlerPairToMap(new TopicMessage(), new TopicHandler());
         this.addMessageHandlerPairToMap(new WelcomeMessage(), new WelcomeHandler());
