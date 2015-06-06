@@ -1,9 +1,12 @@
 package engineer.carrot.warren.warren.irc.handlers.multi;
 
-interface IMultiMessageHandler {
-    public void startConstructing();
+import javax.annotation.Nullable;
 
-    public boolean isConstructing();
+public interface IMultiMessageHandler<R> {
+    void startConstructing();
 
-    public void finishConstructing();
+    boolean isConstructing();
+
+    @Nullable
+    R finishConstructing();
 }

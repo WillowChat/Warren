@@ -10,6 +10,8 @@ import engineer.carrot.warren.warren.irc.handlers.core.JoinHandler;
 import engineer.carrot.warren.warren.irc.handlers.core.PartHandler;
 import engineer.carrot.warren.warren.irc.handlers.core.PingHandler;
 import engineer.carrot.warren.warren.irc.handlers.core.PrivMsgHandler;
+import engineer.carrot.warren.warren.irc.handlers.multi.IMotdMultiHandler;
+import engineer.carrot.warren.warren.irc.handlers.multi.MotdMultiHandler;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.RPL.*;
@@ -34,6 +36,9 @@ public class IncomingHandler implements IIncomingHandler {
     private Map<String, Class<? extends IMessage>> messageMap;
 
     private Set<String> nextExpectedCommands;
+
+    // Multi Handlers
+    private IMotdMultiHandler motdHandler;
 
     public IncomingHandler(IWarrenDelegate botDelegate, IMessageQueue outgoingQueue, EventBus eventBus) {
         this.botDelegate = botDelegate;
@@ -61,9 +66,9 @@ public class IncomingHandler implements IIncomingHandler {
         this.addMessageToMap(new TopicWhoTimeMessage());
         this.addMessageToMap(new YourHostMessage());
 
-        this.addMessageHandlerPairToMap(new MOTDStartMessage(), new MOTDStartHandler());
-        this.addMessageHandlerPairToMap(new MOTDMessage(), new MOTDHandler());
-        this.addMessageHandlerPairToMap(new EndOfMOTDMessage(), new EndOfMOTDHandler());
+        this.addMessageHandlerPairToMap(new MOTDStartMessage(), new MotdStartHandler());
+        this.addMessageHandlerPairToMap(new MOTDMessage(), new MotdHandler());
+        this.addMessageHandlerPairToMap(new MOTDEndMessage(), new MotdEndHandler());
         this.addMessageHandlerPairToMap(new NoTopicMessage(), new NoTopicHandler());
         this.addMessageHandlerPairToMap(new TopicMessage(), new TopicHandler());
         this.addMessageHandlerPairToMap(new WelcomeMessage(), new WelcomeHandler());
@@ -80,6 +85,12 @@ public class IncomingHandler implements IIncomingHandler {
             handler.setIncomingHandler(this);
             handler.setEventBus(this.eventBus);
         }
+
+        this.initialiseMultiMessageHandlers();
+    }
+
+    private void initialiseMultiMessageHandlers() {
+        this.motdHandler = new MotdMultiHandler();
     }
 
     private void addMessageToMap(IMessage message) {
@@ -159,5 +170,12 @@ public class IncomingHandler implements IIncomingHandler {
         messageHandler.handleMessage(typedMessage);
 
         return true;
+    }
+
+    // Multi message handlers
+
+    @Override
+    public IMotdMultiHandler getMotdHandler() {
+        return this.motdHandler;
     }
 }

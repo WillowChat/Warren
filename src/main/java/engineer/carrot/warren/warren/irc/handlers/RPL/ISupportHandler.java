@@ -17,5 +17,7 @@ public class ISupportHandler extends MessageHandler<ISupportMessage> {
         for (Map.Entry<String, String> entry : message.parameters.entrySet()) {
             LOGGER.info("{}: {}", entry.getKey(), entry.getValue());
         }
+
+        // TODO: Add tracker for ISupport messages
     }
 }
