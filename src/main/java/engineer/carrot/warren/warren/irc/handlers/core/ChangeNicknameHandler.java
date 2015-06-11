@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.irc.handlers.core;
 
 import engineer.carrot.warren.warren.UserManager;
+import engineer.carrot.warren.warren.event.UserChangedNicknameEvent;
 import engineer.carrot.warren.warren.irc.User;
 import engineer.carrot.warren.warren.irc.handlers.MessageHandler;
 import engineer.carrot.warren.warren.irc.messages.core.ChangeNicknameMessage;
@@ -22,8 +23,9 @@ public class ChangeNicknameHandler extends MessageHandler<ChangeNicknameMessage>
 
         UserManager manager = this.botDelegate.getUserManager();
         User user = manager.getOrCreateUser(message.fromUser);
-        manager.renameUser(user.getNameWithoutAccess(), message.nickname);
+        String oldNickname = user.getNameWithoutAccess();
+        manager.renameUser(oldNickname, message.nickname);
 
-        LOGGER.info("User '{}' changed their nickname to '{}'", message.fromUser.user, message.nickname);
+        this.postEvent(new UserChangedNicknameEvent(user, oldNickname));
     }
 }
