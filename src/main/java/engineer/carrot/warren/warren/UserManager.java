@@ -3,15 +3,24 @@ package engineer.carrot.warren.warren;
 import com.google.common.collect.Maps;
 import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.User;
+import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IPrefixSupportModule;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Set;
 
 public class UserManager {
     private final Map<String, User> users;
+    private Set<String> prefixes;
 
-    public UserManager() {
+    public UserManager(Set<String> prefixes) {
         this.users = Maps.newHashMap();
+
+        this.setPrefixes(prefixes);
+    }
+
+    public void setPrefixes(Set<String> prefixes) {
+        this.prefixes = prefixes;
     }
 
     public Map<String, User> getAllUsers() {
@@ -33,7 +42,7 @@ public class UserManager {
 
     public User getOrCreateUser(Hostmask hostmask) {
         if (!this.containsUser(hostmask.user)) {
-            User user = new User(hostmask);
+            User user = new User(hostmask, this.prefixes);
             this.addUser(user);
             return user;
         }

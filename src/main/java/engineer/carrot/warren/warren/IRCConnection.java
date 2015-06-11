@@ -84,10 +84,10 @@ public class IRCConnection implements IWarrenDelegate {
     private void initialise() {
         this.outgoingQueue = new MessageQueue();
         this.eventBus = new EventBus();
+        this.userManager = new UserManager(Sets.<String>newHashSet());
+
         this.incomingHandler = new IncomingHandler(this, this.outgoingQueue, this.eventBus);
-
-        this.userManager = new UserManager();
-
+        
         this.joiningChannelManager = new ChannelManager();
         this.joinedChannelManager = new ChannelManager();
     }

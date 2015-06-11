@@ -1,18 +1,20 @@
 package engineer.carrot.warren.warren.irc;
 
+import java.util.Set;
+
 public class User {
     private final Hostmask hostmask;
     private final String usernameWithoutAccess;
 
-    public User(Hostmask hostmask) {
+    public User(Hostmask hostmask, Set<String> prefixes) {
         this.hostmask = hostmask;
 
-        this.usernameWithoutAccess = this.trimAccess(this.hostmask.user);
+        this.usernameWithoutAccess = this.trimAccess(this.hostmask.user, prefixes);
     }
 
-    private String trimAccess(String user) {
+    private String trimAccess(String user, Set<String> prefixes) {
         String trimmedName = user;
-        if (AccessLevel.isKnownIdentifier(trimmedName.charAt(0))) {
+        if (prefixes.contains(Character.toString(trimmedName.charAt(0)))) {
             trimmedName = trimmedName.substring(1);
         }
 

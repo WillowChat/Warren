@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.irc.handlers.RPL.isupport;
 
 import com.google.common.collect.Maps;
+import engineer.carrot.warren.warren.UserManager;
 import engineer.carrot.warren.warren.irc.handlers.MessageHandler;
 import engineer.carrot.warren.warren.irc.messages.RPL.ISupportMessage;
 import org.slf4j.Logger;
@@ -14,13 +15,13 @@ public class ISupportHandler extends MessageHandler<ISupportMessage> implements 
     private final Map<String, IISupportModule> modules;
 
     // Modules
-    private final PrefixSupportModule prefixSupportModule;
+    private final IPrefixSupportModule prefixSupportModule;
 
-    public ISupportHandler() {
+    public ISupportHandler(UserManager userManager) {
         this.supports = Maps.newHashMap();
         this.modules = Maps.newHashMap();
 
-        this.prefixSupportModule = new PrefixSupportModule();
+        this.prefixSupportModule = new PrefixSupportModule(userManager);
         this.modules.put("PREFIX", this.prefixSupportModule);
     }
 
@@ -48,7 +49,7 @@ public class ISupportHandler extends MessageHandler<ISupportMessage> implements 
     // IISupportManager
 
     @Override
-    public IISupportModule getPrefixModule() {
+    public IPrefixSupportModule getPrefixModule() {
         return this.prefixSupportModule;
     }
 }

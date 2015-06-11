@@ -1,5 +1,6 @@
 package engineer.carrot.warren.warren;
 
+import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IISupportManager;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.ISupportHandler;
 import engineer.carrot.warren.warren.irc.handlers.multi.IMotdMultiHandler;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
@@ -15,5 +16,5 @@ public interface IIncomingHandler {
 
     IMotdMultiHandler getMotdHandler();
 
-    ISupportHandler getISupportHandler();
+    IISupportManager getISupportManager();
 }

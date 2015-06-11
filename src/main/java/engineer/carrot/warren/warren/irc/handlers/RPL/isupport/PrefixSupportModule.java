@@ -2,17 +2,27 @@ package engineer.carrot.warren.warren.irc.handlers.RPL.isupport;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import engineer.carrot.warren.warren.IIncomingHandler;
+import engineer.carrot.warren.warren.UserManager;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
 
 import java.util.Map;
+import java.util.Set;
 
-public class PrefixSupportModule implements IISupportModule {
+public class PrefixSupportModule implements IPrefixSupportModule {
+    private final Set<String> prefixes;
     private final Map<String, String> modesToPrefixes;
     private final Map<String, String> prefixesToModes;
 
-    public PrefixSupportModule() {
+    private final UserManager userManager;
+
+    public PrefixSupportModule(UserManager userManager) {
+        this.prefixes = Sets.newHashSet();
         this.modesToPrefixes = Maps.newHashMap();
         this.prefixesToModes = Maps.newHashMap();
+
+        this.userManager = userManager;
     }
 
     @Override
@@ -56,10 +66,19 @@ public class PrefixSupportModule implements IISupportModule {
                 return false;
             }
 
-            modesToPrefixes.put(mode, prefix);
-            prefixesToModes.put(prefix, mode);
+            this.prefixes.add(prefix);
+            this.modesToPrefixes.put(mode, prefix);
+            this.prefixesToModes.put(prefix, mode);
         }
 
+        this.userManager.setPrefixes(this.prefixes);
         return true;
+    }
+
+    // IPrefixSupportModule
+
+    @Override
+    public Set<String> getPrefixes() {
+        return this.prefixes;
     }
 }

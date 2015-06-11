@@ -6,6 +6,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.gson.Gson;
 import engineer.carrot.warren.warren.irc.handlers.IMessageHandler;
 import engineer.carrot.warren.warren.irc.handlers.RPL.*;
+import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IISupportManager;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.ISupportHandler;
 import engineer.carrot.warren.warren.irc.handlers.core.JoinHandler;
 import engineer.carrot.warren.warren.irc.handlers.core.PartHandler;
@@ -82,7 +83,7 @@ public class IncomingHandler implements IIncomingHandler {
         this.addMessageHandlerPairToMap(new PrivMsgMessage(), new PrivMsgHandler());
         this.addMessageHandlerPairToMap(new NamReplyMessage(), new NamReplyHandler());
 
-        this.iSupportHandler = new ISupportHandler();
+        this.iSupportHandler = new ISupportHandler(this.botDelegate.getUserManager());
         this.addMessageHandlerPairToMap(new ISupportMessage(), this.iSupportHandler);
 
         for (IMessageHandler handler : this.commandDelegateMap.values()) {
@@ -186,7 +187,7 @@ public class IncomingHandler implements IIncomingHandler {
     }
 
     @Override
-    public ISupportHandler getISupportHandler() {
+    public IISupportManager getISupportManager() {
         return this.iSupportHandler;
     }
 }
