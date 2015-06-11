@@ -3,7 +3,6 @@ package engineer.carrot.warren.warren;
 import com.google.common.collect.Maps;
 import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.User;
-import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IPrefixSupportModule;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -25,6 +24,10 @@ public class UserManager {
 
     public Map<String, User> getAllUsers() {
         return this.users;
+    }
+
+    private boolean containsUser(User user) {
+        return this.users.containsKey(user.getNameWithoutAccess());
     }
 
     private boolean containsUser(String userName) {
@@ -51,7 +54,7 @@ public class UserManager {
     }
 
     private boolean addUser(User user) {
-        if (this.containsUser(user.getNameWithoutAccess())) {
+        if (this.containsUser(user)) {
             return false;
         }
 
@@ -63,5 +66,25 @@ public class UserManager {
         if (this.containsUser(userName)) {
             this.users.remove(userName);
         }
+    }
+
+    private void removeUser(User user) {
+        if (this.containsUser(user)) {
+            this.removeUser(user.getNameWithoutAccess());
+        }
+    }
+
+    public boolean renameUser(String oldName, String newName) {
+        User user = this.users.get(oldName);
+        if (user == null) {
+            return false;
+        }
+
+        user.setNickname(newName);
+
+        this.removeUser(oldName);
+        this.addUser(user);
+
+        return true;
     }
 }

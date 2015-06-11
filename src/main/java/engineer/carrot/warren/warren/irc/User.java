@@ -4,12 +4,23 @@ import java.util.Set;
 
 public class User {
     private final Hostmask hostmask;
-    private final String usernameWithoutAccess;
+    private String usernameWithoutAccess;
+    private Set<String> prefixes;
 
     public User(Hostmask hostmask, Set<String> prefixes) {
         this.hostmask = hostmask;
+        this.prefixes = prefixes;
 
-        this.usernameWithoutAccess = this.trimAccess(this.hostmask.user, prefixes);
+        this.computeUsername();
+    }
+
+    public void setNickname(String nickname) {
+        this.hostmask.user = nickname;
+        this.computeUsername();
+    }
+
+    private void computeUsername() {
+        this.usernameWithoutAccess = this.trimAccess(this.hostmask.user, this.prefixes);
     }
 
     private String trimAccess(String user, Set<String> prefixes) {
@@ -27,5 +38,14 @@ public class User {
 
     public String getNameWithAccess() {
         return this.hostmask.user;
+    }
+
+    public Hostmask getHostmask() {
+        return this.hostmask;
+    }
+
+    @Override
+    public String toString() {
+        return this.hostmask.toString();
     }
 }

@@ -6,7 +6,7 @@ import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import javax.annotation.Nullable;
 
 public class Hostmask {
-    public final String user;
+    public String user;
     @Nullable
     public final String host;
     @Nullable
@@ -98,6 +98,13 @@ public class Hostmask {
 
         public Builder() {
 
+        }
+
+        public Builder hostmask(Hostmask hostmask) {
+            this.user = hostmask.user;
+            this.host = hostmask.host;
+            this.server = hostmask.server;
+            return this;
         }
 
         public Builder user(String user) {

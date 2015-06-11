@@ -3,7 +3,6 @@ package engineer.carrot.warren.warren.irc.handlers.RPL.isupport;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import engineer.carrot.warren.warren.IIncomingHandler;
 import engineer.carrot.warren.warren.UserManager;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
 
@@ -18,6 +17,8 @@ public class PrefixSupportModule implements IPrefixSupportModule {
     private final UserManager userManager;
 
     public PrefixSupportModule(UserManager userManager) {
+        // TODO: Add default (ov)@+
+        // TODO: Handle "null" value
         this.prefixes = Sets.newHashSet();
         this.modesToPrefixes = Maps.newHashMap();
         this.prefixesToModes = Maps.newHashMap();

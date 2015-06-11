@@ -8,10 +8,7 @@ import engineer.carrot.warren.warren.irc.handlers.IMessageHandler;
 import engineer.carrot.warren.warren.irc.handlers.RPL.*;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IISupportManager;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.ISupportHandler;
-import engineer.carrot.warren.warren.irc.handlers.core.JoinHandler;
-import engineer.carrot.warren.warren.irc.handlers.core.PartHandler;
-import engineer.carrot.warren.warren.irc.handlers.core.PingHandler;
-import engineer.carrot.warren.warren.irc.handlers.core.PrivMsgHandler;
+import engineer.carrot.warren.warren.irc.handlers.core.*;
 import engineer.carrot.warren.warren.irc.handlers.multi.IMotdMultiHandler;
 import engineer.carrot.warren.warren.irc.handlers.multi.MotdMultiHandler;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
@@ -82,6 +79,7 @@ public class IncomingHandler implements IIncomingHandler {
         this.addMessageHandlerPairToMap(new PingMessage(), new PingHandler());
         this.addMessageHandlerPairToMap(new PrivMsgMessage(), new PrivMsgHandler());
         this.addMessageHandlerPairToMap(new NamReplyMessage(), new NamReplyHandler());
+        this.addMessageHandlerPairToMap(new ChangeNicknameMessage(), new ChangeNicknameHandler());
 
         this.iSupportHandler = new ISupportHandler(this.botDelegate.getUserManager());
         this.addMessageHandlerPairToMap(new ISupportMessage(), this.iSupportHandler);

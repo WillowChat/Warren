@@ -87,7 +87,7 @@ public class IRCConnection implements IWarrenDelegate {
         this.userManager = new UserManager(Sets.<String>newHashSet());
 
         this.incomingHandler = new IncomingHandler(this, this.outgoingQueue, this.eventBus);
-        
+
         this.joiningChannelManager = new ChannelManager();
         this.joinedChannelManager = new ChannelManager();
     }
@@ -386,7 +386,7 @@ public class IRCConnection implements IWarrenDelegate {
     @Override
     public void joinChannels(List<String> channels) {
         for (String channel : channels) {
-            this.joiningChannelManager.addChannel(new Channel.Builder().name(channel).users(Maps.<String, User>newHashMap()).userAccessMap(Maps.<String, AccessLevel>newHashMap()).build());
+            this.joiningChannelManager.addChannel(new Channel.Builder().name(channel).users(Sets.<User>newHashSet()).userAccessMap(Maps.<User, AccessLevel>newHashMap()).build());
         }
 
         this.outgoingQueue.addMessageToQueue(new JoinChannelsMessage(channels));

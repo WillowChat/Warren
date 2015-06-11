@@ -1,11 +1,16 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
+import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IRCMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
+import javax.annotation.Nullable;
+
 public class ChangeNicknameMessage extends AbstractMessage {
-    private String nickname;
+    @Nullable
+    public Hostmask fromUser;
+    public String nickname;
 
     public ChangeNicknameMessage() {
 
@@ -16,13 +21,25 @@ public class ChangeNicknameMessage extends AbstractMessage {
     }
 
     @Override
+    public void populateFromIRCMessage(IRCMessage message) {
+        this.fromUser = Hostmask.parseFromString(message.prefix);
+        this.nickname = message.parameters.get(0);
+    }
+
+    @Override
     public IRCMessage buildServerOutput() {
-        return new IRCMessage.Builder().command(this.getCommandID()).parameters(this.nickname).build();
+        IRCMessage.Builder builder = new IRCMessage.Builder().command(this.getCommandID()).parameters(this.nickname);
+
+        if (this.fromUser != null) {
+            builder.prefix(this.fromUser.buildOutputString());
+        }
+
+        return builder.build();
     }
 
     @Override
     public boolean isMessageWellFormed(IRCMessage message) {
-        return (!message.isPrefixSet() && message.isParametersExactlyExpectedLength(1));
+        return (message.isParametersExactlyExpectedLength(1));
     }
 
     @Override

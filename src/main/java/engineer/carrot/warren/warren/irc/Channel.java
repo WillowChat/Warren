@@ -3,11 +3,12 @@ package engineer.carrot.warren.warren.irc;
 import engineer.carrot.warren.warren.UserManager;
 
 import java.util.Map;
+import java.util.Set;
 
 public class Channel {
     public final String name;
-    public final Map<String, User> users;
-    public final Map<String, AccessLevel> userAccessMap;
+    public final Set<User> users;
+    public final Map<User, AccessLevel> userAccessMap;
 
     private Channel(Builder builder) {
         this.name = builder.name;
@@ -16,25 +17,25 @@ public class Channel {
     }
 
     public void removeUser(User user) {
-        this.users.remove(user.getNameWithoutAccess());
+        this.users.remove(user);
     }
 
     private void addUser(User user, AccessLevel level) {
-        this.users.put(user.getNameWithoutAccess(), user);
-        this.userAccessMap.put(user.getNameWithoutAccess(), level);
+        this.users.add(user);
+        this.userAccessMap.put(user, level);
     }
 
     public boolean doesUserHaveAccessLevel(User user, AccessLevel accessLevel) {
-        if (!this.users.containsKey(user.getNameWithoutAccess())) {
+        if (!this.users.contains(user)) {
             return false;
         }
 
-        AccessLevel level = this.userAccessMap.getOrDefault(user.getNameWithoutAccess(), AccessLevel.NONE);
+        AccessLevel level = this.userAccessMap.getOrDefault(user, AccessLevel.NONE);
         return (level == accessLevel);
     }
 
     private boolean containsUser(User user) {
-        return this.users.containsKey(user.getNameWithoutAccess());
+        return this.users.contains(user);
     }
 
     public User getOrCreateUser(Hostmask hostmask, UserManager userManager) {
@@ -61,20 +62,20 @@ public class Channel {
 
     public static class Builder {
         public String name;
-        public Map<String, User> users;
-        public Map<String, AccessLevel> userAccessMap;
+        public Set<User> users;
+        public Map<User, AccessLevel> userAccessMap;
 
         public Builder name(String name) {
             this.name = name;
             return this;
         }
 
-        public Builder users(Map<String, User> users) {
+        public Builder users(Set<User> users) {
             this.users = users;
             return this;
         }
 
-        public Builder userAccessMap(Map<String, AccessLevel> userAccessMap) {
+        public Builder userAccessMap(Map<User, AccessLevel> userAccessMap) {
             this.userAccessMap = userAccessMap;
             return this;
         }
