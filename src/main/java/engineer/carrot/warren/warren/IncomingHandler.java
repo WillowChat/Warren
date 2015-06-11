@@ -6,6 +6,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.gson.Gson;
 import engineer.carrot.warren.warren.irc.handlers.IMessageHandler;
 import engineer.carrot.warren.warren.irc.handlers.RPL.*;
+import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.ISupportHandler;
 import engineer.carrot.warren.warren.irc.handlers.core.JoinHandler;
 import engineer.carrot.warren.warren.irc.handlers.core.PartHandler;
 import engineer.carrot.warren.warren.irc.handlers.core.PingHandler;
@@ -36,6 +37,9 @@ public class IncomingHandler implements IIncomingHandler {
     private Map<String, Class<? extends IMessage>> messageMap;
 
     private Set<String> nextExpectedCommands;
+
+    // Handlers
+    private ISupportHandler iSupportHandler;
 
     // Multi Handlers
     private IMotdMultiHandler motdHandler;
@@ -77,7 +81,9 @@ public class IncomingHandler implements IIncomingHandler {
         this.addMessageHandlerPairToMap(new PingMessage(), new PingHandler());
         this.addMessageHandlerPairToMap(new PrivMsgMessage(), new PrivMsgHandler());
         this.addMessageHandlerPairToMap(new NamReplyMessage(), new NamReplyHandler());
-        this.addMessageHandlerPairToMap(new ISupportMessage(), new ISupportHandler());
+
+        this.iSupportHandler = new ISupportHandler();
+        this.addMessageHandlerPairToMap(new ISupportMessage(), this.iSupportHandler);
 
         for (IMessageHandler handler : this.commandDelegateMap.values()) {
             handler.setBotDelegate(this.botDelegate);
@@ -177,5 +183,10 @@ public class IncomingHandler implements IIncomingHandler {
     @Override
     public IMotdMultiHandler getMotdHandler() {
         return this.motdHandler;
+    }
+
+    @Override
+    public ISupportHandler getISupportHandler() {
+        return this.iSupportHandler;
     }
 }
