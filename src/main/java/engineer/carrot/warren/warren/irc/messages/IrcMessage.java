@@ -183,7 +183,7 @@ public class IrcMessage {
     }
 
     public boolean isParametersSet() {
-        return this.parameters != null;
+        return this.parameters != null && !this.parameters.isEmpty();
     }
 
     public boolean isParametersAtLeastExpectedLength(int expectedLength) {
