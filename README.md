@@ -21,47 +21,24 @@ A Java IRC framework for personal use (but open-sourced). Attempts to achieve go
 [RFC 2812](https://tools.ietf.org/html/rfc2812)
 
 * **Make relevant TODOs Issues**
-* ~~Server Connection cleanup / separation~~,
- * Still needs cleaning up a little,
-* ~~Combine incoming and outgoing messages~~,
-* ~~NickServ / password / file?~~,
-* ~~High level events, not protocol dependent (channel message, PM, join, leave, etc)~~,
- * Expand events support
-* Add concept of "acceptable next commands" for use in MOTD parsing, etc
-* Consider splitting message validators out (shouldn't be instance specific),
-* ~~Logging framework (chose SLF4J),~~
-* More string sanitisation / safe output to log,
-* Hiding NickServ passwords / etc from log,
-* ~~Hostmask parsing~~,
-* Annotations to register command handlers and holders,
-* Unit testing (especially message parsing),
-* CAP state (including SASL),
-* Connection state,
-* ~~Channel state (keeping track of who is currently in a channel)~~,
-* ~~User state~~,
- * ~~This includes tracking Users somewhere, adding references to them to Channels, etc~~
-* Tracking mode changes,
-* Server state (finish ISupport),
-* ~~Configurability~~,
-* ~~Nullable / Not Null annotations~~,
-* ~~Outgoing message queue~~,
-* Incoming processing queue,
-* Task queue with result / delegate,
-* Rate limiting,
-* Message splitting,
-* ~~Allow user to specify accepted certificate fingerprint for servers with terrible CAs~~,
-* Modules,
- * Think about IPC,
- * Also think about reloading modules on the fly,
-* Consider using own high level events to drive bot, call it "core module",
-* Think about reconnect / failure policy,
-* Benchmarking,
-* ~~License (chose BSD 2-clause)~~,
- * Consider whether to release,
-* ~~Testing~~,
- * 100% coverage for message serialisation / deserialisation,
-* Full session tests (check state of things afterwards are as expected),
-* Non SSL connections (disabled by default).
+* More string sanitisation / safe output to log
+* Hiding NickServ passwords / etc from log
+* Annotations to register command handlers and holders
+* Expand unit testing (especially message parsing)
+* CAP state (including SASL)
+* Connection state
+* Handling mode changes (need to think about mixed modes)
+* More ISupport support
+* Incoming processing queue (consider NIO?)
+* Task queue with result / delegate
+* Rate limiting
+* Message splitting
+* Modules
+ * Think about IPC
+ * Also think about reloading modules on the fly
+* Think about reconnect / failure policy (maybe this is out of scope)
+* Benchmarking
+* Full session tests (check state of things afterwards are as expected)
 
 ##Code License
 The source code of this project is licensed under the terms of the ISC license, listed in the [LICENSE](LICENSE.md) file. A concise summary of the ISC license is available at [choosealicense.org](http://choosealicense.com/licenses/isc/).
