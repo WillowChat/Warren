@@ -10,6 +10,7 @@ public class MessageCodes {
     public static final String NOTICE = "NOTICE";
     public static final String NICK = "NICK";
     public static final String USER = "USER";
+    public static final String MODE = "MODE";
 
     public static class RPL {
         public static final String WELCOME = "001";

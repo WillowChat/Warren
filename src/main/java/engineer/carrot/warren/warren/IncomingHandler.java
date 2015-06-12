@@ -80,6 +80,7 @@ public class IncomingHandler implements IIncomingHandler {
         this.addMessageHandlerPairToMap(new PrivMsgMessage(), new PrivMsgHandler());
         this.addMessageHandlerPairToMap(new NamReplyMessage(), new NamReplyHandler());
         this.addMessageHandlerPairToMap(new ChangeNicknameMessage(), new ChangeNicknameHandler());
+        this.addMessageHandlerPairToMap(new ModeMessage(), new ModeHandler());
 
         this.iSupportHandler = new ISupportHandler(this.botDelegate.getUserManager());
         this.addMessageHandlerPairToMap(new ISupportMessage(), this.iSupportHandler);

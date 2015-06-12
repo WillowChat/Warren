@@ -16,13 +16,17 @@ public class ISupportHandler extends MessageHandler<ISupportMessage> implements 
 
     // Modules
     private final IPrefixSupportModule prefixSupportModule;
+    private final IChanTypesSupportModule chanTypesSupportModule;
 
     public ISupportHandler(UserManager userManager) {
         this.supports = Maps.newHashMap();
         this.modules = Maps.newHashMap();
 
         this.prefixSupportModule = new PrefixSupportModule(userManager);
+        this.chanTypesSupportModule = new ChanTypesSupportModule();
+
         this.modules.put("PREFIX", this.prefixSupportModule);
+        this.modules.put("CHANTYPES", this.chanTypesSupportModule);
     }
 
     @Override
@@ -51,5 +55,10 @@ public class ISupportHandler extends MessageHandler<ISupportMessage> implements 
     @Override
     public IPrefixSupportModule getPrefixModule() {
         return this.prefixSupportModule;
+    }
+
+    @Override
+    public IChanTypesSupportModule getChannelPrefixesModule() {
+        return this.chanTypesSupportModule;
     }
 }

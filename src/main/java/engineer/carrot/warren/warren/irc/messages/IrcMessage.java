@@ -271,7 +271,7 @@ public class IrcMessage {
         public Map<String, String> tags = null;
         public String prefix = null;
         public String command = null;
-        public List<String> parameters = null;
+        public List<String> parameters = Lists.newArrayList();
 
         public Builder command(String command) {
             this.command = command;
@@ -288,12 +288,17 @@ public class IrcMessage {
             return this;
         }
 
+        public Builder parameter(String parameter) {
+            this.parameters.add(parameter);
+            return this;
+        }
+
         public Builder parameters(String... parameters) {
             return this.parameters(Lists.newArrayList(parameters));
         }
 
         public Builder parameters(List<String> parameters) {
-            this.parameters = parameters;
+            this.parameters.addAll(parameters);
             return this;
         }
 
@@ -301,6 +306,10 @@ public class IrcMessage {
             IrcMessage message = new IrcMessage(this);
             if (message.command == null) {
                 throw new IllegalStateException("IRC message must have a command!");
+            }
+
+            if (this.parameters.isEmpty()) {
+                this.parameters = null;
             }
 
             return message;
