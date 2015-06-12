@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.IMessage;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.util.NoOpException;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class AbstractMessageSerialiserTest<M extends IMessage> {
-    private List<IRCMessage> testCases;
+    private List<IrcMessage> testCases;
 
     public abstract M createMessage() throws IllegalAccessException, InstantiationException;
 
@@ -28,14 +28,14 @@ public abstract class AbstractMessageSerialiserTest<M extends IMessage> {
     }
 
     @Nullable
-    private M createAndPopulateMessage(IRCMessage ircMessage) throws NoOpException, IllegalAccessException, InstantiationException {
+    private M createAndPopulateMessage(IrcMessage ircMessage) throws NoOpException, IllegalAccessException, InstantiationException {
         M message = this.createMessage();
         message.populateFromIRCMessage(ircMessage);
 
         return message;
     }
 
-    public abstract List<IRCMessage> constructTestCases();
+    public abstract List<IrcMessage> constructTestCases();
 
-    public abstract void testMessageSerialisation(IRCMessage ircMessage, M message);
+    public abstract void testMessageSerialisation(IrcMessage ircMessage, M message);
 }

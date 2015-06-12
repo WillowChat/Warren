@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren;
 
 import com.google.common.collect.Lists;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import org.junit.Test;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 public class IRCMessageTest {
     @Test
     public void testParseFromCommandOnly() {
-        IRCMessage ircMessage = IRCMessage.parseFromLine("TEST");
+        IrcMessage ircMessage = IrcMessage.parseFromLine("TEST");
 
         assertNotNull(ircMessage);
         assertTrue(ircMessage.isCommandSet());
@@ -23,7 +23,7 @@ public class IRCMessageTest {
 
     @Test
     public void testParseFromPrefixCommand() {
-        IRCMessage ircMessage = IRCMessage.parseFromLine(":user!host@server TEST");
+        IrcMessage ircMessage = IrcMessage.parseFromLine(":user!host@server TEST");
 
         assertNotNull(ircMessage);
         assertTrue(ircMessage.isCommandSet());
@@ -36,7 +36,7 @@ public class IRCMessageTest {
 
     @Test
     public void testParseFromPrefixCommandParameters() {
-        IRCMessage ircMessage = IRCMessage.parseFromLine(":user!host@server TEST some parameters :AND A LAST ONE");
+        IrcMessage ircMessage = IrcMessage.parseFromLine(":user!host@server TEST some parameters :AND A LAST ONE");
 
         assertNotNull(ircMessage);
         assertTrue(ircMessage.isCommandSet());
@@ -55,7 +55,7 @@ public class IRCMessageTest {
         String test1 = "Test1";
 
         List<String> parameters = Lists.newArrayList(test1);
-        String stringParameters = IRCMessage.buildParametersString(parameters);
+        String stringParameters = IrcMessage.buildParametersString(parameters);
 
         // Expected output: ":Test1"
         assertEquals(":" + test1, stringParameters);
@@ -67,7 +67,7 @@ public class IRCMessageTest {
         String test2 = "Test2";
 
         List<String> parameters = Lists.newArrayList(test1, test2);
-        String stringParameters = IRCMessage.buildParametersString(parameters);
+        String stringParameters = IrcMessage.buildParametersString(parameters);
 
         // Expected output: "Test1 :Test2"
         assertEquals(test1 + " :" + test2, stringParameters);
@@ -80,7 +80,7 @@ public class IRCMessageTest {
         String test3 = "Test3 Test4 Test5";
 
         List<String> parameters = Lists.newArrayList(test1, test2, test3);
-        String stringParameters = IRCMessage.buildParametersString(parameters);
+        String stringParameters = IrcMessage.buildParametersString(parameters);
 
         // Expected output: "Test1 Test2 :Test3 Test4 Test5"
         assertEquals(test1 + " " + test2 + " :" + test3, stringParameters);

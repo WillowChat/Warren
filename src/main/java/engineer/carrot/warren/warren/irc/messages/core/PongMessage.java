@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class PongMessage extends AbstractMessage {
@@ -17,18 +17,18 @@ public class PongMessage extends AbstractMessage {
     }
 
     @Override
-    public IRCMessage buildServerOutput() {
-        return new IRCMessage.Builder().command(this.getCommandID()).parameters(this.pongToken).build();
+    public IrcMessage buildServerOutput() {
+        return new IrcMessage.Builder().command(this.getCommandID()).parameters(this.pongToken).build();
     }
 
     @Override
-    public void populateFromIRCMessage(IRCMessage message) {
+    public void populateFromIRCMessage(IrcMessage message) {
         this.pongAuthor = message.parameters.get(0);
         this.pongToken = message.parameters.get(1);
     }
 
     @Override
-    public boolean isMessageWellFormed(IRCMessage message) {
+    public boolean isMessageWellFormed(IrcMessage message) {
         return (message.isParametersAtLeastExpectedLength(2));
     }
 

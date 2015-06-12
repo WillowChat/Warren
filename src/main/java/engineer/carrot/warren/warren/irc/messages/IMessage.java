@@ -1,13 +1,13 @@
 package engineer.carrot.warren.warren.irc.messages;
 
 public interface IMessage {
-    void populateFromIRCMessage(IRCMessage message);
+    void populateFromIRCMessage(IrcMessage message);
 
-    IMessage build(IRCMessage message);
+    IMessage build(IrcMessage message);
 
-    IRCMessage buildServerOutput();
+    IrcMessage buildServerOutput();
 
-    boolean isMessageWellFormed(IRCMessage message);
+    boolean isMessageWellFormed(IrcMessage message);
 
     String getCommandID();
 }

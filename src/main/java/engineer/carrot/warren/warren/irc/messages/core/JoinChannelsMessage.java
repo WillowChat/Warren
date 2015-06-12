@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.irc.messages.core;
 
 import com.google.common.base.Joiner;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 import java.util.Arrays;
@@ -20,12 +20,12 @@ public class JoinChannelsMessage extends AbstractMessage {
     }
 
     @Override
-    public IRCMessage buildServerOutput() {
-        return new IRCMessage.Builder().command(this.getCommandID()).parameters(Joiner.on(",").join(this.channels)).build();
+    public IrcMessage buildServerOutput() {
+        return new IrcMessage.Builder().command(this.getCommandID()).parameters(Joiner.on(",").join(this.channels)).build();
     }
 
     @Override
-    public boolean isMessageWellFormed(IRCMessage message) {
+    public boolean isMessageWellFormed(IrcMessage message) {
         // {"prefix":"test!~t@test","parameters":["#test"],"command":"JOIN"}
         return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(1));
     }

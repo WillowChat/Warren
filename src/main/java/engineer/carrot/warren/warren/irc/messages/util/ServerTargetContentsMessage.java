@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.util;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 
 public abstract class ServerTargetContentsMessage extends AbstractMessage {
     public String forServer;
@@ -9,14 +9,14 @@ public abstract class ServerTargetContentsMessage extends AbstractMessage {
     public String contents;
 
     @Override
-    public void populateFromIRCMessage(IRCMessage message) {
+    public void populateFromIRCMessage(IrcMessage message) {
         this.forServer = message.prefix;
         this.toTarget = message.parameters.get(0);
         this.contents = message.parameters.get(1);
     }
 
     @Override
-    public boolean isMessageWellFormed(IRCMessage message) {
+    public boolean isMessageWellFormed(IrcMessage message) {
         return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(2));
     }
 }

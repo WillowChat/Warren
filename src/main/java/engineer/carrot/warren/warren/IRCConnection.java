@@ -10,7 +10,7 @@ import engineer.carrot.warren.warren.event.ServerDisconnectedEvent;
 import engineer.carrot.warren.warren.irc.AccessLevel;
 import engineer.carrot.warren.warren.irc.Channel;
 import engineer.carrot.warren.warren.irc.User;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.core.*;
 import engineer.carrot.warren.warren.ssl.WrappedSSLSocketFactory;
 import engineer.carrot.warren.warren.util.IMessageQueue;
@@ -183,7 +183,7 @@ public class IRCConnection implements IWarrenDelegate {
             }
 
             lastResponseTime = System.nanoTime();
-            IRCMessage message = IRCMessage.parseFromLine(serverResponse);
+            IrcMessage message = IrcMessage.parseFromLine(serverResponse);
 
             if (message == null) {
                 LOGGER.error("Parsed message was null");

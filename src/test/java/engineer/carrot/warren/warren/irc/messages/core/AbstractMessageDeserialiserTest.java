@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.IMessage;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.util.NoOpException;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,17 +20,17 @@ public abstract class AbstractMessageDeserialiserTest<M extends IMessage> {
     @Test
     public void testSerialisation() throws Exception {
         for (int i = 0; i < this.testCases.size(); i++) {
-            IRCMessage ircMessage = this.createAndPopulateMessage(this.testCases.get(i));
+            IrcMessage ircMessage = this.createAndPopulateMessage(this.testCases.get(i));
             this.testMessageSerialisation(this.testCases.get(i), ircMessage);
         }
     }
 
     @Nullable
-    private IRCMessage createAndPopulateMessage(M message) throws NoOpException {
+    private IrcMessage createAndPopulateMessage(M message) throws NoOpException {
         return message.buildServerOutput();
     }
 
     public abstract List<M> constructTestCases();
 
-    public abstract void testMessageSerialisation(M message, IRCMessage ircMessage);
+    public abstract void testMessageSerialisation(M message, IrcMessage ircMessage);
 }

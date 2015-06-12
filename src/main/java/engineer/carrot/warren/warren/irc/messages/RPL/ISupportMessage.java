@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 import java.util.List;
@@ -16,13 +16,13 @@ public class ISupportMessage extends AbstractMessage {
     public Map<String, String> parameters;
 
     @Override
-    public void populateFromIRCMessage(IRCMessage message) {
+    public void populateFromIRCMessage(IrcMessage message) {
         this.forServer = message.prefix;
         this.forUser = message.parameters.get(0);
         this.parameters = this.parseParameters(message);
     }
 
-    private Map<String, String> parseParameters(IRCMessage message) {
+    private Map<String, String> parseParameters(IrcMessage message) {
         Map<String, String> returnParameters = Maps.newHashMap();
 
         int messageParametersSize = message.parameters.size();
@@ -49,7 +49,7 @@ public class ISupportMessage extends AbstractMessage {
     }
 
     @Override
-    public boolean isMessageWellFormed(IRCMessage message) {
+    public boolean isMessageWellFormed(IrcMessage message) {
         // {"prefix":"chalk.uuid.uk","parameters":["carrot","CHANTYPES\u003d\u0026#","EXCEPTS","INVEX","CHANMODES\u003deIb,k,l,imnpstSr","CHANLIMIT\u003d\u0026#:50","PREFIX\u003d(ov)@+","MAXLIST\u003dbeI:50","MODES\u003d4","NETWORK\u003dImaginaryNet","KNOCK","STATUSMSG\u003d@+","CALLERID\u003dg","are supported by this server"],"command":"005"}
         // {"prefix":"chalk.uuid.uk","parameters":["carrot","SAFELIST","ELIST\u003dU","CASEMAPPING\u003drfc1459","CHARSET\u003dascii","NICKLEN\u003d30","CHANNELLEN\u003d50","TOPICLEN\u003d390","ETRACE","CPRIVMSG","CNOTICE","DEAF\u003dD","MONITOR\u003d100","are supported by this server"],"command":"005"}
         return (message.isPrefixSetAndNotEmpty() && message.isParametersAtLeastExpectedLength(2));

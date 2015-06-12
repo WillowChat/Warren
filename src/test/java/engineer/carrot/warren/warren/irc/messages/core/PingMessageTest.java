@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import com.google.common.collect.Lists;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 import org.junit.Test;
 
@@ -13,8 +13,8 @@ public class PingMessageTest implements IMessageTest {
     @Test
     public void isMessageWellFormedTest() {
         PingMessage message = new PingMessage();
-        assertTrue(message.isMessageWellFormed(new IRCMessage.Builder().command(MessageCodes.PING).parameters("TOKEN1").build()));
-        assertFalse(message.isMessageWellFormed(new IRCMessage.Builder().command(MessageCodes.PING).parameters("TOKEN1", "BAD PARAM").build()));
+        assertTrue(message.isMessageWellFormed(new IrcMessage.Builder().command(MessageCodes.PING).parameters("TOKEN1").build()));
+        assertFalse(message.isMessageWellFormed(new IrcMessage.Builder().command(MessageCodes.PING).parameters("TOKEN1", "BAD PARAM").build()));
     }
 
     public static class PingMessageSerialiserTest extends AbstractMessageSerialiserTest<PingMessage> {
@@ -24,15 +24,15 @@ public class PingMessageTest implements IMessageTest {
         }
 
         @Override
-        public List<IRCMessage> constructTestCases() {
-            IRCMessage testOne = new IRCMessage.Builder().command(MessageCodes.PING).parameters("TOKEN1").build();
-            IRCMessage testTwo = new IRCMessage.Builder().command(MessageCodes.PING).parameters("TOKEN2").build();
+        public List<IrcMessage> constructTestCases() {
+            IrcMessage testOne = new IrcMessage.Builder().command(MessageCodes.PING).parameters("TOKEN1").build();
+            IrcMessage testTwo = new IrcMessage.Builder().command(MessageCodes.PING).parameters("TOKEN2").build();
 
             return Lists.newArrayList(testOne, testTwo);
         }
 
         @Override
-        public void testMessageSerialisation(IRCMessage ircMessage, PingMessage message) {
+        public void testMessageSerialisation(IrcMessage ircMessage, PingMessage message) {
             assertNotNull(message.pingToken);
             assertEquals(message.pingToken, ircMessage.parameters.get(0));
         }
@@ -48,7 +48,7 @@ public class PingMessageTest implements IMessageTest {
         }
 
         @Override
-        public void testMessageSerialisation(PingMessage message, IRCMessage ircMessage) {
+        public void testMessageSerialisation(PingMessage message, IrcMessage ircMessage) {
             assertFalse(ircMessage.isPrefixSetAndNotEmpty());
             assertFalse(ircMessage.isTagsSet());
             assertTrue(ircMessage.isParametersExactlyExpectedLength(1));

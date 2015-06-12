@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class UserMessage extends AbstractMessage {
@@ -16,12 +16,12 @@ public class UserMessage extends AbstractMessage {
     }
 
     @Override
-    public IRCMessage buildServerOutput() {
-        return new IRCMessage.Builder().command(this.getCommandID()).parameters(this.user, this.mode, "*", this.realname).build();
+    public IrcMessage buildServerOutput() {
+        return new IrcMessage.Builder().command(this.getCommandID()).parameters(this.user, this.mode, "*", this.realname).build();
     }
 
     @Override
-    public boolean isMessageWellFormed(IRCMessage message) {
+    public boolean isMessageWellFormed(IrcMessage message) {
         return (!message.isPrefixSet() && message.isParametersExactlyExpectedLength(4));
     }
 

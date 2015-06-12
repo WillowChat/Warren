@@ -1,7 +1,7 @@
 warren
 =====
 
-A Java IRC framework for personal use (but open-sourced).
+A Java IRC framework for personal use (but open-sourced). Attempts to achieve good separation of concerns and testability by splitting message parsing and handling. Notifies consumers of events using an event bus.
 
 # Why?
 

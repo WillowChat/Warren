@@ -4,7 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 import java.util.List;
@@ -17,13 +17,13 @@ public class NamReplyMessage extends AbstractMessage {
     public List<Hostmask> hostmasks;
 
     @Override
-    public boolean isMessageWellFormed(IRCMessage message) {
+    public boolean isMessageWellFormed(IrcMessage message) {
         // {"prefix":"server","parameters":["nickname","@","#Channel","NormalUser +voiced @op @zsh"],"command":"353"}
         return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(4));
     }
 
     @Override
-    public void populateFromIRCMessage(IRCMessage message) {
+    public void populateFromIRCMessage(IrcMessage message) {
         this.forServer = message.prefix;
         this.forUser = message.parameters.get(0);
         this.channelVisibility = message.parameters.get(1);

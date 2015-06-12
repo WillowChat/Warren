@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IRCMessage;
+import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class JoinedChannelMessage extends AbstractMessage {
@@ -10,7 +10,7 @@ public class JoinedChannelMessage extends AbstractMessage {
     public String channel;
 
     @Override
-    public void populateFromIRCMessage(IRCMessage message) {
+    public void populateFromIRCMessage(IrcMessage message) {
         // {"prefix":"test!~t@test","parameters":["#test"],"command":"JOIN"}
 
         this.user = Hostmask.parseFromString(message.prefix);
@@ -18,7 +18,7 @@ public class JoinedChannelMessage extends AbstractMessage {
     }
 
     @Override
-    public boolean isMessageWellFormed(IRCMessage message) {
+    public boolean isMessageWellFormed(IrcMessage message) {
         // {"prefix":"test!~t@test","parameters":["#test"],"command":"JOIN"}
         return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(1));
     }
