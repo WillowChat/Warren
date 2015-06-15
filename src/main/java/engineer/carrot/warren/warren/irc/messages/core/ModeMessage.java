@@ -69,6 +69,14 @@ public class ModeMessage extends AbstractMessage {
         public boolean hasParameter() {
             return !Strings.isNullOrEmpty(this.parameter);
         }
+
+        public boolean isAdding() {
+            return (this.type == CharacterCodes.PLUS);
+        }
+
+        public boolean isRemoving() {
+            return (this.type == CharacterCodes.MINUS);
+        }
     }
 
     public class ModeChunk {

@@ -24,6 +24,7 @@ public class Hostmask {
     @Nullable
     public static Hostmask parseFromString(String hostmask) {
         // "Test!~test@test.domain"
+        // "Test"
         int length = hostmask.length();
         if (length < MIN_LENGTH || length > MAX_LENGTH) {
             return null;
@@ -39,6 +40,9 @@ public class Hostmask {
             builder.user(user);
 
             currentPosition = exclamPosition + 1;
+        } else {
+            builder.user(hostmask);
+            return builder.build();
         }
 
         int atPosition = hostmask.indexOf(CharacterCodes.AT, currentPosition);

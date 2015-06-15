@@ -37,15 +37,12 @@ public class ISupportHandler extends MessageHandler<ISupportMessage> implements 
 
     @Override
     public void handleMessage(ISupportMessage message) {
-        LOGGER.info("Server supports: ");
-
         for (Map.Entry<String, String> entry : message.parameters.entrySet()) {
             String parameter = entry.getKey();
             String value = entry.getValue();
 
-            LOGGER.info("{}: {}", parameter, value);
-
             if (this.modules.containsKey(parameter)) {
+                LOGGER.info("Handling '{}'", parameter);
                 boolean handled = this.modules.get(parameter).handleValue(value);
                 if (!handled) {
                     LOGGER.warn("Failed to handle parameter '{}' -> '{}'", parameter, value);

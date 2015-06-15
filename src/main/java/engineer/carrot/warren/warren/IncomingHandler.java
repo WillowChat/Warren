@@ -146,7 +146,11 @@ public class IncomingHandler implements IIncomingHandler {
     public boolean handleIRCMessage(IrcMessage message, String originalLine) {
         if (!this.nextExpectedCommands.isEmpty()) {
             // Check that this command is in the set of commands we're expecting next
-            LOGGER.info("Next expected commands: " + this.nextExpectedCommands);
+            // LOGGER.info("Next expected commands: " + this.nextExpectedCommands);
+
+            if (!this.nextExpectedCommands.contains(message.command)) {
+                LOGGER.warn("Wasn't expecting '{}' next - expect unexpected behaviour");
+            }
         }
 //            LOGGER.info("Raw message: " + serverResponse);
         if (!this.messageMap.containsKey(message.command)) {

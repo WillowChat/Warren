@@ -34,6 +34,15 @@ public class Channel {
         return (level == accessLevel);
     }
 
+    public boolean setUserAccessLevel(User user, AccessLevel accessLevel) {
+        if (!this.users.contains(user)) {
+            return false;
+        }
+
+        this.userAccessMap.put(user, accessLevel);
+        return true;
+    }
+
     private boolean containsUser(User user) {
         return this.users.contains(user);
     }

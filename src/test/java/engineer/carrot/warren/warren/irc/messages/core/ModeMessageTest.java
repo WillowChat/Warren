@@ -216,4 +216,6 @@ public class ModeMessageTest {
         assertTrue(modifier.hasParameter());
         assertEquals(modifier.parameter, "nick2");
     }
+
+    // TODO: Assert some badly formed cases?
 }
