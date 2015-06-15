@@ -1,71 +1,54 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import com.google.common.collect.Lists;
+import engineer.carrot.warren.warren.IPrefixListener;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.*;
 import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class ModeMessageTest {
-    /*
-    MODE #Finnish +imI *!*@*.fi     ; Command to make #Finnish channel
-                                   moderated and 'invite-only' with user
-                                   with a hostname matching *.fi
-                                   automatically invited.
+    private static IISupportManager dummySupportManager;
+    private static final IChanModesSupportModule chanModesSupportModule = new ChanModesSupportModule();
+    private static final IPrefixSupportModule prefixSupportModule = new PrefixSupportModule(Lists.<IPrefixListener>newArrayList());
 
-   MODE #Finnish +o Kilroy         ; Command to give 'chanop' privileges
-                                   to Kilroy on channel #Finnish.
+    @BeforeClass
+    public static void setupSupportManager() {
+        chanModesSupportModule.handleValue("eIb,k,l,imnpstSr");
+        prefixSupportModule.handleValue("(ov)@+");
 
-   MODE #Finnish +v Wiz            ; Command to allow WiZ to speak on
-                                   #Finnish.
+        dummySupportManager = new IISupportManager() {
+            @Override
+            public IPrefixSupportModule getPrefixModule() {
+                return prefixSupportModule;
+            }
 
-   MODE #Fins -s                   ; Command to remove 'secret' flag
-                                   from channel #Fins.
+            @Override
+            public IChanTypesSupportModule getChannelPrefixesModule() {
+                return null;
+            }
 
-   MODE #42 +k oulu                ; Command to set the channel key to
-                                   "oulu".
+            @Override
+            public IChanModesSupportModule getChannelModesModule() {
+                return chanModesSupportModule;
+            }
+        };
+    }
 
-   MODE #42 -k oulu                ; Command to remove the "oulu"
-                                   channel key on channel "#42".
+    private static ModeMessage constructMessage(IrcMessage ircMessage) {
+        ModeMessage message = new ModeMessage();
+        message.setISupportManager(dummySupportManager);
+        message.populateFromIRCMessage(ircMessage);
 
-   MODE #eu-opers +l 10            ; Command to set the limit for the
-                                   number of users on channel
-                                   "#eu-opers" to 10.
-
-   :WiZ!jto@tolsun.oulu.fi MODE #eu-opers -l
-                                   ; User "WiZ" removing the limit for
-                                   the number of users on channel "#eu-
-                                   opers".
-
-   MODE &oulu +b                   ; Command to list ban masks set for
-                                   the channel "&oulu".
-
-   MODE &oulu +b *!*@*             ; Command to prevent all users from
-                                   joining.
-
-   MODE &oulu +b *!*@*.edu +e *!*@*.bu.edu
-                                   ; Command to prevent any user from a
-                                   hostname matching *.edu from joining,
-                                   except if matching *.bu.edu
-
-   MODE #bu +be *!*@*.edu *!*@*.bu.edu
-                                   ; Comment to prevent any user from a
-                                   hostname matching *.edu from joining,
-                                   except if matching *.bu.edu
-
-   MODE #meditation e              ; Command to list exception masks set
-                                   for the channel "#meditation".
-
-   MODE #meditation I              ; Command to list invitations masks
-                                   set for the channel "#meditation".
-
-   MODE !12345ircd O               ; Command to ask who the channel
-                                   creator for "!12345ircd" is
-     */
+        return message;
+    }
 
     @Test
     public void testModeratedInviteAutomatically() {
+        // MODE #Finnish +imI *!*@*.fi
         IrcMessage ircMessage = new IrcMessage.Builder()
                 .command("MODE")
                 .parameter("#Finnish")
@@ -73,31 +56,41 @@ public class ModeMessageTest {
                 .parameter("*!*@*.fi")
                 .build();
 
-        ModeMessage message = new ModeMessage();
-        message.populateFromIRCMessage(ircMessage);
+        ModeMessage message = constructMessage(ircMessage);
 
         assertNull(message.fromUser);
         assertEquals(message.target, "#Finnish");
         assertNotNull(message.modifiers);
 
-        assertEquals(message.modifiers.size(), 1);
+        assertEquals(message.modifiers.size(), 3);
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.modes, Lists.newArrayList("i", "m", "I"));
-        assertEquals(modifier.parameters, Lists.newArrayList("*!*@*.fi"));
+        assertEquals(modifier.mode, "i");
+        assertFalse(modifier.hasParameter());
+
+        modifier = message.modifiers.get(1);
+        assertEquals(modifier.type, CharacterCodes.PLUS);
+        assertEquals(modifier.mode, "m");
+        assertFalse(modifier.hasParameter());
+
+        modifier = message.modifiers.get(2);
+        assertEquals(modifier.type, CharacterCodes.PLUS);
+        assertEquals(modifier.mode, "I");
+        assertTrue(modifier.hasParameter());
+        assertEquals(modifier.parameter, "*!*@*.fi");
     }
 
     @Test
     public void testAddingMode() {
+        // MODE #Channel +A
         IrcMessage ircMessage = new IrcMessage.Builder()
                 .command("MODE")
                 .parameter("#Channel")
                 .parameter("+A")
                 .build();
 
-        ModeMessage message = new ModeMessage();
-        message.populateFromIRCMessage(ircMessage);
+        ModeMessage message = constructMessage(ircMessage);
 
         assertNull(message.fromUser);
         assertEquals(message.target, "#Channel");
@@ -107,20 +100,20 @@ public class ModeMessageTest {
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.modes, Lists.newArrayList("A"));
-        assertTrue(modifier.parameters.isEmpty());
+        assertEquals(modifier.mode, "A");
+        assertFalse(modifier.hasParameter());
     }
 
     @Test
     public void testRemovingMode() {
+        // MODE #Channel -A
         IrcMessage ircMessage = new IrcMessage.Builder()
                 .command("MODE")
                 .parameter("#Channel")
                 .parameter("-A")
                 .build();
 
-        ModeMessage message = new ModeMessage();
-        message.populateFromIRCMessage(ircMessage);
+        ModeMessage message = constructMessage(ircMessage);
 
         assertNull(message.fromUser);
         assertEquals(message.target, "#Channel");
@@ -130,8 +123,8 @@ public class ModeMessageTest {
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.MINUS);
-        assertEquals(modifier.modes, Lists.newArrayList("A"));
-        assertTrue(modifier.parameters.isEmpty());
+        assertEquals(modifier.mode, "A");
+        assertFalse(modifier.hasParameter());
     }
 
     @Test
@@ -146,8 +139,7 @@ public class ModeMessageTest {
                 .parameter("*!*@*.bu.edu")
                 .build();
 
-        ModeMessage message = new ModeMessage();
-        message.populateFromIRCMessage(ircMessage);
+        ModeMessage message = constructMessage(ircMessage);
 
         assertNull(message.fromUser);
         assertEquals(message.target, "&oulu");
@@ -157,13 +149,15 @@ public class ModeMessageTest {
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.modes, Lists.newArrayList("b"));
-        assertEquals(modifier.parameters, Lists.newArrayList("*!*@*.edu"));
+        assertEquals(modifier.mode, "b");
+        assertTrue(modifier.hasParameter());
+        assertEquals(modifier.parameter, "*!*@*.edu");
 
         modifier = message.modifiers.get(1);
         assertEquals(modifier.type, CharacterCodes.MINUS);
-        assertEquals(modifier.modes, Lists.newArrayList("e"));
-        assertEquals(modifier.parameters, Lists.newArrayList("*!*@*.bu.edu"));
+        assertEquals(modifier.mode, "e");
+        assertTrue(modifier.hasParameter());
+        assertEquals(modifier.parameter, "*!*@*.bu.edu");
     }
 
     @Test
@@ -176,8 +170,7 @@ public class ModeMessageTest {
                 .parameter("oulu")
                 .build();
 
-        ModeMessage message = new ModeMessage();
-        message.populateFromIRCMessage(ircMessage);
+        ModeMessage message = constructMessage(ircMessage);
 
         assertNull(message.fromUser);
         assertEquals(message.target, "#42");
@@ -187,7 +180,40 @@ public class ModeMessageTest {
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.modes, Lists.newArrayList("k"));
-        assertEquals(modifier.parameters, Lists.newArrayList("oulu"));
+        assertEquals(modifier.mode, "k");
+        assertTrue(modifier.hasParameter());
+        assertEquals(modifier.parameter, "oulu");
+    }
+
+    @Test
+    public void testMultipleDifferentModes() {
+        // MODE #Channel +o-o nick1 nick2
+        IrcMessage ircMessage = new IrcMessage.Builder()
+                .command("MODE")
+                .parameter("#Channel")
+                .parameter("+o-o")
+                .parameter("nick1")
+                .parameter("nick2")
+                .build();
+
+        ModeMessage message = constructMessage(ircMessage);
+
+        assertNull(message.fromUser);
+        assertEquals(message.target, "#Channel");
+        assertNotNull(message.modifiers);
+
+        assertEquals(message.modifiers.size(), 2);
+
+        ModeMessage.ModeModifier modifier = message.modifiers.get(0);
+        assertEquals(modifier.type, CharacterCodes.PLUS);
+        assertEquals(modifier.mode, "o");
+        assertTrue(modifier.hasParameter());
+        assertEquals(modifier.parameter, "nick1");
+
+        modifier = message.modifiers.get(1);
+        assertEquals(modifier.type, CharacterCodes.MINUS);
+        assertEquals(modifier.mode, "o");
+        assertTrue(modifier.hasParameter());
+        assertEquals(modifier.parameter, "nick2");
     }
 }

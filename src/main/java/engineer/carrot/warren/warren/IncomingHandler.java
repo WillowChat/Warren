@@ -120,7 +120,9 @@ public class IncomingHandler implements IIncomingHandler {
         }
 
         try {
-            return clazzMessage.newInstance();
+            IMessage message = clazzMessage.newInstance();
+            message.setISupportManager(this.iSupportHandler);
+            return message;
         } catch (InstantiationException e) {
             LOGGER.error("Failed to instantiate new message: {}", e);
         } catch (IllegalAccessException e) {

@@ -4,4 +4,6 @@ public interface IISupportManager {
     IPrefixSupportModule getPrefixModule();
 
     IChanTypesSupportModule getChannelPrefixesModule();
+
+    IChanModesSupportModule getChannelModesModule();
 }

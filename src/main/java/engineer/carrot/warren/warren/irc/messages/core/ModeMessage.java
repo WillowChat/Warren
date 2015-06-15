@@ -3,6 +3,8 @@ package engineer.carrot.warren.warren.irc.messages.core;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IChanModesSupportModule;
+import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IPrefixSupportModule;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
@@ -10,10 +12,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class ModeMessage extends AbstractMessage {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModeMessage.class);
+
+    private IChanModesSupportModule chanModesSupportModule;
+    private IPrefixSupportModule prefixSupportModule;
 
     @Nullable
     public String fromUser;
@@ -31,7 +38,7 @@ public class ModeMessage extends AbstractMessage {
 
         int parametersSize = message.parameters.size();
         if (parametersSize > 1) {
-            this.modifiers = this.parseModifiers(message.parameters.subList(1, parametersSize));
+            this.modifiers = this.parseIrcParameters(message.parameters.subList(1, parametersSize));
         }
     }
 
@@ -49,81 +56,124 @@ public class ModeMessage extends AbstractMessage {
     // Mode parsing
 
     public class ModeModifier {
-        public char type;
-        public List<String> modes;
-        public List<String> parameters;
+        public final char type;
+        public final String mode;
+        public String parameter;
 
-        public ModeModifier(char type) {
+        public ModeModifier(char type, String mode) {
             this.type = type;
-            this.modes = Lists.newArrayList();
-            this.parameters = Lists.newArrayList();
+            this.mode = mode;
+            this.parameter = "";
+        }
+
+        public boolean hasParameter() {
+            return !Strings.isNullOrEmpty(this.parameter);
         }
     }
 
-    private List<ModeModifier> parseModifiers(List<String> modifiers) {
-        List<ModeModifier> modeModifiers = Lists.newArrayList();
-        // *( ( "-" / "+" ) *<modes> *<modeparams> )
-        // Check for a + or a - in the next space
+    public class ModeChunk {
+        public final String modes;
+        public final Queue<String> parameters;
 
-        int modifiersSize = modifiers.size();
-        int modifierBaseIndex = 0;
-
-        while (modifierBaseIndex < modifiersSize) {
-            String modes = modifiers.get(modifierBaseIndex);
-            if (Strings.isNullOrEmpty(modes)) {
-                break;
-            }
-
-            char type = modes.charAt(0);
-            if (!this.isTokenStartOfModifier(type)) {
-                LOGGER.warn("Failed to parse MODE modifiers: next token wasn't +-");
-                return modeModifiers;
-            }
-
-            modifierBaseIndex++;
-
-            ModeModifier modeModifier = new ModeModifier(type);
-            modeModifiers.add(modeModifier);
-
-            String restOfModes = modes.substring(1);
-            if (!restOfModes.isEmpty()) {
-                modeModifier.modes.addAll(this.parseModes(modes.substring(1)));
-            }
-
-            // Parse mode parameters
-
-            boolean parsingParameters = true;
-            while (parsingParameters) {
-                if (modifierBaseIndex > modifiersSize - 1) {
-                    // Ran out of tokens
-                    parsingParameters = false;
-                    continue;
-                }
-
-                String nextParameter = modifiers.get(modifierBaseIndex);
-                if (Strings.isNullOrEmpty(nextParameter)) {
-                    // No more tokens
-                    return modeModifiers;
-                }
-
-                type = nextParameter.charAt(0);
-                if (this.isTokenStartOfModifier(type)) {
-                    // New modifier, break out of parameters
-                    parsingParameters = false;
-                    continue;
-                }
-
-                modifierBaseIndex++;
-                modeModifier.parameters.add(nextParameter);
-            }
+        public ModeChunk(String modes) {
+            this.modes = modes;
+            this.parameters = new LinkedList<>();
         }
+    }
 
-        return modeModifiers;
+    private List<ModeModifier> parseIrcParameters(List<String> parameters) {
+        // *( ( "-" / "+" ) *<modes> *<modeparams> )
+
+        List<ModeChunk> chunks = this.parseParametersToModeChunks(parameters);
+        return this.parseChunksToModifiers(chunks);
     }
 
     private boolean isTokenStartOfModifier(char token) {
         return (token == CharacterCodes.PLUS || token == CharacterCodes.MINUS);
 
+    }
+
+    private List<ModeChunk> parseParametersToModeChunks(List<String> parameters) {
+        List<ModeChunk> chunks = Lists.newArrayList();
+
+        if (parameters == null || parameters.isEmpty()) {
+            return chunks;
+        }
+
+        ModeChunk currentChunk = null;
+
+        for (String parameter : parameters) {
+            if (parameter.isEmpty()) {
+                LOGGER.warn("Attempted to parse an empty parameter in to a chunk - bailing");
+
+                break;
+            }
+
+            if (this.isTokenStartOfModifier(parameter.charAt(0))) {
+                currentChunk = new ModeChunk(parameter);
+                chunks.add(currentChunk);
+
+                continue;
+            }
+
+            if (currentChunk == null) {
+                LOGGER.warn("Attempted to add a chunk without having a type token first - bailing");
+
+                break;
+            }
+
+            currentChunk.parameters.add(parameter);
+        }
+
+        return chunks;
+    }
+
+    private List<ModeModifier> parseChunksToModifiers(List<ModeChunk> chunks) {
+        List<ModeModifier> modifiers = Lists.newArrayList();
+
+        char currentMode = 0;
+
+        for (ModeChunk chunk : chunks) {
+            for (String mode : this.parseModes(chunk.modes)) {
+                char token = mode.charAt(0);
+                if (this.isTokenStartOfModifier(token)) {
+                    currentMode = token;
+
+                    continue;
+                }
+
+                if (currentMode == 0) {
+                    LOGGER.warn("Tried to add a modifier that didn't start with +- - bailing: '{}'", mode);
+
+                    continue;
+                }
+
+                ModeModifier modifier = new ModeModifier(currentMode, mode);
+
+                boolean isAdding = (currentMode == CharacterCodes.PLUS);
+                boolean takesAParameter = this.takesAParameter(isAdding, mode);
+
+                if (takesAParameter) {
+                    String parameter = chunk.parameters.poll();
+
+                    if (Strings.isNullOrEmpty(parameter)) {
+                        LOGGER.warn("MODE modifier was missing an expected parameter - not processing it: '{}'", mode);
+
+                        continue;
+                    }
+
+                    modifier.parameter = parameter;
+                }
+
+                modifiers.add(modifier);
+            }
+
+            if (!chunk.parameters.isEmpty()) {
+                LOGGER.warn("Chunk had parameters left after polling - something probably went wrong!");
+            }
+        }
+
+        return modifiers;
     }
 
     private List<String> parseModes(String token) {
@@ -134,5 +184,31 @@ public class ModeMessage extends AbstractMessage {
         }
 
         return modes;
+    }
+
+    private boolean takesAParameter(boolean isAdding, String mode) {
+        /*
+        Type A: always takes a parameter
+        Type B: always takes a parameter
+        Type C: takes a parameter only in + mode
+        Type D: never takes a parameter
+
+        Prefixes can be assumed to be Type B (always takes a parameter)
+         */
+
+        IChanModesSupportModule chanmodes = this.iSupportManager.getChannelModesModule();
+        IPrefixSupportModule prefixes = this.iSupportManager.getPrefixModule();
+
+        if (prefixes.getModes().contains(mode)) {
+            return true;
+        }
+
+        if (chanmodes.getTypeDModes().contains(mode)) {
+            return false;
+        }
+
+        return (chanmodes.getTypeAModes().contains(mode)
+                || chanmodes.getTypeBModes().contains(mode)
+                || (!isAdding && chanmodes.getTypeCModes().contains(mode)));
     }
 }

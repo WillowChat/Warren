@@ -3,27 +3,30 @@ package engineer.carrot.warren.warren.irc.handlers.RPL.isupport;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import engineer.carrot.warren.warren.UserManager;
+import engineer.carrot.warren.warren.IPrefixListener;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class PrefixSupportModule implements IPrefixSupportModule {
     private final Set<String> prefixes;
+    private final Set<String> modes;
     private final Map<String, String> modesToPrefixes;
     private final Map<String, String> prefixesToModes;
 
-    private final UserManager userManager;
+    private final List<IPrefixListener> listeners;
 
-    public PrefixSupportModule(UserManager userManager) {
+    public PrefixSupportModule(List<IPrefixListener> listeners) {
         // TODO: Add default (ov)@+
         // TODO: Handle "null" value
         this.prefixes = Sets.newHashSet();
+        this.modes = Sets.newHashSet();
         this.modesToPrefixes = Maps.newHashMap();
         this.prefixesToModes = Maps.newHashMap();
 
-        this.userManager = userManager;
+        this.listeners = listeners;
     }
 
     @Override
@@ -68,11 +71,15 @@ public class PrefixSupportModule implements IPrefixSupportModule {
             }
 
             this.prefixes.add(prefix);
+            this.modes.add(mode);
             this.modesToPrefixes.put(mode, prefix);
             this.prefixesToModes.put(prefix, mode);
         }
 
-        this.userManager.setPrefixes(this.prefixes);
+        for (IPrefixListener listener : this.listeners) {
+            listener.prefixesChanged(this.prefixes);
+        }
+
         return true;
     }
 
@@ -81,5 +88,10 @@ public class PrefixSupportModule implements IPrefixSupportModule {
     @Override
     public Set<String> getPrefixes() {
         return this.prefixes;
+    }
+
+    @Override
+    public Set<String> getModes() {
+        return this.modes;
     }
 }

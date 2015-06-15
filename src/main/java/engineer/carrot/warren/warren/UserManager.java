@@ -8,18 +8,14 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
-public class UserManager {
+public class UserManager implements IPrefixListener {
     private final Map<String, User> users;
     private Set<String> prefixes;
 
     public UserManager(Set<String> prefixes) {
         this.users = Maps.newHashMap();
 
-        this.setPrefixes(prefixes);
-    }
-
-    public void setPrefixes(Set<String> prefixes) {
-        this.prefixes = prefixes;
+        this.prefixesChanged(prefixes);
     }
 
     public Map<String, User> getAllUsers() {
@@ -86,5 +82,12 @@ public class UserManager {
         this.addUser(user);
 
         return true;
+    }
+
+    // IPrefixListener
+
+    @Override
+    public void prefixesChanged(Set<String> prefixes) {
+        this.prefixes = prefixes;
     }
 }

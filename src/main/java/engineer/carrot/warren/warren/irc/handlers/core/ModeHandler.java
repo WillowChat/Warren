@@ -20,12 +20,14 @@ public class ModeHandler extends MessageHandler<ModeMessage> {
             // Channel MODE
 
             Channel channel = this.botDelegate.getJoinedChannels().getChannel(message.target);
-            if (channel != null) {
-                LOGGER.info("Handling channel MODE for a channel we're in:");
-            } else {
+            if (channel == null) {
                 LOGGER.info("Got a channel MODE for a channel we don't think we're in:");
+                LOGGER.info("{}", new Gson().toJson(message));
+
+                return;
             }
 
+            LOGGER.info("Handling channel MODE for a channel we're in:");
             LOGGER.info("{}", new Gson().toJson(message));
 
             return;
