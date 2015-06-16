@@ -3,7 +3,7 @@ package engineer.carrot.warren.warren.event;
 public class Event {
     private long timestamp;
 
-    Event() {
+    protected Event() {
         this.setTimestampToNow();
     }
 

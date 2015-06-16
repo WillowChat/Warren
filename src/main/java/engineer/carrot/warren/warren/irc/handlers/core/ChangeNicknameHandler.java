@@ -26,6 +26,6 @@ public class ChangeNicknameHandler extends MessageHandler<ChangeNicknameMessage>
         String oldNickname = user.getNameWithoutAccess();
         manager.renameUser(oldNickname, message.nickname);
 
-        this.postEvent(new UserChangedNicknameEvent(user, oldNickname));
+        this.eventSink.postEvent(new UserChangedNicknameEvent(user, oldNickname));
     }
 }

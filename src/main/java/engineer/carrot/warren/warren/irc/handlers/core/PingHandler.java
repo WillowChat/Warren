@@ -10,6 +10,6 @@ public class PingHandler extends MessageHandler<PingMessage> {
     public void handleMessage(PingMessage message) {
         this.outgoingQueue.addMessageToQueue(new PongMessage(message.pingToken));
 
-        this.postEvent(new ServerPingEvent(message.pingToken, message.pingToken));
+        this.eventSink.postEvent(new ServerPingEvent(message.pingToken, message.pingToken));
     }
 }

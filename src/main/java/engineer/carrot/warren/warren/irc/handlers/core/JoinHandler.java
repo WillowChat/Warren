@@ -18,7 +18,7 @@ public class JoinHandler extends MessageHandler<JoinedChannelMessage> {
         if (message.user.user.equalsIgnoreCase(this.botDelegate.getBotNickname())) {
             this.botDelegate.moveJoiningChannelToJoined(message.channel);
 
-            this.postEvent(new ClientJoinedChannelEvent(this.botDelegate.getJoinedChannels().getChannel(message.channel)));
+            this.eventSink.postEvent(new ClientJoinedChannelEvent(this.botDelegate.getJoinedChannels().getChannel(message.channel)));
         } else {
             Channel channel = this.botDelegate.getJoinedChannels().getChannel(message.channel);
             if (channel == null) {
@@ -28,7 +28,7 @@ public class JoinHandler extends MessageHandler<JoinedChannelMessage> {
 
             User user = channel.getOrCreateUser(message.user, this.botDelegate.getUserManager());
             LOGGER.info("<{}> joined {}", user.getNameWithoutAccess(), channel.name);
-            this.postEvent(new UserJoinedChannelEvent(user, channel));
+            this.eventSink.postEvent(new UserJoinedChannelEvent(user, channel));
         }
     }
 }

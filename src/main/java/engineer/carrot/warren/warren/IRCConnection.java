@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
+import engineer.carrot.warren.warren.event.Event;
 import engineer.carrot.warren.warren.event.ServerConnectedEvent;
 import engineer.carrot.warren.warren.event.ServerDisconnectedEvent;
 import engineer.carrot.warren.warren.irc.AccessLevel;
@@ -31,7 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
-public class IRCConnection implements IWarrenDelegate {
+public class IRCConnection implements IWarrenDelegate, IEventSink {
     private final Logger LOGGER = LoggerFactory.getLogger(IRCConnection.class);
     private static final long SOCKET_TIMEOUT_NS = 60 * 1000000000L;
     private static final int SOCKET_INTERRUPT_TIMEOUT_MS = 1 * 1000;
@@ -86,7 +87,7 @@ public class IRCConnection implements IWarrenDelegate {
         this.eventBus = new EventBus();
         this.userManager = new UserManager(Sets.<String>newHashSet());
 
-        this.incomingHandler = new IncomingHandler(this, this.outgoingQueue, this.eventBus);
+        this.incomingHandler = new IncomingHandler(this, this.outgoingQueue, this);
 
         this.joiningChannelManager = new ChannelManager();
         this.joinedChannelManager = new ChannelManager();
@@ -140,7 +141,7 @@ public class IRCConnection implements IWarrenDelegate {
             return;
         }
 
-        this.eventBus.post(new ServerConnectedEvent());
+        this.postEvent(new ServerConnectedEvent());
 
         Runnable outgoingRunnable = new OutgoingRunnable(this.outgoingQueue, outToServer);
         this.outgoingThread = new Thread(outgoingRunnable);
@@ -264,7 +265,7 @@ public class IRCConnection implements IWarrenDelegate {
     }
 
     private void postDisconnectedEvent() {
-        this.eventBus.post(new ServerDisconnectedEvent());
+        this.postEvent(new ServerDisconnectedEvent());
     }
 
     private void cleanupOutgoingThread() {
@@ -281,6 +282,11 @@ public class IRCConnection implements IWarrenDelegate {
         }
 
         return;
+    }
+
+    @Override
+    public void postEvent(Event event) {
+        this.eventBus.post(event);
     }
 
     public static class Builder {

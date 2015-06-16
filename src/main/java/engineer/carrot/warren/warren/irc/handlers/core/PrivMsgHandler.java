@@ -36,9 +36,9 @@ public class PrivMsgHandler extends MessageHandler<PrivMsgMessage> {
             User fromUser = this.botDelegate.getUserManager().getOrCreateUser(message.fromUser);
 
             if (ctcp == CtcpEnum.NONE) {
-                this.postEvent(new PrivateMessageEvent(fromUser, message.toTarget, contents));
+                this.eventSink.postEvent(new PrivateMessageEvent(fromUser, message.toTarget, contents));
             } else if (ctcp == CtcpEnum.ACTION) {
-                this.postEvent(new PrivateActionEvent(fromUser, message.toTarget, contents));
+                this.eventSink.postEvent(new PrivateActionEvent(fromUser, message.toTarget, contents));
             }
         } else {
             Channel channel = this.botDelegate.getJoinedChannels().getChannel(message.toTarget);
@@ -48,9 +48,9 @@ public class PrivMsgHandler extends MessageHandler<PrivMsgMessage> {
                 LOGGER.warn("Got a message from a channel that the bot doesn't think it's in! {} {}", fromUser.getNameWithoutAccess(), contents);
             } else {
                 if (ctcp == CtcpEnum.NONE) {
-                    this.postEvent(new ChannelMessageEvent(fromUser, channel, contents));
+                    this.eventSink.postEvent(new ChannelMessageEvent(fromUser, channel, contents));
                 } else if (ctcp == CtcpEnum.ACTION) {
-                    this.postEvent(new ChannelActionEvent(fromUser, channel, contents));
+                    this.eventSink.postEvent(new ChannelActionEvent(fromUser, channel, contents));
                 }
             }
         }

@@ -1,20 +1,33 @@
-package engineer.carrot.warren.warren.irc.handlers.core;
+package engineer.carrot.warren.warren.irc.handlers.core.mode;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
-import engineer.carrot.warren.warren.irc.AccessLevel;
 import engineer.carrot.warren.warren.irc.Channel;
-import engineer.carrot.warren.warren.irc.Hostmask;
-import engineer.carrot.warren.warren.irc.User;
 import engineer.carrot.warren.warren.irc.handlers.MessageHandler;
 import engineer.carrot.warren.warren.irc.messages.core.ModeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ModeHandler extends MessageHandler<ModeMessage> {
     private final Logger LOGGER = LoggerFactory.getLogger(ModeHandler.class);
+
+    private final Map<String, IModeHandlerModule> modules;
+
+    public ModeHandler() {
+        this.modules = Maps.newHashMap();
+    }
+
+    @Override
+    public void initialise() {
+        this.modules.put("o", new OpModeHandlerModule(this.eventSink, this.botDelegate.getUserManager()));
+        this.modules.put("v", new VoiceModeHandlerModule(this.eventSink, this.botDelegate.getUserManager()));
+    }
 
     @Override
     public void handleMessage(ModeMessage message) {
@@ -31,30 +44,20 @@ public class ModeHandler extends MessageHandler<ModeMessage> {
                 return;
             }
 
-            LOGGER.info("Handling channel MODE for a channel we're in:");
-            LOGGER.info("{}", new Gson().toJson(message));
-
             List<ModeMessage.ModeModifier> modifiers = message.modifiers;
+            List<String> unhandledModes = Lists.newArrayList();
             for (ModeMessage.ModeModifier modifier : modifiers) {
-                if (modifier.mode.equals("o")) {
-                    if (!modifier.hasParameter()) {
-                        LOGGER.warn("User got OP but a parameter (who) wasn't set");
-
-                        continue;
-                    }
-
-                    User user = channel.getOrCreateUser(Hostmask.parseFromString(modifier.parameter), this.botDelegate.getUserManager());
-
-                    if (modifier.isAdding()) {
-                        channel.setUserAccessLevel(user, AccessLevel.OP);
-
-                        LOGGER.info("User '{}' got OP in channel '{}'", user.getNameWithoutAccess(), channel.name);
-                    } else {
-                        channel.setUserAccessLevel(user, AccessLevel.NONE);
-
-                        LOGGER.info("User '{}' got DEOPPED in channel '{}'", user.getNameWithoutAccess(), channel.name);
-                    }
+                IModeHandlerModule module = this.modules.get(modifier.mode);
+                if (module == null) {
+                    unhandledModes.add(modifier.mode);
+                    continue;
                 }
+
+                module.handleModeChange(modifier, channel);
+            }
+
+            if (!unhandledModes.isEmpty()) {
+                LOGGER.warn("Didn't know how to handle the following MODE changes: {}", Joiner.on(", ").join(unhandledModes));
             }
 
             return;

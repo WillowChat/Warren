@@ -19,6 +19,6 @@ public class TopicHandler extends MessageHandler<TopicMessage> {
             return;
         }
 
-        this.postEvent(new TopicNotifyEvent(channel, message.contents));
+        this.eventSink.postEvent(new TopicNotifyEvent(channel, message.contents));
     }
 }

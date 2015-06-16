@@ -2,13 +2,13 @@ package engineer.carrot.warren.warren;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.eventbus.EventBus;
 import com.google.gson.Gson;
 import engineer.carrot.warren.warren.irc.handlers.IMessageHandler;
 import engineer.carrot.warren.warren.irc.handlers.RPL.*;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IISupportManager;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.ISupportHandler;
 import engineer.carrot.warren.warren.irc.handlers.core.*;
+import engineer.carrot.warren.warren.irc.handlers.core.mode.ModeHandler;
 import engineer.carrot.warren.warren.irc.handlers.multi.IMotdMultiHandler;
 import engineer.carrot.warren.warren.irc.handlers.multi.MotdMultiHandler;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
@@ -29,7 +29,7 @@ public class IncomingHandler implements IIncomingHandler {
 
     private final IWarrenDelegate botDelegate;
     private final IMessageQueue outgoingQueue;
-    private final EventBus eventBus;
+    private final IEventSink eventSink;
 
     private Map<String, IMessageHandler> commandDelegateMap;
     private Map<String, Class<? extends IMessage>> messageMap;
@@ -42,10 +42,10 @@ public class IncomingHandler implements IIncomingHandler {
     // Multi Handlers
     private IMotdMultiHandler motdHandler;
 
-    public IncomingHandler(IWarrenDelegate botDelegate, IMessageQueue outgoingQueue, EventBus eventBus) {
+    public IncomingHandler(IWarrenDelegate botDelegate, IMessageQueue outgoingQueue, IEventSink eventSink) {
         this.botDelegate = botDelegate;
         this.outgoingQueue = outgoingQueue;
-        this.eventBus = eventBus;
+        this.eventSink = eventSink;
 
         this.initialise();
     }
@@ -89,10 +89,14 @@ public class IncomingHandler implements IIncomingHandler {
             handler.setBotDelegate(this.botDelegate);
             handler.setOutgoingQueue(this.outgoingQueue);
             handler.setIncomingHandler(this);
-            handler.setEventBus(this.eventBus);
+            handler.setEventSink(this.eventSink);
         }
 
         this.initialiseMultiMessageHandlers();
+
+        for (IMessageHandler handler : this.commandDelegateMap.values()) {
+            handler.initialise();
+        }
     }
 
     private void initialiseMultiMessageHandlers() {

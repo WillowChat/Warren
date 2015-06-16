@@ -1,9 +1,8 @@
 package engineer.carrot.warren.warren.irc.handlers;
 
-import com.google.common.eventbus.EventBus;
+import engineer.carrot.warren.warren.IEventSink;
 import engineer.carrot.warren.warren.IIncomingHandler;
 import engineer.carrot.warren.warren.IWarrenDelegate;
-import engineer.carrot.warren.warren.event.Event;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.util.IMessageQueue;
 import org.slf4j.Logger;
@@ -15,11 +14,21 @@ public abstract class MessageHandler<M extends IMessage> implements IMessageHand
     protected IWarrenDelegate botDelegate;
     protected IMessageQueue outgoingQueue;
     protected IIncomingHandler incomingHandler;
-    private EventBus eventBus;
+    protected IEventSink eventSink;
+
+    @Override
+    public void initialise() {
+
+    }
 
     @Override
     public void setBotDelegate(IWarrenDelegate botDelegate) {
         this.botDelegate = botDelegate;
+    }
+
+    @Override
+    public void setEventSink(IEventSink eventSink) {
+        this.eventSink = eventSink;
     }
 
     @Override
@@ -28,17 +37,7 @@ public abstract class MessageHandler<M extends IMessage> implements IMessageHand
     }
 
     @Override
-    public void setEventBus(EventBus eventBus) {
-        this.eventBus = eventBus;
-    }
-
-    @Override
     public void setIncomingHandler(IIncomingHandler incomingHandler) {
         this.incomingHandler = incomingHandler;
-    }
-
-    protected void postEvent(Event event) {
-        LOGGER.info("Posting framework event: {}", event.getPrettyString());
-        this.eventBus.post(event);
     }
 }

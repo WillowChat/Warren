@@ -23,6 +23,6 @@ public class PartHandler extends MessageHandler<PartChannelMessage> {
         channel.removeUser(user);
 
         LOGGER.info("<{}> left {}: '{}'", user.getNameWithoutAccess(), channel.name, message.message);
-        this.postEvent(new UserPartedChannelEvent(user, channel, message.message));
+        this.eventSink.postEvent(new UserPartedChannelEvent(user, channel, message.message));
     }
 }

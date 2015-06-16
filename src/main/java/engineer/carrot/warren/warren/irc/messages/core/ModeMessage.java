@@ -59,10 +59,18 @@ public class ModeMessage extends AbstractMessage {
         public final char type;
         public final String mode;
         public String parameter;
+        public String setter;
 
-        public ModeModifier(char type, String mode) {
+        public ModeModifier(char type, String mode, String setter) {
             this.type = type;
             this.mode = mode;
+
+            if (setter == null) {
+                this.setter = "";
+            } else {
+                this.setter = setter;
+            }
+
             this.parameter = "";
         }
 
@@ -156,7 +164,7 @@ public class ModeMessage extends AbstractMessage {
                     continue;
                 }
 
-                ModeModifier modifier = new ModeModifier(currentMode, mode);
+                ModeModifier modifier = new ModeModifier(currentMode, mode, this.fromUser);
 
                 boolean isAdding = (currentMode == CharacterCodes.PLUS);
                 boolean takesAParameter = this.takesAParameter(isAdding, mode);

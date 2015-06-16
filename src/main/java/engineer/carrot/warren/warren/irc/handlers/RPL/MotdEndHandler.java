@@ -40,6 +40,6 @@ public class MotdEndHandler extends MessageHandler<MotdEndMessage> {
 
         this.incomingHandler.setNextExpectedCommandToAnything();
 
-        this.postEvent(event);
+        this.eventSink.postEvent(event);
     }
 }

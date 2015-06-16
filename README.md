@@ -21,6 +21,8 @@ A Java IRC framework for personal use (but open-sourced). Attempts to achieve go
 [RFC 2812](https://tools.ietf.org/html/rfc2812)
 
 * **Make relevant TODOs Issues**
+* Access levels need to be modifiers - user can have multiple (eg +vo)
+ * Also needs to be compared - if user has +o they implicitly have +v in a lot of places - use ISupport for it
 * More string sanitisation / safe output to log
 * Hiding NickServ passwords / etc from log
 * Annotations to register command handlers and holders

@@ -19,6 +19,6 @@ public class NoTopicHandler extends MessageHandler<NoTopicMessage> {
             return;
         }
 
-        this.postEvent(new TopicNotifyEvent(channel, ""));
+        this.eventSink.postEvent(new TopicNotifyEvent(channel, ""));
     }
 }
