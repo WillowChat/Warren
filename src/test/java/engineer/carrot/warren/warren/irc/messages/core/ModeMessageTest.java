@@ -66,17 +66,17 @@ public class ModeMessageTest {
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.mode, "i");
+        assertEquals(modifier.mode, new Character('i'));
         assertFalse(modifier.hasParameter());
 
         modifier = message.modifiers.get(1);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.mode, "m");
+        assertEquals(modifier.mode, new Character('m'));
         assertFalse(modifier.hasParameter());
 
         modifier = message.modifiers.get(2);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.mode, "I");
+        assertEquals(modifier.mode, new Character('I'));
         assertTrue(modifier.hasParameter());
         assertEquals(modifier.parameter, "*!*@*.fi");
     }
@@ -100,7 +100,7 @@ public class ModeMessageTest {
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.mode, "A");
+        assertEquals(modifier.mode, new Character('A'));
         assertFalse(modifier.hasParameter());
     }
 
@@ -123,7 +123,7 @@ public class ModeMessageTest {
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.MINUS);
-        assertEquals(modifier.mode, "A");
+        assertEquals(modifier.mode, new Character('A'));
         assertFalse(modifier.hasParameter());
     }
 
@@ -149,13 +149,13 @@ public class ModeMessageTest {
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.mode, "b");
+        assertEquals(modifier.mode, new Character('b'));
         assertTrue(modifier.hasParameter());
         assertEquals(modifier.parameter, "*!*@*.edu");
 
         modifier = message.modifiers.get(1);
         assertEquals(modifier.type, CharacterCodes.MINUS);
-        assertEquals(modifier.mode, "e");
+        assertEquals(modifier.mode, new Character('e'));
         assertTrue(modifier.hasParameter());
         assertEquals(modifier.parameter, "*!*@*.bu.edu");
     }
@@ -180,7 +180,7 @@ public class ModeMessageTest {
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.mode, "k");
+        assertEquals(modifier.mode, new Character('k'));
         assertTrue(modifier.hasParameter());
         assertEquals(modifier.parameter, "oulu");
     }
@@ -206,13 +206,13 @@ public class ModeMessageTest {
 
         ModeMessage.ModeModifier modifier = message.modifiers.get(0);
         assertEquals(modifier.type, CharacterCodes.PLUS);
-        assertEquals(modifier.mode, "o");
+        assertEquals(modifier.mode, new Character('o'));
         assertTrue(modifier.hasParameter());
         assertEquals(modifier.parameter, "nick1");
 
         modifier = message.modifiers.get(1);
         assertEquals(modifier.type, CharacterCodes.MINUS);
-        assertEquals(modifier.mode, "o");
+        assertEquals(modifier.mode, new Character('o'));
         assertTrue(modifier.hasParameter());
         assertEquals(modifier.parameter, "nick2");
     }

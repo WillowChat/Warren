@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class PrefixSupportModule implements IPrefixSupportModule {
-    private final Set<String> prefixes;
-    private final Set<String> modes;
-    private final Map<String, String> modesToPrefixes;
-    private final Map<String, String> prefixesToModes;
+    private final Set<Character> prefixes;
+    private final Set<Character> modes;
+    private final Map<Character, Character> modesToPrefixes;
+    private final Map<Character, Character> prefixesToModes;
 
     private final List<IPrefixListener> listeners;
 
@@ -63,12 +63,8 @@ public class PrefixSupportModule implements IPrefixSupportModule {
         // PREFIX: (ov)@+
 
         for (int i = 0; i < modesLength; i++) {
-            String mode = Character.toString(modes.charAt(i));
-            String prefix = Character.toString(prefixes.charAt(i));
-
-            if (Strings.isNullOrEmpty(mode) || Strings.isNullOrEmpty(prefix)) {
-                return false;
-            }
+            Character mode = modes.charAt(i);
+            Character prefix = prefixes.charAt(i);
 
             this.prefixes.add(prefix);
             this.modes.add(mode);
@@ -86,12 +82,17 @@ public class PrefixSupportModule implements IPrefixSupportModule {
     // IPrefixSupportModule
 
     @Override
-    public Set<String> getPrefixes() {
+    public Set<Character> getPrefixes() {
         return this.prefixes;
     }
 
     @Override
-    public Set<String> getModes() {
+    public Set<Character> getModes() {
         return this.modes;
+    }
+
+    @Override
+    public Character getModeFromPrefix(Character prefix) {
+        return this.prefixesToModes.get(prefix);
     }
 }

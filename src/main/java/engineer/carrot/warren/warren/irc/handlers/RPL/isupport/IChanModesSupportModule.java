@@ -3,11 +3,11 @@ package engineer.carrot.warren.warren.irc.handlers.RPL.isupport;
 import java.util.Set;
 
 public interface IChanModesSupportModule extends IISupportModule {
-    Set<String> getTypeAModes();
+    Set<Character> getTypeAModes();
 
-    Set<String> getTypeBModes();
+    Set<Character> getTypeBModes();
 
-    Set<String> getTypeCModes();
+    Set<Character> getTypeCModes();
 
-    Set<String> getTypeDModes();
+    Set<Character> getTypeDModes();
 }

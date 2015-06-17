@@ -10,9 +10,9 @@ import java.util.Set;
 
 public class UserManager implements IPrefixListener {
     private final Map<String, User> users;
-    private Set<String> prefixes;
+    private Set<Character> prefixes;
 
-    public UserManager(Set<String> prefixes) {
+    public UserManager(Set<Character> prefixes) {
         this.users = Maps.newHashMap();
 
         this.prefixesChanged(prefixes);
@@ -87,7 +87,7 @@ public class UserManager implements IPrefixListener {
     // IPrefixListener
 
     @Override
-    public void prefixesChanged(Set<String> prefixes) {
+    public void prefixesChanged(Set<Character> prefixes) {
         this.prefixes = prefixes;
     }
 }

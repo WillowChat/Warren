@@ -4,7 +4,6 @@ import engineer.carrot.warren.warren.IEventSink;
 import engineer.carrot.warren.warren.UserManager;
 import engineer.carrot.warren.warren.event.mode.ChannelDeopEvent;
 import engineer.carrot.warren.warren.event.mode.ChannelOpEvent;
-import engineer.carrot.warren.warren.irc.AccessLevel;
 import engineer.carrot.warren.warren.irc.Channel;
 import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.User;
@@ -31,11 +30,11 @@ public class OpModeHandlerModule extends ModeHandlerModule {
         User settingUser = this.userManager.getOrCreateUser(Hostmask.parseFromString(modifier.setter));
 
         if (modifier.isAdding()) {
-            channel.setUserAccessLevel(receivingUser, AccessLevel.OP);
+            channel.addUserMode(receivingUser, modifier.mode);
 
             this.eventSink.postEvent(new ChannelOpEvent(settingUser, receivingUser, channel));
         } else {
-            channel.setUserAccessLevel(receivingUser, AccessLevel.NONE);
+            channel.removeUserMode(receivingUser, modifier.mode);
 
             this.eventSink.postEvent(new ChannelDeopEvent(settingUser, receivingUser, channel));
         }

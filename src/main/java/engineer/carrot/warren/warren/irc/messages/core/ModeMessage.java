@@ -57,11 +57,11 @@ public class ModeMessage extends AbstractMessage {
 
     public class ModeModifier {
         public final char type;
-        public final String mode;
+        public final Character mode;
         public String parameter;
         public String setter;
 
-        public ModeModifier(char type, String mode, String setter) {
+        public ModeModifier(char type, Character mode, String setter) {
             this.type = type;
             this.mode = mode;
 
@@ -104,7 +104,7 @@ public class ModeMessage extends AbstractMessage {
         return this.parseChunksToModifiers(chunks);
     }
 
-    private boolean isTokenStartOfModifier(char token) {
+    private boolean isTokenStartOfModifier(Character token) {
         return (token == CharacterCodes.PLUS || token == CharacterCodes.MINUS);
 
     }
@@ -147,11 +147,10 @@ public class ModeMessage extends AbstractMessage {
     private List<ModeModifier> parseChunksToModifiers(List<ModeChunk> chunks) {
         List<ModeModifier> modifiers = Lists.newArrayList();
 
-        char currentMode = 0;
+        Character currentMode = 0;
 
         for (ModeChunk chunk : chunks) {
-            for (String mode : this.parseModes(chunk.modes)) {
-                char token = mode.charAt(0);
+            for (Character token : this.parseModes(chunk.modes)) {
                 if (this.isTokenStartOfModifier(token)) {
                     currentMode = token;
 
@@ -159,21 +158,21 @@ public class ModeMessage extends AbstractMessage {
                 }
 
                 if (currentMode == 0) {
-                    LOGGER.warn("Tried to add a modifier that didn't start with +- - bailing: '{}'", mode);
+                    LOGGER.warn("Tried to add a modifier that didn't start with +- - bailing: '{}'", token);
 
                     continue;
                 }
 
-                ModeModifier modifier = new ModeModifier(currentMode, mode, this.fromUser);
+                ModeModifier modifier = new ModeModifier(currentMode, token, this.fromUser);
 
                 boolean isAdding = (currentMode == CharacterCodes.PLUS);
-                boolean takesAParameter = this.takesAParameter(isAdding, mode);
+                boolean takesAParameter = this.takesAParameter(isAdding, token);
 
                 if (takesAParameter) {
                     String parameter = chunk.parameters.poll();
 
                     if (Strings.isNullOrEmpty(parameter)) {
-                        LOGGER.warn("MODE modifier was missing an expected parameter - not processing it: '{}'", mode);
+                        LOGGER.warn("MODE modifier was missing an expected parameter - not processing it: '{}'", token);
 
                         continue;
                     }
@@ -192,17 +191,17 @@ public class ModeMessage extends AbstractMessage {
         return modifiers;
     }
 
-    private List<String> parseModes(String token) {
-        List<String> modes = Lists.newArrayList();
+    private List<Character> parseModes(String token) {
+        List<Character> modes = Lists.newArrayList();
 
         for (int i = 0; i < token.length(); i++) {
-            modes.add(Character.toString(token.charAt(i)));
+            modes.add(token.charAt(i));
         }
 
         return modes;
     }
 
-    private boolean takesAParameter(boolean isAdding, String mode) {
+    private boolean takesAParameter(boolean isAdding, Character mode) {
         /*
         Type A: always takes a parameter
         Type B: always takes a parameter

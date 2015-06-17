@@ -8,7 +8,6 @@ import com.google.common.eventbus.EventBus;
 import engineer.carrot.warren.warren.event.Event;
 import engineer.carrot.warren.warren.event.ServerConnectedEvent;
 import engineer.carrot.warren.warren.event.ServerDisconnectedEvent;
-import engineer.carrot.warren.warren.irc.AccessLevel;
 import engineer.carrot.warren.warren.irc.Channel;
 import engineer.carrot.warren.warren.irc.User;
 import engineer.carrot.warren.warren.irc.messages.IrcMessage;
@@ -85,7 +84,7 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
     private void initialise() {
         this.outgoingQueue = new MessageQueue();
         this.eventBus = new EventBus();
-        this.userManager = new UserManager(Sets.<String>newHashSet());
+        this.userManager = new UserManager(Sets.<Character>newHashSet());
 
         this.incomingHandler = new IncomingHandler(this, this.outgoingQueue, this);
 
@@ -392,7 +391,10 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
     @Override
     public void joinChannels(List<String> channels) {
         for (String channel : channels) {
-            this.joiningChannelManager.addChannel(new Channel.Builder().name(channel).users(Sets.<User>newHashSet()).userAccessMap(Maps.<User, AccessLevel>newHashMap()).build());
+            Channel newChannel = new Channel.Builder().name(channel).users(Sets.<User>newHashSet()).userModes(Maps.<User, Set<Character>>newHashMap()).build();
+            newChannel.setPrefixModule(this.incomingHandler.getISupportManager().getPrefixModule());
+
+            this.joiningChannelManager.addChannel(newChannel);
         }
 
         this.outgoingQueue.addMessageToQueue(new JoinChannelsMessage(channels));

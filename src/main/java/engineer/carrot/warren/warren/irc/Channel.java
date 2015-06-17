@@ -1,6 +1,8 @@
 package engineer.carrot.warren.warren.irc;
 
+import com.google.common.collect.Sets;
 import engineer.carrot.warren.warren.UserManager;
+import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IPrefixSupportModule;
 
 import java.util.Map;
 import java.util.Set;
@@ -8,38 +10,70 @@ import java.util.Set;
 public class Channel {
     public final String name;
     public final Set<User> users;
-    public final Map<User, AccessLevel> userAccessMap;
+    public final Map<User, Set<Character>> userModes;
+
+    private IPrefixSupportModule prefixSupportModule;
 
     private Channel(Builder builder) {
         this.name = builder.name;
         this.users = builder.users;
-        this.userAccessMap = builder.userAccessMap;
+        this.userModes = builder.userModes;
+    }
+
+    public void setPrefixModule(IPrefixSupportModule prefixSupportModule) {
+        this.prefixSupportModule = prefixSupportModule;
     }
 
     public void removeUser(User user) {
         this.users.remove(user);
     }
 
-    private void addUser(User user, AccessLevel level) {
+    private void addUser(User user, Set<Character> modes) {
         this.users.add(user);
-        this.userAccessMap.put(user, level);
+        this.userModes.put(user, modes);
     }
 
-    public boolean doesUserHaveAccessLevel(User user, AccessLevel accessLevel) {
+    public boolean doesUserHaveAtLeastMode(User user, Character mode) {
         if (!this.users.contains(user)) {
             return false;
         }
 
-        AccessLevel level = this.userAccessMap.getOrDefault(user, AccessLevel.NONE);
-        return (level == accessLevel);
+        Set<Character> modes = this.userModes.get(user);
+        if (modes == null || modes.isEmpty()) {
+            return false;
+        }
+
+        // TODO: check for modes 'greater' than this one, too
+
+        return (modes.contains(mode));
     }
 
-    public boolean setUserAccessLevel(User user, AccessLevel accessLevel) {
+    public boolean addUserMode(User user, Character mode) {
         if (!this.users.contains(user)) {
             return false;
         }
 
-        this.userAccessMap.put(user, accessLevel);
+        Set<Character> modes = this.userModes.get(user);
+        if (modes == null || modes.isEmpty()) {
+            return false;
+        }
+
+        modes.add(mode);
+        return true;
+    }
+
+    public boolean removeUserMode(User user, Character mode) {
+        if (!this.users.contains(user)) {
+            return false;
+        }
+
+        Set<Character> modes = this.userModes.get(user);
+        if (modes == null || modes.isEmpty()) {
+            return false;
+        }
+
+        modes.remove(mode);
+
         return true;
     }
 
@@ -50,15 +84,18 @@ public class Channel {
     public User getOrCreateUser(Hostmask hostmask, UserManager userManager) {
         User user = userManager.getOrCreateUser(hostmask);
         if (!this.containsUser(user)) {
-            AccessLevel level = AccessLevel.NONE;
-
             String userString = hostmask.user;
-            char possibleIdentifier = userString.charAt(0);
-            if (AccessLevel.isKnownIdentifier(possibleIdentifier)) {
-                level = AccessLevel.parseFromIdentifier(possibleIdentifier);
+            Character prefix = userString.charAt(0);
+            Set<Character> modes = Sets.newHashSet();
+
+            if (this.prefixSupportModule.getPrefixes().contains(prefix)) {
+                Character mode = this.prefixSupportModule.getModeFromPrefix(prefix);
+                if (mode != null) {
+                    modes.add(mode);
+                }
             }
 
-            this.addUser(user, level);
+            this.addUser(user, modes);
         }
 
         return user;
@@ -72,7 +109,7 @@ public class Channel {
     public static class Builder {
         public String name;
         public Set<User> users;
-        public Map<User, AccessLevel> userAccessMap;
+        public Map<User, Set<Character>> userModes;
 
         public Builder name(String name) {
             this.name = name;
@@ -84,8 +121,8 @@ public class Channel {
             return this;
         }
 
-        public Builder userAccessMap(Map<User, AccessLevel> userAccessMap) {
-            this.userAccessMap = userAccessMap;
+        public Builder userModes(Map<User, Set<Character>> userModes) {
+            this.userModes = userModes;
             return this;
         }
 
@@ -100,8 +137,8 @@ public class Channel {
                 throw new IllegalStateException("Channel must have users list (even if empty)");
             }
 
-            if (channel.userAccessMap == null) {
-                throw new IllegalStateException("Channel must have user access map (even if empty");
+            if (channel.userModes == null) {
+                throw new IllegalStateException("Channel must have user modes map (even if empty");
             }
 
             return channel;

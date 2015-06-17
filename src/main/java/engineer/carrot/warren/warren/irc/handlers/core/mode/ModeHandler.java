@@ -17,7 +17,7 @@ import java.util.Set;
 public class ModeHandler extends MessageHandler<ModeMessage> {
     private final Logger LOGGER = LoggerFactory.getLogger(ModeHandler.class);
 
-    private final Map<String, IModeHandlerModule> modules;
+    private final Map<Character, IModeHandlerModule> modules;
 
     public ModeHandler() {
         this.modules = Maps.newHashMap();
@@ -25,8 +25,8 @@ public class ModeHandler extends MessageHandler<ModeMessage> {
 
     @Override
     public void initialise() {
-        this.modules.put("o", new OpModeHandlerModule(this.eventSink, this.botDelegate.getUserManager()));
-        this.modules.put("v", new VoiceModeHandlerModule(this.eventSink, this.botDelegate.getUserManager()));
+        this.modules.put('o', new OpModeHandlerModule(this.eventSink, this.botDelegate.getUserManager()));
+        this.modules.put('v', new VoiceModeHandlerModule(this.eventSink, this.botDelegate.getUserManager()));
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ModeHandler extends MessageHandler<ModeMessage> {
             }
 
             List<ModeMessage.ModeModifier> modifiers = message.modifiers;
-            List<String> unhandledModes = Lists.newArrayList();
+            List<Character> unhandledModes = Lists.newArrayList();
             for (ModeMessage.ModeModifier modifier : modifiers) {
                 IModeHandlerModule module = this.modules.get(modifier.mode);
                 if (module == null) {

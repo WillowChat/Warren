@@ -12,10 +12,10 @@ import java.util.Set;
 public class ChanModesSupportModule implements IChanModesSupportModule {
     private final Logger LOGGER = LoggerFactory.getLogger(ChanModesSupportModule.class);
 
-    private final Set<String> typeAModes;
-    private final Set<String> typeBModes;
-    private final Set<String> typeCModes;
-    private final Set<String> typeDModes;
+    private final Set<Character> typeAModes;
+    private final Set<Character> typeBModes;
+    private final Set<Character> typeCModes;
+    private final Set<Character> typeDModes;
 
     public ChanModesSupportModule() {
         this.typeAModes = Sets.newHashSet();
@@ -54,13 +54,13 @@ public class ChanModesSupportModule implements IChanModesSupportModule {
         return true;
     }
 
-    private Set<String> parseModes(String typeValues) {
-        Set<String> parsedModes = Sets.newHashSet();
+    private Set<Character> parseModes(String typeValues) {
+        Set<Character> parsedModes = Sets.newHashSet();
 
         for (int i = 0; i < typeValues.length(); i++) {
             char c = typeValues.charAt(i);
 
-            parsedModes.add(Character.toString(c));
+            parsedModes.add(c);
         }
 
         return parsedModes;
@@ -69,22 +69,22 @@ public class ChanModesSupportModule implements IChanModesSupportModule {
     // IChanModesSupportModule
 
     @Override
-    public Set<String> getTypeAModes() {
+    public Set<Character> getTypeAModes() {
         return this.typeAModes;
     }
 
     @Override
-    public Set<String> getTypeBModes() {
+    public Set<Character> getTypeBModes() {
         return this.typeBModes;
     }
 
     @Override
-    public Set<String> getTypeCModes() {
+    public Set<Character> getTypeCModes() {
         return this.typeCModes;
     }
 
     @Override
-    public Set<String> getTypeDModes() {
+    public Set<Character> getTypeDModes() {
         return typeDModes;
     }
 }

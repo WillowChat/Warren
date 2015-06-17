@@ -5,9 +5,9 @@ import java.util.Set;
 public class User {
     private final Hostmask hostmask;
     private String usernameWithoutAccess;
-    private Set<String> prefixes;
+    private Set<Character> prefixes;
 
-    public User(Hostmask hostmask, Set<String> prefixes) {
+    public User(Hostmask hostmask, Set<Character> prefixes) {
         this.hostmask = hostmask;
         this.prefixes = prefixes;
 
@@ -23,9 +23,9 @@ public class User {
         this.usernameWithoutAccess = this.trimAccess(this.hostmask.user, this.prefixes);
     }
 
-    private String trimAccess(String user, Set<String> prefixes) {
+    private String trimAccess(String user, Set<Character> prefixes) {
         String trimmedName = user;
-        if (prefixes.contains(Character.toString(trimmedName.charAt(0)))) {
+        if (prefixes.contains(trimmedName.charAt(0))) {
             trimmedName = trimmedName.substring(1);
         }
 

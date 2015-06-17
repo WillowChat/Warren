@@ -34,6 +34,6 @@ public class NamReplyHandler extends MessageHandler<NamReplyMessage> {
         }
 
         LOGGER.info("Set new user list for {}: {}", channel.name, new Gson().toJson(channel.users));
-        LOGGER.info("Access levels: {}", channel.userAccessMap);
+        LOGGER.info("Access levels: {}", channel.userModes);
     }
 }
