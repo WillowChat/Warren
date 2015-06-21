@@ -21,7 +21,7 @@ public class MessageQueue implements IMessageQueue {
     }
 
     @Override
-    public void addMessageToQueue(IMessage message) {
+    public void addMessage(IMessage message) {
         boolean inserted = this.queue.add(message);
         if (!inserted) {
             LOGGER.error("Failed to insert outgoing message in to queue. Expect bad things to happen.");
@@ -29,17 +29,17 @@ public class MessageQueue implements IMessageQueue {
     }
 
     @Override
-    public IMessage peekQueue() {
+    public IMessage peek() {
         return this.queue.peek();
     }
 
     @Override
-    public IMessage popQueueImmediately() {
+    public IMessage popImmediately() {
         return this.queue.poll();
     }
 
     @Override
-    public IMessage popQueueIndefinitely() throws InterruptedException {
+    public IMessage popIndefinitely() throws InterruptedException {
         while (true) {
             IMessage message = this.queue.poll(1000, TimeUnit.MILLISECONDS);
             if (message != null) {

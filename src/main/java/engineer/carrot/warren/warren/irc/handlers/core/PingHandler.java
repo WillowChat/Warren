@@ -8,7 +8,7 @@ import engineer.carrot.warren.warren.irc.messages.core.PongMessage;
 public class PingHandler extends MessageHandler<PingMessage> {
     @Override
     public void handleMessage(PingMessage message) {
-        this.outgoingQueue.addMessageToQueue(new PongMessage(message.pingToken));
+        this.outgoingQueue.addMessage(new PongMessage(message.pingToken));
 
         this.eventSink.postEvent(new ServerPingEvent(message.pingToken, message.pingToken));
     }

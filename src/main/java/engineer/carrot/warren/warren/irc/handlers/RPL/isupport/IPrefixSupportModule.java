@@ -10,4 +10,7 @@ public interface IPrefixSupportModule extends IISupportModule {
 
     @Nullable
     Character getModeFromPrefix(Character prefix);
+
+    // Lower mode positions denote higher privilege (ov for example)
+    int getModePosition(Character mode);
 }

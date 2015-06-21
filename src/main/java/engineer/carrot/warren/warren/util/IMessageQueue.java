@@ -5,14 +5,14 @@ import engineer.carrot.warren.warren.irc.messages.IMessage;
 import javax.annotation.Nullable;
 
 public interface IMessageQueue {
-    public void addMessageToQueue(IMessage message);
+    void addMessage(IMessage message);
 
     @Nullable
-    public IMessage peekQueue();
+    IMessage peek();
 
     @Nullable
-    public IMessage popQueueImmediately();
+    IMessage popImmediately();
 
     @Nullable
-    public IMessage popQueueIndefinitely() throws InterruptedException;
+    IMessage popIndefinitely() throws InterruptedException;
 }

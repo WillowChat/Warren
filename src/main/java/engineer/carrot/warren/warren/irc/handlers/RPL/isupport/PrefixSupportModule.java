@@ -15,6 +15,7 @@ public class PrefixSupportModule implements IPrefixSupportModule {
     private final Set<Character> modes;
     private final Map<Character, Character> modesToPrefixes;
     private final Map<Character, Character> prefixesToModes;
+    private final Map<Character, Integer> modesToIndexes;
 
     private final List<IPrefixListener> listeners;
 
@@ -25,6 +26,7 @@ public class PrefixSupportModule implements IPrefixSupportModule {
         this.modes = Sets.newHashSet();
         this.modesToPrefixes = Maps.newHashMap();
         this.prefixesToModes = Maps.newHashMap();
+        this.modesToIndexes = Maps.newHashMap();
 
         this.listeners = listeners;
     }
@@ -70,6 +72,7 @@ public class PrefixSupportModule implements IPrefixSupportModule {
             this.modes.add(mode);
             this.modesToPrefixes.put(mode, prefix);
             this.prefixesToModes.put(prefix, mode);
+            this.modesToIndexes.put(mode, i);
         }
 
         for (IPrefixListener listener : this.listeners) {
@@ -94,5 +97,15 @@ public class PrefixSupportModule implements IPrefixSupportModule {
     @Override
     public Character getModeFromPrefix(Character prefix) {
         return this.prefixesToModes.get(prefix);
+    }
+
+    @Override
+    public int getModePosition(Character mode) {
+        Integer modeIndex = this.modesToIndexes.get(mode);
+        if (modeIndex == null || modeIndex < 0) {
+            return Integer.MAX_VALUE;
+        }
+
+        return modeIndex;
     }
 }

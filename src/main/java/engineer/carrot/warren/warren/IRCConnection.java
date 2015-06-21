@@ -146,8 +146,8 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
         this.outgoingThread = new Thread(outgoingRunnable);
         this.outgoingThread.start();
 
-        this.outgoingQueue.addMessageToQueue(new ChangeNicknameMessage(this.nickname));
-        this.outgoingQueue.addMessageToQueue(new UserMessage(this.login, "8", this.realname));
+        this.outgoingQueue.addMessage(new ChangeNicknameMessage(this.nickname));
+        this.outgoingQueue.addMessage(new UserMessage(this.login, "8", this.realname));
 
         long lastResponseTime = System.nanoTime();
 
@@ -160,7 +160,7 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
                 if ((System.nanoTime() - lastResponseTime) > SOCKET_TIMEOUT_NS) {
                     // Socket read timed out - try to write a PING and read again
 
-                    this.outgoingQueue.addMessageToQueue(new PingMessage("idle"));
+                    this.outgoingQueue.addMessage(new PingMessage("idle"));
                     lastResponseTime = System.nanoTime();
                 }
                 continue;
@@ -397,7 +397,7 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
             this.joiningChannelManager.addChannel(newChannel);
         }
 
-        this.outgoingQueue.addMessageToQueue(new JoinChannelsMessage(channels));
+        this.outgoingQueue.addMessage(new JoinChannelsMessage(channels));
     }
 
     @Override
@@ -414,13 +414,13 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
     @Override
     public void sendPMToUser(String user, String contents) {
         PrivMsgMessage outgoingMessage = new PrivMsgMessage(null, user, contents);
-        this.outgoingQueue.addMessageToQueue(outgoingMessage);
+        this.outgoingQueue.addMessage(outgoingMessage);
     }
 
     @Override
     public void sendMessageToChannel(Channel channel, String contents) {
         PrivMsgMessage outgoingMessage = new PrivMsgMessage(null, channel.name, contents);
-        this.outgoingQueue.addMessageToQueue(outgoingMessage);
+        this.outgoingQueue.addMessage(outgoingMessage);
     }
 
     @Override

@@ -38,14 +38,36 @@ public class Channel {
             return false;
         }
 
-        Set<Character> modes = this.userModes.get(user);
-        if (modes == null || modes.isEmpty()) {
+        Set<Character> usersModes = this.userModes.get(user);
+        if (usersModes == null || usersModes.isEmpty()) {
             return false;
         }
 
-        // TODO: check for modes 'greater' than this one, too
+        if (usersModes.contains(mode)) {
+            return true;
+        }
 
-        return (modes.contains(mode));
+        // Check if the user has a mode greater than this one
+
+        Set<Character> knownModes = this.prefixSupportModule.getModes();
+        if (!knownModes.contains(mode)) {
+            return false;
+        }
+
+        int modePosition = this.prefixSupportModule.getModePosition(mode);
+
+        for (Character cMode : usersModes) {
+            if (!knownModes.contains(cMode)) {
+                continue;
+            }
+
+            int cModePosition = this.prefixSupportModule.getModePosition(cMode);
+            if (cModePosition < modePosition) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public boolean addUserMode(User user, Character mode) {
@@ -54,7 +76,7 @@ public class Channel {
         }
 
         Set<Character> modes = this.userModes.get(user);
-        if (modes == null || modes.isEmpty()) {
+        if (modes == null) {
             return false;
         }
 

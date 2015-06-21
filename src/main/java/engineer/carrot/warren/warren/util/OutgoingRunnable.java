@@ -26,7 +26,7 @@ public class OutgoingRunnable implements Runnable {
         while (true) {
             IMessage message;
             try {
-                message = outgoingQueue.popQueueIndefinitely();
+                message = outgoingQueue.popIndefinitely();
             } catch (InterruptedException e) {
                 LOGGER.info("Outgoing runnable interrupted, quitting");
 
