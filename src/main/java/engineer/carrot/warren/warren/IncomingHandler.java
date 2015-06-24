@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class IncomingHandler implements IIncomingHandler {
@@ -31,8 +32,8 @@ public class IncomingHandler implements IIncomingHandler {
     private final IMessageQueue outgoingQueue;
     private final IEventSink eventSink;
 
-    private Map<String, IMessageHandler> commandDelegateMap;
-    private Map<String, Class<? extends IMessage>> messageMap;
+    private Map<String, Optional<IMessageHandler>> messageHandlers;
+    private Map<String, Class<? extends IMessage>> messages;
 
     private Set<String> nextExpectedCommands;
 
@@ -51,41 +52,47 @@ public class IncomingHandler implements IIncomingHandler {
     }
 
     private void initialise() {
-        this.commandDelegateMap = Maps.newHashMap();
-        this.messageMap = Maps.newHashMap();
+        this.messages = Maps.newHashMap();
+        this.messageHandlers = Maps.newHashMap();
 
         this.nextExpectedCommands = Sets.newHashSet();
+        this.iSupportHandler = new ISupportHandler(this.botDelegate.getUserManager());
+
+        this.addInternalHandlers();
 
         this.initialiseMessageHandlers();
     }
 
+    private void addInternalHandlers() {
+        this.addMessageHandler(new CreatedMessage(), Optional.<IMessageHandler>empty());
+        this.addMessageHandler(new NoticeMessage(), Optional.<IMessageHandler>empty());
+        this.addMessageHandler(new PongMessage(), Optional.<IMessageHandler>empty());
+        this.addMessageHandler(new TopicWhoTimeMessage(), Optional.<IMessageHandler>empty());
+        this.addMessageHandler(new YourHostMessage(), Optional.<IMessageHandler>empty());
+
+        this.addMessageHandler(new MotdStartMessage(), Optional.<IMessageHandler>of(new MotdStartHandler()));
+        this.addMessageHandler(new MotdMessage(), Optional.<IMessageHandler>of(new MotdHandler()));
+        this.addMessageHandler(new MotdEndMessage(), Optional.<IMessageHandler>of(new MotdEndHandler()));
+        this.addMessageHandler(new NoTopicMessage(), Optional.<IMessageHandler>of(new NoTopicHandler()));
+        this.addMessageHandler(new TopicMessage(), Optional.<IMessageHandler>of(new TopicHandler()));
+        this.addMessageHandler(new WelcomeMessage(), Optional.<IMessageHandler>of(new WelcomeHandler()));
+        this.addMessageHandler(new JoinedChannelMessage(), Optional.<IMessageHandler>of(new JoinHandler()));
+        this.addMessageHandler(new PartChannelMessage(), Optional.<IMessageHandler>of(new PartHandler()));
+        this.addMessageHandler(new PingMessage(), Optional.<IMessageHandler>of(new PingHandler()));
+        this.addMessageHandler(new PrivMsgMessage(), Optional.<IMessageHandler>of(new PrivMsgHandler()));
+        this.addMessageHandler(new NamReplyMessage(), Optional.<IMessageHandler>of(new NamReplyHandler()));
+        this.addMessageHandler(new ChangeNicknameMessage(), Optional.<IMessageHandler>of(new ChangeNicknameHandler()));
+        this.addMessageHandler(new ModeMessage(), Optional.<IMessageHandler>of(new ModeHandler()));
+        this.addMessageHandler(new ISupportMessage(), Optional.<IMessageHandler>of(this.iSupportHandler));
+    }
+
     private void initialiseMessageHandlers() {
-        // TODO: Find this automatically with annotations or something
+        for (Optional<IMessageHandler> optionalHandler : this.messageHandlers.values()) {
+            if (!optionalHandler.isPresent()) {
+                continue;
+            }
 
-        this.addMessageToMap(new CreatedMessage());
-        this.addMessageToMap(new NoticeMessage());
-        this.addMessageToMap(new PongMessage());
-        this.addMessageToMap(new TopicWhoTimeMessage());
-        this.addMessageToMap(new YourHostMessage());
-
-        this.addMessageHandlerPairToMap(new MotdStartMessage(), new MotdStartHandler());
-        this.addMessageHandlerPairToMap(new MotdMessage(), new MotdHandler());
-        this.addMessageHandlerPairToMap(new MotdEndMessage(), new MotdEndHandler());
-        this.addMessageHandlerPairToMap(new NoTopicMessage(), new NoTopicHandler());
-        this.addMessageHandlerPairToMap(new TopicMessage(), new TopicHandler());
-        this.addMessageHandlerPairToMap(new WelcomeMessage(), new WelcomeHandler());
-        this.addMessageHandlerPairToMap(new JoinedChannelMessage(), new JoinHandler());
-        this.addMessageHandlerPairToMap(new PartChannelMessage(), new PartHandler());
-        this.addMessageHandlerPairToMap(new PingMessage(), new PingHandler());
-        this.addMessageHandlerPairToMap(new PrivMsgMessage(), new PrivMsgHandler());
-        this.addMessageHandlerPairToMap(new NamReplyMessage(), new NamReplyHandler());
-        this.addMessageHandlerPairToMap(new ChangeNicknameMessage(), new ChangeNicknameHandler());
-        this.addMessageHandlerPairToMap(new ModeMessage(), new ModeHandler());
-
-        this.iSupportHandler = new ISupportHandler(this.botDelegate.getUserManager());
-        this.addMessageHandlerPairToMap(new ISupportMessage(), this.iSupportHandler);
-
-        for (IMessageHandler handler : this.commandDelegateMap.values()) {
+            IMessageHandler handler = optionalHandler.get();
             handler.setBotDelegate(this.botDelegate);
             handler.setOutgoingQueue(this.outgoingQueue);
             handler.setIncomingHandler(this);
@@ -94,8 +101,12 @@ public class IncomingHandler implements IIncomingHandler {
 
         this.initialiseMultiMessageHandlers();
 
-        for (IMessageHandler handler : this.commandDelegateMap.values()) {
-            handler.initialise();
+        for (Optional<IMessageHandler> optionalHandler : this.messageHandlers.values()) {
+            if (!optionalHandler.isPresent()) {
+                continue;
+            }
+
+            optionalHandler.get().initialise();
         }
     }
 
@@ -103,22 +114,9 @@ public class IncomingHandler implements IIncomingHandler {
         this.motdHandler = new MotdMultiHandler();
     }
 
-    private void addMessageToMap(IMessage message) {
-        this.messageMap.put(message.getCommandID(), message.getClass());
-    }
-
-    private void addMessageHandlerPairToMap(IMessage message, IMessageHandler handler) {
-        if (this.messageMap.containsKey(message.getCommandID())) {
-            throw new RuntimeException("Cannot add a message handler pair when said message is already in the map: " + message.getCommandID());
-        }
-
-        this.messageMap.put(message.getCommandID(), message.getClass());
-        this.commandDelegateMap.put(message.getCommandID(), handler);
-    }
-
     @Nullable
     private IMessage createTypedMessageFromCommandCode(String commandCode) {
-        Class<? extends IMessage> clazzMessage = this.messageMap.get(commandCode);
+        Class<? extends IMessage> clazzMessage = this.messages.get(commandCode);
         if (clazzMessage == null) {
             return null;
         }
@@ -157,7 +155,7 @@ public class IncomingHandler implements IIncomingHandler {
             }
         }
 //            LOGGER.info("Raw message: " + serverResponse);
-        if (!this.messageMap.containsKey(message.command)) {
+        if (!this.messages.containsKey(message.command)) {
             LOGGER.info("Unknown: {}", message.buildPrettyOutput());
             return true;
         }
@@ -177,13 +175,13 @@ public class IncomingHandler implements IIncomingHandler {
         // The IRCMessage being well formed guarantees that we can build() the correct typed message from it
         typedMessage.build(message);
 
-        IMessageHandler messageHandler = this.commandDelegateMap.get(message.command);
-        if (messageHandler == null) {
+        Optional<IMessageHandler> optionalMessageHandler = this.messageHandlers.get(message.command);
+        if (!optionalMessageHandler.isPresent()) {
             LOGGER.info("{}: {}", message.command, messageGson.toJson(typedMessage));
             return true;
         }
 
-        messageHandler.handleMessage(typedMessage);
+        optionalMessageHandler.get().handleMessage(typedMessage);
 
         return true;
     }
@@ -198,5 +196,13 @@ public class IncomingHandler implements IIncomingHandler {
     @Override
     public IISupportManager getISupportManager() {
         return this.iSupportHandler;
+    }
+
+    // API
+
+    @Override
+    public void addMessageHandler(IMessage message, Optional<IMessageHandler> handler) {
+        this.messages.put(message.getCommandID(), message.getClass());
+        this.messageHandlers.put(message.getCommandID(), handler);
     }
 }
