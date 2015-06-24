@@ -202,7 +202,13 @@ public class IncomingHandler implements IIncomingHandler {
 
     @Override
     public void addMessageHandler(IMessage message, Optional<IMessageHandler> handler) {
-        this.messages.put(message.getCommandID(), message.getClass());
-        this.messageHandlers.put(message.getCommandID(), handler);
+        String command = message.getCommandID();
+
+        if (this.messages.containsKey(command)) {
+            throw new RuntimeException("Message with code " + command + " is already known to this IncomingHandler!");
+        }
+
+        this.messages.put(command, message.getClass());
+        this.messageHandlers.put(command, handler);
     }
 }
