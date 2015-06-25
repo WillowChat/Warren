@@ -15,24 +15,35 @@ public class PingMessage extends AbstractMessage {
         this.pingToken = pingToken;
     }
 
-    @Override
-    public void populateFromIRCMessage(IrcMessage message) {
-        this.pingToken = message.parameters.get(0);
-    }
+    // Inbound
 
     @Override
-    public IrcMessage buildServerOutput() {
-        return new IrcMessage.Builder().command(this.getCommandID()).parameters(this.pingToken).build();
-    }
-
-    @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
+    public boolean populate(IrcMessage message) {
         // {"command":"PING","parameters":["00BCBDEC"],"tags":{}}
-        return message.isParametersExactlyExpectedLength(1);
+
+        if (!message.hasParameters()) {
+            return false;
+        }
+
+        this.pingToken = message.parameters.get(0);
+
+        return true;
     }
 
+    // Outbound
+
     @Override
-    public String getCommandID() {
+    public IrcMessage build() {
+        return new IrcMessage.Builder()
+                .command(this.getCommand())
+                .parameters(this.pingToken)
+                .build();
+    }
+
+    // Shared
+
+    @Override
+    public String getCommand() {
         return MessageCodes.PING;
     }
 }

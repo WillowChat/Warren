@@ -1,30 +1,47 @@
 package engineer.carrot.warren.warren.irc.messages;
 
+import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IISupportManager;
 import engineer.carrot.warren.warren.irc.messages.util.NoOpException;
 
+import javax.annotation.Nullable;
+
 public abstract class AbstractMessage implements IMessage {
     protected transient IISupportManager iSupportManager;
+
+    @Nullable
+    public Hostmask prefix;
 
     @Override
     public void setISupportManager(IISupportManager iSupportManager) {
         this.iSupportManager = iSupportManager;
     }
 
-    @Override
-    public void populateFromIRCMessage(IrcMessage message) {
-        throw new NoOpException();
-    }
+    // Inbound
 
     @Override
     public IMessage build(IrcMessage message) {
-        this.populateFromIRCMessage(message);
+        if (message.hasPrefix()) {
+            this.prefix = Hostmask.parseFromString(message.prefix);
+        }
+
+        boolean success = this.populate(message);
+        if (!success) {
+            throw new RuntimeException("Failed to populate from message: " + message);
+        }
 
         return this;
     }
 
     @Override
-    public IrcMessage buildServerOutput() {
+    public boolean populate(IrcMessage message) {
+        return false;
+    }
+
+    // Outbound
+
+    @Override
+    public IrcMessage build() {
         throw new NoOpException();
     }
 }

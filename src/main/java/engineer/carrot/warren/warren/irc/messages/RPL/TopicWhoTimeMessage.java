@@ -6,28 +6,31 @@ import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class TopicWhoTimeMessage extends AbstractMessage {
-    private String forServer;
     private String forUser;
     private String forChannel;
     private Hostmask byUser;
     private long atTime;
 
+    // Inbound
+
     @Override
-    public void populateFromIRCMessage(IrcMessage message) {
-        this.forServer = message.prefix;
+    public boolean populate(IrcMessage message) {
+        if (!message.hasPrefix() || message.parameters.size() < 4) {
+            return false;
+        }
+
         this.forUser = message.parameters.get(0);
         this.forChannel = message.parameters.get(1);
         this.byUser = Hostmask.parseFromString(message.parameters.get(2));
         this.atTime = Long.valueOf(message.parameters.get(3));
+
+        return true;
     }
 
-    @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
-        return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(4));
-    }
+    // Shared
 
     @Override
-    public String getCommandID() {
+    public String getCommand() {
         return MessageCodes.RPL.TOPICWHOTIME;
     }
 }

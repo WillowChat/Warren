@@ -10,21 +10,21 @@ import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 import java.util.List;
 
 public class NamReplyMessage extends AbstractMessage {
-    private String forServer;
     public String forUser;
     private String channelVisibility;
     public String forChannel;
     public List<Hostmask> hostmasks;
 
-    @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
-        // {"prefix":"server","parameters":["nickname","@","#Channel","NormalUser +voiced @op @zsh"],"command":"353"}
-        return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(4));
-    }
+    // Inbound
 
     @Override
-    public void populateFromIRCMessage(IrcMessage message) {
-        this.forServer = message.prefix;
+    public boolean populate(IrcMessage message) {
+        // {"prefix":"server","parameters":["nickname","@","#Channel","NormalUser +voiced @op @zsh"],"command":"353"}
+
+        if (!message.hasPrefix() || message.parameters.size() < 4) {
+            return false;
+        }
+
         this.forUser = message.parameters.get(0);
         this.channelVisibility = message.parameters.get(1);
         this.forChannel = message.parameters.get(2);
@@ -37,10 +37,14 @@ public class NamReplyMessage extends AbstractMessage {
         }
 
         this.hostmasks = hostmasks;
+
+        return true;
     }
 
+    // Shared
+
     @Override
-    public String getCommandID() {
+    public String getCommand() {
         return MessageCodes.RPL.NAMREPLY;
     }
 }

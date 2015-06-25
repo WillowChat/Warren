@@ -26,14 +26,14 @@ public class PrivMsgHandler extends MessageHandler<PrivMsgMessage> {
             contents = CtcpHelper.trimCTCP(contents);
 
             if (ctcp == CtcpEnum.UNKNOWN) {
-                LOGGER.warn("Dropping unknown CTCP message from {}: {}", message.fromUser, message.contents);
+                LOGGER.warn("Dropping unknown CTCP message from {}: {}", message.prefix, message.contents);
 
                 return;
             }
         }
 
         if (message.toTarget.equalsIgnoreCase(this.botDelegate.getBotNickname())) {
-            User fromUser = this.botDelegate.getUserManager().getOrCreateUser(message.fromUser);
+            User fromUser = this.botDelegate.getUserManager().getOrCreateUser(message.prefix);
 
             if (ctcp == CtcpEnum.NONE) {
                 this.eventSink.postEvent(new PrivateMessageEvent(fromUser, message.toTarget, contents));
@@ -42,7 +42,7 @@ public class PrivMsgHandler extends MessageHandler<PrivMsgMessage> {
             }
         } else {
             Channel channel = this.botDelegate.getJoinedChannels().getChannel(message.toTarget);
-            User fromUser = channel.getOrCreateUser(message.fromUser, this.botDelegate.getUserManager());
+            User fromUser = channel.getOrCreateUser(message.prefix, this.botDelegate.getUserManager());
 
             if (channel == null) {
                 LOGGER.warn("Got a message from a channel that the bot doesn't think it's in! {} {}", fromUser.getNameWithoutAccess(), contents);

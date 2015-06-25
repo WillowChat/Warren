@@ -16,13 +16,13 @@ public class ChangeNicknameHandler extends MessageHandler<ChangeNicknameMessage>
         // Prefix is set if a person formerly known to the server changed nicknames
         //  Otherwise the person is new to the server
 
-        if (message.fromUser == null) {
+        if (message.prefix == null) {
             LOGGER.warn("Unsupported NICK without a prefix ignored for user '{}'", message.nickname);
             return;
         }
 
         UserManager manager = this.botDelegate.getUserManager();
-        User user = manager.getOrCreateUser(message.fromUser);
+        User user = manager.getOrCreateUser(message.prefix);
         String oldNickname = user.getNameWithoutAccess();
         manager.renameUser(oldNickname, message.nickname);
 

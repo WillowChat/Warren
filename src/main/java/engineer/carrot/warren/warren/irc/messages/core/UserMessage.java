@@ -15,18 +15,20 @@ public class UserMessage extends AbstractMessage {
         this.realname = realname;
     }
 
-    @Override
-    public IrcMessage buildServerOutput() {
-        return new IrcMessage.Builder().command(this.getCommandID()).parameters(this.user, this.mode, "*", this.realname).build();
-    }
+    // Outbound
 
     @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
-        return (!message.isPrefixSet() && message.isParametersExactlyExpectedLength(4));
+    public IrcMessage build() {
+        return new IrcMessage.Builder()
+                .command(this.getCommand())
+                .parameters(this.user, this.mode, "*", this.realname)
+                .build();
     }
 
+    // Shared
+
     @Override
-    public String getCommandID() {
+    public String getCommand() {
         return MessageCodes.USER;
     }
 }

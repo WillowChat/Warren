@@ -5,13 +5,11 @@ import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IISupportManager;
 public interface IMessage {
     void setISupportManager(IISupportManager manager);
 
-    void populateFromIRCMessage(IrcMessage message);
+    boolean populate(IrcMessage message);
 
     IMessage build(IrcMessage message);
 
-    IrcMessage buildServerOutput();
+    IrcMessage build();
 
-    boolean isMessageWellFormed(IrcMessage message);
-
-    String getCommandID();
+    String getCommand();
 }

@@ -16,24 +16,34 @@ public class PongMessage extends AbstractMessage {
         this.pongToken = pongToken;
     }
 
-    @Override
-    public IrcMessage buildServerOutput() {
-        return new IrcMessage.Builder().command(this.getCommandID()).parameters(this.pongToken).build();
-    }
+    // Inbound
 
     @Override
-    public void populateFromIRCMessage(IrcMessage message) {
+    public boolean populate(IrcMessage message) {
+        if (message.parameters.size() < 2) {
+            return false;
+        }
+
         this.pongAuthor = message.parameters.get(0);
         this.pongToken = message.parameters.get(1);
+
+        return true;
     }
 
-    @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
-        return (message.isParametersAtLeastExpectedLength(2));
-    }
+    // Outbound
 
     @Override
-    public String getCommandID() {
+    public IrcMessage build() {
+        return new IrcMessage.Builder()
+                .command(this.getCommand())
+                .parameters(this.pongToken)
+                .build();
+    }
+
+    // Shared
+
+    @Override
+    public String getCommand() {
         return MessageCodes.PONG;
     }
 }

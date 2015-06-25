@@ -1,10 +1,10 @@
 package engineer.carrot.warren.warren.irc.messages;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.Hostmask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,13 +15,9 @@ import java.util.Map;
 public class IrcMessage {
     private static final Logger LOGGER = LoggerFactory.getLogger(IrcMessage.class);
 
-    @Nullable
     private final Map<String, String> tags;
-    @Nullable
     public final String prefix;
-    @Nullable
     public final List<String> parameters;
-
     public final String command;
 
     public static final int MAX_LENGTH = 510;
@@ -166,67 +162,31 @@ public class IrcMessage {
         return builder.build();
     }
 
-    public boolean isPrefixSet() {
-        return this.prefix != null;
+    public boolean hasPrefix() {
+        return !this.prefix.isEmpty();
     }
 
-    public boolean isPrefixSetAndNotEmpty() {
-        return !Strings.isNullOrEmpty(this.prefix);
+    public boolean hasTags() {
+        return !this.tags.isEmpty();
     }
 
-    public boolean isTagsSet() {
-        return this.tags != null;
-    }
-
-    public boolean isCommandSet() {
-        return this.command != null;
-    }
-
-    public boolean isParametersSet() {
+    public boolean hasParameters() {
         return this.parameters != null && !this.parameters.isEmpty();
-    }
-
-    public boolean isParametersAtLeastExpectedLength(int expectedLength) {
-        if (!this.isParametersSet()) {
-            return false;
-        }
-
-        if (this.parameters.size() < expectedLength) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean isParametersExactlyExpectedLength(int expectedLength) {
-        if (!this.isParametersSet()) {
-            return false;
-        }
-
-        if (this.parameters.size() != expectedLength) {
-            return false;
-        }
-
-        return true;
     }
 
     @Nullable
     public String buildServerOutput() {
-        if (!this.isCommandSet()) {
-            return null;
-        }
-
         StringBuilder builder = new StringBuilder();
 
         // Tags
-        if (this.isTagsSet()) {
+        if (this.hasTags()) {
             // TODO: Implement message tag building
             // http://ircv3.atheme.org/specification/message-tags-3.2
             LOGGER.warn("Message tags to server not implemented yet!");
         }
 
         // Prefix
-        if (this.isPrefixSetAndNotEmpty()) {
+        if (this.hasPrefix()) {
             builder.append(CharacterCodes.COLON);
             builder.append(prefix);
             builder.append(CharacterCodes.SPACE);
@@ -237,8 +197,8 @@ public class IrcMessage {
         builder.append(CharacterCodes.SPACE);
 
         // Parameters
-        if (this.isParametersAtLeastExpectedLength(1)) {
-            builder.append(this.buildParametersString(this.parameters));
+        if (this.parameters.size() >= 1) {
+            builder.append(buildParametersString(this.parameters));
         }
 
         String output = builder.toString();
@@ -268,9 +228,9 @@ public class IrcMessage {
     }
 
     public static class Builder {
-        public Map<String, String> tags = null;
-        public String prefix = null;
-        public String command = null;
+        public Map<String, String> tags = Maps.newHashMap();
+        public String prefix = "";
+        public String command = "";
         public List<String> parameters = Lists.newArrayList();
 
         public Builder command(String command) {
@@ -280,6 +240,11 @@ public class IrcMessage {
 
         public Builder tags(Map<String, String> tags) {
             this.tags = tags;
+            return this;
+        }
+
+        public Builder prefix(Hostmask hostmask) {
+            this.prefix = hostmask.buildOutputString();
             return this;
         }
 
@@ -303,16 +268,11 @@ public class IrcMessage {
         }
 
         public IrcMessage build() {
-            IrcMessage message = new IrcMessage(this);
-            if (message.command == null) {
+            if (this.command.isEmpty()) {
                 throw new IllegalStateException("IRC message must have a command!");
             }
 
-            if (this.parameters.isEmpty()) {
-                this.parameters = null;
-            }
-
-            return message;
+            return new IrcMessage(this);
         }
     }
 }

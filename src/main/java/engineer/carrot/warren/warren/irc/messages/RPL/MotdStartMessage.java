@@ -5,7 +5,7 @@ import engineer.carrot.warren.warren.irc.messages.util.ServerTargetContentsMessa
 
 public class MotdStartMessage extends ServerTargetContentsMessage {
     @Override
-    public String getCommandID() {
+    public String getCommand() {
         return MessageCodes.RPL.MOTDSTART;
     }
 }

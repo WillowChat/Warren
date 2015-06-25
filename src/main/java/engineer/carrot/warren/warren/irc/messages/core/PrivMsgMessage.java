@@ -5,11 +5,7 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nullable;
-
 public class PrivMsgMessage extends AbstractMessage {
-    @Nullable
-    public Hostmask fromUser;
     public String toTarget;
     public String contents;
 
@@ -18,42 +14,47 @@ public class PrivMsgMessage extends AbstractMessage {
     }
 
     public PrivMsgMessage(Hostmask fromUser, String toTarget, String contents) {
-        this.fromUser = fromUser;
+        this.prefix = fromUser;
         this.toTarget = toTarget;
         this.contents = contents;
     }
 
+    // Inbound
+
     @Override
-    public void populateFromIRCMessage(IrcMessage message) {
+    public boolean populate(IrcMessage message) {
         // {"prefix":"otherperson!~op@somehostmask.io","parameters":["MY NICKNAME","private message"],"command":"PRIVMSG"}
         // {"prefix":"beecat!beecat@beecat.","parameters":["#rsspam","channel message"],"command":"PRIVMSG"}
 
-        this.fromUser = Hostmask.parseFromString(message.prefix);
+        if (!message.hasPrefix() || message.parameters.size() < 2) {
+            return false;
+        }
+
         this.toTarget = message.parameters.get(0);
         this.contents = message.parameters.get(1);
+
+        return true;
     }
 
-    @Override
-    public IrcMessage buildServerOutput() {
-        IrcMessage.Builder builder = new IrcMessage.Builder().command(this.getCommandID()).parameters(this.toTarget, this.contents);
+    // Outbound
 
-        if (this.fromUser != null) {
-            builder.prefix(this.fromUser.buildOutputString());
+    @Override
+    public IrcMessage build() {
+        IrcMessage.Builder builder = new IrcMessage.Builder()
+                .command(this.getCommand())
+                .parameters(this.toTarget, this.contents);
+
+        if (this.prefix != null) {
+            builder.prefix(this.prefix.buildOutputString());
         }
 
         return builder.build();
     }
 
-    @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
-        // {"prefix":"otherperson!~op@somehostmask.io","parameters":["MY NICKNAME","private message"],"command":"PRIVMSG"}
-        // {"prefix":"beecat!beecat@beecat.","parameters":["#rsspam","channel message"],"command":"PRIVMSG"}
-
-        return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(2));
-    }
+    // Shared
 
     @Override
-    public String getCommandID() {
+    public String getCommand() {
         return MessageCodes.PRIVMSG;
     }
 }

@@ -8,15 +8,18 @@ public abstract class ServerTargetContentsMessage extends AbstractMessage {
     public String toTarget;
     public String contents;
 
+    // Inbound
+
     @Override
-    public void populateFromIRCMessage(IrcMessage message) {
+    public boolean populate(IrcMessage message) {
+        if (!message.hasPrefix() || message.parameters.size() < 2) {
+            return false;
+        }
+
         this.forServer = message.prefix;
         this.toTarget = message.parameters.get(0);
         this.contents = message.parameters.get(1);
-    }
 
-    @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
-        return (message.isPrefixSetAndNotEmpty() && message.isParametersExactlyExpectedLength(2));
+        return true;
     }
 }

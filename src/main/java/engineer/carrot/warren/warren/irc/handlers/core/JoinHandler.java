@@ -15,18 +15,18 @@ public class JoinHandler extends MessageHandler<JoinedChannelMessage> {
     @Override
     public void handleMessage(JoinedChannelMessage message) {
         // TODO: Is this valid if the bot changes nicknames directly after joining a channel?
-        if (message.user.user.equalsIgnoreCase(this.botDelegate.getBotNickname())) {
+        if (message.prefix.user.equalsIgnoreCase(this.botDelegate.getBotNickname())) {
             this.botDelegate.moveJoiningChannelToJoined(message.channel);
 
             this.eventSink.postEvent(new ClientJoinedChannelEvent(this.botDelegate.getJoinedChannels().getChannel(message.channel)));
         } else {
             Channel channel = this.botDelegate.getJoinedChannels().getChannel(message.channel);
             if (channel == null) {
-                LOGGER.warn("We were notified of a user joining a channel that we aren't in! {} -> {}", message.channel, message.user);
+                LOGGER.warn("We were notified of a user joining a channel that we aren't in! {} -> {}", message.channel, message.prefix);
                 return;
             }
 
-            User user = channel.getOrCreateUser(message.user, this.botDelegate.getUserManager());
+            User user = channel.getOrCreateUser(message.prefix, this.botDelegate.getUserManager());
             LOGGER.info("<{}> joined {}", user.getNameWithoutAccess(), channel.name);
             this.eventSink.postEvent(new UserJoinedChannelEvent(user, channel));
         }

@@ -11,15 +11,24 @@ import java.util.List;
 import java.util.Map;
 
 public class ISupportMessage extends AbstractMessage {
-    private String forServer;
     private String forUser;
     public Map<String, String> parameters;
 
+    // Inbound
+
     @Override
-    public void populateFromIRCMessage(IrcMessage message) {
-        this.forServer = message.prefix;
+    public boolean populate(IrcMessage message) {
+        // {"prefix":"chalk.uuid.uk","parameters":["carrot","CHANTYPES\u003d\u0026#","EXCEPTS","INVEX","CHANMODES\u003deIb,k,l,imnpstSr","CHANLIMIT\u003d\u0026#:50","PREFIX\u003d(ov)@+","MAXLIST\u003dbeI:50","MODES\u003d4","NETWORK\u003dImaginaryNet","KNOCK","STATUSMSG\u003d@+","CALLERID\u003dg","are supported by this server"],"command":"005"}
+        // {"prefix":"chalk.uuid.uk","parameters":["carrot","SAFELIST","ELIST\u003dU","CASEMAPPING\u003drfc1459","CHARSET\u003dascii","NICKLEN\u003d30","CHANNELLEN\u003d50","TOPICLEN\u003d390","ETRACE","CPRIVMSG","CNOTICE","DEAF\u003dD","MONITOR\u003d100","are supported by this server"],"command":"005"}
+
+        if (!message.hasPrefix() || message.parameters.size() < 2) {
+            return false;
+        }
+
         this.forUser = message.parameters.get(0);
         this.parameters = this.parseParameters(message);
+
+        return true;
     }
 
     private Map<String, String> parseParameters(IrcMessage message) {
@@ -48,15 +57,10 @@ public class ISupportMessage extends AbstractMessage {
         return returnParameters;
     }
 
-    @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
-        // {"prefix":"chalk.uuid.uk","parameters":["carrot","CHANTYPES\u003d\u0026#","EXCEPTS","INVEX","CHANMODES\u003deIb,k,l,imnpstSr","CHANLIMIT\u003d\u0026#:50","PREFIX\u003d(ov)@+","MAXLIST\u003dbeI:50","MODES\u003d4","NETWORK\u003dImaginaryNet","KNOCK","STATUSMSG\u003d@+","CALLERID\u003dg","are supported by this server"],"command":"005"}
-        // {"prefix":"chalk.uuid.uk","parameters":["carrot","SAFELIST","ELIST\u003dU","CASEMAPPING\u003drfc1459","CHARSET\u003dascii","NICKLEN\u003d30","CHANNELLEN\u003d50","TOPICLEN\u003d390","ETRACE","CPRIVMSG","CNOTICE","DEAF\u003dD","MONITOR\u003d100","are supported by this server"],"command":"005"}
-        return (message.isPrefixSetAndNotEmpty() && message.isParametersAtLeastExpectedLength(2));
-    }
+    // Shared
 
     @Override
-    public String getCommandID() {
+    public String getCommand() {
         return MessageCodes.RPL.ISUPPORT;
     }
 }

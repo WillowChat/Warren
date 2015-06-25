@@ -1,18 +1,24 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
-import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class PartChannelMessage extends AbstractMessage {
-    public Hostmask user;
     public String channel;
     public String message;
 
+    // Inbound
+
     @Override
-    public void populateFromIRCMessage(IrcMessage message) {
-        this.user = Hostmask.parseFromString(message.prefix);
+    public boolean populate(IrcMessage message) {
+        // {"prefix":"test!~t@test","parameters":["#test","Part message"],"command":"PART"}
+        // {"prefix":"AbcdefghIJK!~abcdef@111.111.11.11","parameters":["#test"],"command":"PART"}
+
+        if (this.prefix == null || message.parameters.size() < 1) {
+            return false;
+        }
+
         this.channel = message.parameters.get(0);
 
         if (message.parameters.size() > 1) {
@@ -20,17 +26,14 @@ public class PartChannelMessage extends AbstractMessage {
         } else {
             this.message = "";
         }
+
+        return true;
     }
 
-    @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
-        // {"prefix":"test!~t@test","parameters":["#test","Part message"],"command":"PART"}
-        // {"prefix":"AbcdefghIJK!~abcdef@111.111.11.11","parameters":["#test"],"command":"PART"}
-        return (message.isPrefixSetAndNotEmpty() && message.isParametersAtLeastExpectedLength(1));
-    }
+    // Shared
 
     @Override
-    public String getCommandID() {
+    public String getCommand() {
         return MessageCodes.PART;
     }
 }

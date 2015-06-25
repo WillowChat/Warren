@@ -27,7 +27,7 @@ public class VoiceModeHandlerModule extends ModeHandlerModule {
         }
 
         User receivingUser = channel.getOrCreateUser(Hostmask.parseFromString(modifier.parameter), this.userManager);
-        User settingUser = this.userManager.getOrCreateUser(Hostmask.parseFromString(modifier.setter));
+        User settingUser = this.userManager.getOrCreateUser(modifier.setter);
 
         if (modifier.isAdding()) {
             channel.addUserMode(receivingUser, modifier.mode);

@@ -41,7 +41,7 @@ public class ModeMessageTest {
     private static ModeMessage constructMessage(IrcMessage ircMessage) {
         ModeMessage message = new ModeMessage();
         message.setISupportManager(dummySupportManager);
-        message.populateFromIRCMessage(ircMessage);
+        message.populate(ircMessage);
 
         return message;
     }
@@ -58,7 +58,7 @@ public class ModeMessageTest {
 
         ModeMessage message = constructMessage(ircMessage);
 
-        assertNull(message.fromUser);
+        assertNull(message.prefix);
         assertEquals(message.target, "#Finnish");
         assertNotNull(message.modifiers);
 
@@ -92,7 +92,7 @@ public class ModeMessageTest {
 
         ModeMessage message = constructMessage(ircMessage);
 
-        assertNull(message.fromUser);
+        assertNull(message.prefix);
         assertEquals(message.target, "#Channel");
         assertNotNull(message.modifiers);
 
@@ -115,7 +115,7 @@ public class ModeMessageTest {
 
         ModeMessage message = constructMessage(ircMessage);
 
-        assertNull(message.fromUser);
+        assertNull(message.prefix);
         assertEquals(message.target, "#Channel");
         assertNotNull(message.modifiers);
 
@@ -141,7 +141,7 @@ public class ModeMessageTest {
 
         ModeMessage message = constructMessage(ircMessage);
 
-        assertNull(message.fromUser);
+        assertNull(message.prefix);
         assertEquals(message.target, "&oulu");
         assertNotNull(message.modifiers);
 
@@ -172,7 +172,7 @@ public class ModeMessageTest {
 
         ModeMessage message = constructMessage(ircMessage);
 
-        assertNull(message.fromUser);
+        assertNull(message.prefix);
         assertEquals(message.target, "#42");
         assertNotNull(message.modifiers);
 
@@ -198,7 +198,7 @@ public class ModeMessageTest {
 
         ModeMessage message = constructMessage(ircMessage);
 
-        assertNull(message.fromUser);
+        assertNull(message.prefix);
         assertEquals(message.target, "#Channel");
         assertNotNull(message.modifiers);
 

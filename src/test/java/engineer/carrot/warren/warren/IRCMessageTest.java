@@ -14,11 +14,10 @@ public class IRCMessageTest {
         IrcMessage ircMessage = IrcMessage.parseFromLine("TEST");
 
         assertNotNull(ircMessage);
-        assertTrue(ircMessage.isCommandSet());
         assertEquals(ircMessage.command, "TEST");
-        assertFalse(ircMessage.isTagsSet());
-        assertFalse(ircMessage.isPrefixSet());
-        assertFalse(ircMessage.isParametersSet());
+        assertFalse(ircMessage.hasTags());
+        assertFalse(ircMessage.hasPrefix());
+        assertFalse(ircMessage.hasParameters());
     }
 
     @Test
@@ -26,12 +25,11 @@ public class IRCMessageTest {
         IrcMessage ircMessage = IrcMessage.parseFromLine(":user!host@server TEST");
 
         assertNotNull(ircMessage);
-        assertTrue(ircMessage.isCommandSet());
         assertEquals(ircMessage.command, "TEST");
-        assertFalse(ircMessage.isTagsSet());
-        assertTrue(ircMessage.isPrefixSetAndNotEmpty());
+        assertFalse(ircMessage.hasTags());
+        assertTrue(ircMessage.hasPrefix());
         assertEquals(ircMessage.prefix, "user!host@server");
-        assertFalse(ircMessage.isParametersSet());
+        assertFalse(ircMessage.hasParameters());
     }
 
     @Test
@@ -39,12 +37,11 @@ public class IRCMessageTest {
         IrcMessage ircMessage = IrcMessage.parseFromLine(":user!host@server TEST some parameters :AND A LAST ONE");
 
         assertNotNull(ircMessage);
-        assertTrue(ircMessage.isCommandSet());
         assertEquals(ircMessage.command, "TEST");
-        assertFalse(ircMessage.isTagsSet());
-        assertTrue(ircMessage.isPrefixSet());
+        assertFalse(ircMessage.hasTags());
+        assertTrue(ircMessage.hasPrefix());
         assertEquals(ircMessage.prefix, "user!host@server");
-        assertTrue(ircMessage.isParametersExactlyExpectedLength(3));
+        assertEquals(ircMessage.parameters.size(), 3);
         assertEquals(ircMessage.parameters, Lists.newArrayList("some", "parameters", "AND A LAST ONE"));
     }
 

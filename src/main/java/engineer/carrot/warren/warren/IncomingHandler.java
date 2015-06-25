@@ -166,14 +166,11 @@ public class IncomingHandler implements IIncomingHandler {
             return false;
         }
 
-        boolean wellFormed = typedMessage.isMessageWellFormed(message);
-        if (!wellFormed) {
-            LOGGER.error("Message was not well formed. Not processing: {}", originalLine);
+        IMessage builtMessage = typedMessage.build(message);
+        if (builtMessage == null) {
+            LOGGER.error("Failed to populate message from IRC message: {}", message);
             return false;
         }
-
-        // The IRCMessage being well formed guarantees that we can build() the correct typed message from it
-        typedMessage.build(message);
 
         Optional<IMessageHandler> optionalMessageHandler = this.messageHandlers.get(message.command);
         if (!optionalMessageHandler.isPresent()) {
@@ -202,7 +199,7 @@ public class IncomingHandler implements IIncomingHandler {
 
     @Override
     public void addMessageHandler(IMessage message, Optional<IMessageHandler> handler) {
-        String command = message.getCommandID();
+        String command = message.getCommand();
 
         if (this.messages.containsKey(command)) {
             throw new RuntimeException("Message with code " + command + " is already known to this IncomingHandler!");

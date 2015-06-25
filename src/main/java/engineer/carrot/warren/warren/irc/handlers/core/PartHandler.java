@@ -15,11 +15,11 @@ public class PartHandler extends MessageHandler<PartChannelMessage> {
     public void handleMessage(PartChannelMessage message) {
         Channel channel = this.botDelegate.getJoinedChannels().getChannel(message.channel);
         if (channel == null) {
-            LOGGER.warn("We were notified of a user parting a channel that we aren't in! {} -> {}", message.channel, message.user);
+            LOGGER.warn("We were notified of a user parting a channel that we aren't in! {} -> {}", message.channel, message.prefix);
             return;
         }
 
-        User user = channel.getOrCreateUser(message.user, this.botDelegate.getUserManager());
+        User user = channel.getOrCreateUser(message.prefix, this.botDelegate.getUserManager());
         channel.removeUser(user);
 
         LOGGER.info("<{}> left {}: '{}'", user.getNameWithoutAccess(), channel.name, message.message);

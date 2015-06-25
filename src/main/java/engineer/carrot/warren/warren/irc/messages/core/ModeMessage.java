@@ -3,6 +3,7 @@ package engineer.carrot.warren.warren.irc.messages.core;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IChanModesSupportModule;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IPrefixSupportModule;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
@@ -19,11 +20,6 @@ import java.util.Queue;
 public class ModeMessage extends AbstractMessage {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModeMessage.class);
 
-    private IChanModesSupportModule chanModesSupportModule;
-    private IPrefixSupportModule prefixSupportModule;
-
-    @Nullable
-    public String fromUser;
     public String target;
     public List<ModeModifier> modifiers;
 
@@ -31,25 +27,28 @@ public class ModeMessage extends AbstractMessage {
 
     }
 
+    // Inbound
+
     @Override
-    public void populateFromIRCMessage(IrcMessage message) {
-        this.fromUser = message.prefix;
+    public boolean populate(IrcMessage message) {
+        if (!message.hasParameters()) {
+            return false;
+        }
+
         this.target = message.parameters.get(0);
 
         int parametersSize = message.parameters.size();
         if (parametersSize > 1) {
             this.modifiers = this.parseIrcParameters(message.parameters.subList(1, parametersSize));
         }
+
+        return true;
     }
 
-    @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
-        // // <channel> *( ( "-" / "+" ) *<modes> *<modeparams> )
-        return message.isParametersAtLeastExpectedLength(1);
-    }
+    // Shared
 
     @Override
-    public String getCommandID() {
+    public String getCommand() {
         return MessageCodes.MODE;
     }
 
@@ -59,17 +58,13 @@ public class ModeMessage extends AbstractMessage {
         public final char type;
         public final Character mode;
         public String parameter;
-        public String setter;
+        @Nullable
+        public Hostmask setter;
 
-        public ModeModifier(char type, Character mode, String setter) {
+        public ModeModifier(char type, Character mode, @Nullable Hostmask setter) {
             this.type = type;
             this.mode = mode;
-
-            if (setter == null) {
-                this.setter = "";
-            } else {
-                this.setter = setter;
-            }
+            this.setter = setter;
 
             this.parameter = "";
         }
@@ -163,7 +158,7 @@ public class ModeMessage extends AbstractMessage {
                     continue;
                 }
 
-                ModeModifier modifier = new ModeModifier(currentMode, token, this.fromUser);
+                ModeModifier modifier = new ModeModifier(currentMode, token, this.prefix);
 
                 boolean isAdding = (currentMode == CharacterCodes.PLUS);
                 boolean takesAParameter = this.takesAParameter(isAdding, token);

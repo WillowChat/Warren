@@ -38,7 +38,7 @@ public class OutgoingRunnable implements Runnable {
                 return;
             }
 
-            IrcMessage outputMessage = message.buildServerOutput();
+            IrcMessage outputMessage = message.build();
             String outputString = outputMessage.buildServerOutput();
             if (Strings.isNullOrEmpty(outputString)) {
                 LOGGER.error("Got an output message, but failed to create a string from it: {}", outputMessage.buildPrettyOutput());

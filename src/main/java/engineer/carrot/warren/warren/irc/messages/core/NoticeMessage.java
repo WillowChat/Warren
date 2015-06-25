@@ -4,11 +4,7 @@ import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.IrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
-import javax.annotation.Nullable;
-
 public class NoticeMessage extends AbstractMessage {
-    @Nullable
-    private String fromUser;
     private String toTarget;
     private String contents;
 
@@ -16,39 +12,42 @@ public class NoticeMessage extends AbstractMessage {
 
     }
 
-    public NoticeMessage(String fromUser, String toTarget, String contents) {
-        this.fromUser = fromUser;
-        this.toTarget = toTarget;
-        this.contents = contents;
-    }
+    // Inbound
 
     @Override
-    public void populateFromIRCMessage(IrcMessage message) {
-        this.fromUser = message.prefix;
+    public boolean populate(IrcMessage message) {
+        // {"prefix":"server","parameters":["*","contents"],"command":"NOTICE"}
+        // {"parameters":["*","contents"],"command":"NOTICE"}
+
+        if (message.parameters.size() < 2) {
+            return false;
+        }
+
         this.toTarget = message.parameters.get(0);
         this.contents = message.parameters.get(1);
+
+        return true;
     }
 
-    @Override
-    public IrcMessage buildServerOutput() {
-        IrcMessage.Builder builder = new IrcMessage.Builder().command(this.getCommandID()).parameters(this.toTarget, this.contents);
+    // Outbound
 
-        if (this.fromUser != null) {
-            builder.prefix(this.fromUser);
+    @Override
+    public IrcMessage build() {
+        IrcMessage.Builder builder = new IrcMessage.Builder()
+                .command(this.getCommand())
+                .parameters(this.toTarget, this.contents);
+
+        if (this.prefix != null) {
+            builder.prefix(this.prefix);
         }
 
         return builder.build();
     }
 
-    @Override
-    public boolean isMessageWellFormed(IrcMessage message) {
-        // {"prefix":"server","parameters":["*","contents"],"command":"NOTICE"}
-        // {"parameters":["*","contents"],"command":"NOTICE"}
-        return message.isParametersExactlyExpectedLength(2);
-    }
+    // Shared
 
     @Override
-    public String getCommandID() {
+    public String getCommand() {
         return MessageCodes.NOTICE;
     }
 }
