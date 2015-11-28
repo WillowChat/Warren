@@ -210,7 +210,7 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
         this.cleanupOutgoingThread();
     }
 
-    private boolean disconnect() {
+    public boolean disconnect() {
         if (this.currentReader == null) {
             return false;
         }
