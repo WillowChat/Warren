@@ -1,5 +1,6 @@
 package engineer.carrot.warren.warren;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
@@ -21,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 public class IncomingHandler implements IIncomingHandler {
@@ -64,11 +64,11 @@ public class IncomingHandler implements IIncomingHandler {
     }
 
     private void addInternalHandlers() {
-        this.addMessageHandler(new CreatedMessage(), Optional.<IMessageHandler>empty());
-        this.addMessageHandler(new NoticeMessage(), Optional.<IMessageHandler>empty());
-        this.addMessageHandler(new PongMessage(), Optional.<IMessageHandler>empty());
-        this.addMessageHandler(new TopicWhoTimeMessage(), Optional.<IMessageHandler>empty());
-        this.addMessageHandler(new YourHostMessage(), Optional.<IMessageHandler>empty());
+        this.addMessageHandler(new CreatedMessage(), Optional.<IMessageHandler>absent());
+        this.addMessageHandler(new NoticeMessage(), Optional.<IMessageHandler>absent());
+        this.addMessageHandler(new PongMessage(), Optional.<IMessageHandler>absent());
+        this.addMessageHandler(new TopicWhoTimeMessage(), Optional.<IMessageHandler>absent());
+        this.addMessageHandler(new YourHostMessage(), Optional.<IMessageHandler>absent());
 
         this.addMessageHandler(new MotdStartMessage(), Optional.<IMessageHandler>of(new MotdStartHandler()));
         this.addMessageHandler(new MotdMessage(), Optional.<IMessageHandler>of(new MotdHandler()));
