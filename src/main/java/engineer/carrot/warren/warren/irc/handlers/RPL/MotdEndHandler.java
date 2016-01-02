@@ -31,6 +31,13 @@ public class MotdEndHandler extends MessageHandler<MotdEndMessage> {
         if (this.botDelegate.shouldIdentify()) {
             LOGGER.info("Told to IDENTIFY, sending password");
             this.botDelegate.sendPMToUser("nickserv", "IDENTIFY " + this.botDelegate.getIdentifyPassword());
+
+            // TODO: Workaround! Wait 5 seconds before trying to join channels
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                LOGGER.error("Sleep for NickServ interrupted");
+            }
         }
 
         List<String> autoJoinChannels = this.botDelegate.getAutoJoinChannels();
