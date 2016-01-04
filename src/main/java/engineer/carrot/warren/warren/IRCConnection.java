@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
@@ -231,9 +232,11 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
         try {
             socket = new Socket(server, port);
             socket.setSoTimeout(SOCKET_INTERRUPT_TIMEOUT_MS); // Read once a second for interrupts
+        } catch (ConnectException e) {
+            LOGGER.error("Failed to connect to server '{}:{}' - timed out? : {}", server, port, e);
+            return null;
         } catch (IOException e) {
-            LOGGER.error("Failed to set up plaintext socket");
-            e.printStackTrace();
+            LOGGER.error("Failed to set up plaintext socket: {}", e);
             return null;
         }
 
