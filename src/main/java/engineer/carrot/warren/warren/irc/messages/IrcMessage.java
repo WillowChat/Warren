@@ -139,6 +139,10 @@ public class IrcMessage {
                 parameters.add(param);
                 stringPosition = nextSpace + 1;
 
+                if (stringPosition >= length) {
+                    continue;
+                }
+
                 // Trim trailing spaces (some IRC daemons had this)
                 while (line.charAt(stringPosition) == CharacterCodes.SPACE) {
                     stringPosition++;
