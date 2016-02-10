@@ -30,6 +30,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class IRCConnection implements IWarrenDelegate, IEventSink {
@@ -44,7 +45,7 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
     private final int port;
     private boolean loginToNickserv = false;
     private String nickservPassword;
-    private List<String> autoJoinChannels;
+    private Map<String, String> autoJoinChannels;
     private boolean plaintext = false;
     private boolean useFingerprints = false;
     private Set<String> fingerprints;
@@ -107,7 +108,7 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
         this.nickservPassword = password;
     }
 
-    private void setAutoJoinChannels(List<String> channels) {
+    private void setAutoJoinChannels(Map<String, String> channels) {
         this.autoJoinChannels = channels;
     }
 
@@ -298,7 +299,7 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
         public String login = "";
         public final List<Object> listeners = Lists.newArrayList();
         public String nickservPassword = "";
-        public final List<String> channels = Lists.newArrayList();
+        public final Map<String, String> channels = Maps.newHashMap();
         public boolean plaintext = false;
         public final Set<String> fingerprints = Sets.newHashSet();
 
@@ -338,12 +339,24 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
         }
 
         public Builder channel(String channel) {
-            this.channels.add(channel);
+            this.channels.put(channel, null);
             return this;
         }
 
         public Builder channels(List<String> channels) {
-            this.channels.addAll(channels);
+            for (String channelName : channels) {
+                this.channels.put(channelName, null);
+            }
+            return this;
+        }
+
+        public Builder channel(String channelName, String channelKey) {
+            this.channels.put(channelName, channelKey);
+            return this;
+        }
+
+        public Builder channels(Map<String, String> channels) {
+            this.channels.putAll(channels);
             return this;
         }
 
@@ -392,15 +405,33 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
     }
 
     @Override
-    public void joinChannels(List<String> channels) {
-        for (String channel : channels) {
-            Channel newChannel = new Channel.Builder().name(channel).users(Sets.<User>newHashSet()).userModes(Maps.<User, Set<Character>>newHashMap()).build();
-            newChannel.setPrefixModule(this.incomingHandler.getISupportManager().getPrefixModule());
+    public void joinChannels(Map<String, String> channels) {
+        List<Channel> newChannels = Lists.newArrayList();
 
-            this.joiningChannelManager.addChannel(newChannel);
+        for (Map.Entry<String, String> entry : channels.entrySet()) {
+            String channelName = entry.getKey();
+            String channelKey = entry.getValue();
+
+            Channel.Builder channelBuilder = new Channel.Builder().name(channelName).users(Sets.<User>newHashSet()).userModes(Maps.<User, Set<Character>>newHashMap());
+
+            if (!Strings.isNullOrEmpty(channelKey)) {
+                channelBuilder.key(channelKey);
+            }
+
+            Channel channel = channelBuilder.build();
+            channel.setPrefixModule(this.incomingHandler.getISupportManager().getPrefixModule());
+
+            newChannels.add(channel);
+            this.joiningChannelManager.addChannel(channel);
         }
 
-        this.outgoingQueue.addMessage(new JoinChannelsMessage(channels));
+        for (Channel channel : newChannels) {
+            if (Strings.isNullOrEmpty(channel.key)) {
+                this.outgoingQueue.addMessage(new JoinChannelsMessage(channel.name));
+            } else {
+                this.outgoingQueue.addMessage(new JoinChannelsMessage(channel.name, channel.key));
+            }
+        }
     }
 
     @Override
@@ -437,7 +468,7 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
     }
 
     @Override
-    public List<String> getAutoJoinChannels() {
+    public Map<String, String> getAutoJoinChannels() {
         return this.autoJoinChannels;
     }
 

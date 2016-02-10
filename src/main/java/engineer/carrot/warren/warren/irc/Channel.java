@@ -11,6 +11,7 @@ public class Channel {
     public final String name;
     public final Set<User> users;
     public final Map<User, Set<Character>> userModes;
+    public final String key;
 
     private IPrefixSupportModule prefixSupportModule;
 
@@ -18,6 +19,12 @@ public class Channel {
         this.name = builder.name;
         this.users = builder.users;
         this.userModes = builder.userModes;
+
+        if (builder.key == null) {
+            this.key = "";
+        } else {
+            this.key = builder.key;
+        }
     }
 
     public void setPrefixModule(IPrefixSupportModule prefixSupportModule) {
@@ -132,9 +139,15 @@ public class Channel {
         public String name;
         public Set<User> users;
         public Map<User, Set<Character>> userModes;
+        public String key;
 
         public Builder name(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder key(String key) {
+            this.key = key;
             return this;
         }
 

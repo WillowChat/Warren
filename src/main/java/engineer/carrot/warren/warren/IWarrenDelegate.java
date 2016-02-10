@@ -3,6 +3,7 @@ package engineer.carrot.warren.warren;
 import engineer.carrot.warren.warren.irc.Channel;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface IWarrenDelegate {
@@ -14,7 +15,7 @@ public interface IWarrenDelegate {
 
     UserManager getUserManager();
 
-    void joinChannels(List<String> channels);
+    void joinChannels(Map<String, String> channels);
 
     void moveJoiningChannelToJoined(String channel);
 
@@ -26,7 +27,7 @@ public interface IWarrenDelegate {
 
     String getIdentifyPassword();
 
-    List<String> getAutoJoinChannels();
+    Map<String, String> getAutoJoinChannels();
 
     void setPrefixes(Set<Character> prefixes);
 
