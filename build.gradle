@@ -1,22 +1,29 @@
 buildscript {
+    ext.kotlin_version = "1.0.0-rc-1036"
     repositories {
         jcenter()
+        mavenCentral()
     }
 
     dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
     }
 }
 
-plugins {
-    id 'java'
-    id 'idea'
-    id 'com.github.johnrengelman.shadow' version '1.2.1'
-}
+apply plugin: "java"
+apply plugin: "kotlin"
+apply plugin: "idea"
+apply plugin: "com.github.johnrengelman.shadow"
 
 compileJava {
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
+}
+
+sourceSets {
+    main.kotlin.srcDirs += 'src/main/kotlin'
+    main.java.srcDirs += 'src/main/java'
 }
 
 repositories {
@@ -29,6 +36,7 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '18.0'
     compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.0'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.9'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.0.4-beta'
@@ -41,6 +49,7 @@ shadowJar {
         exclude(dependency('com.google.guava:guava:.*'))
     }
 
+    relocate 'kotlin', 'engineer.carrot.warren.warren.repack.kotlin'
     relocate 'com.google.gson', 'engineer.carrot.warren.warren.repack.com.google.gson'
     relocate 'edu.umd.cs.findbugs.annotations', 'engineer.carrot.warren.warren.repack.edu.umd.cs.findbugs.annotations'
     relocate 'javax.annotation', 'engineer.carrot.warren.warren.repack.javax.annotation'
@@ -48,7 +57,7 @@ shadowJar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.4'
+    gradleVersion = '2.10'
 }
 
 def loadProperties(propsFilename) {
