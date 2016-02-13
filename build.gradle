@@ -1,12 +1,11 @@
 buildscript {
-    ext.kotlin_version = "1.0.0-rc-1036"
     repositories {
         jcenter()
         mavenCentral()
     }
 
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
     }
 }
@@ -36,7 +35,7 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '18.0'
     compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.0'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.9'
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.0.4-beta'
@@ -60,37 +59,31 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.10'
 }
 
-def loadProperties(propsFilename) {
-    def props = new Properties()
-    new File(propsFilename).withInputStream {
-        stream -> props.load(stream)
-    }
-    return new ConfigSlurper().parse(props)
+version = version_major + '.' + version_minor + '.' + version_patch
+group = "engineer.carrot.warren.warren"
+archivesBaseName = "Warren"
+
+if (System.getenv().BUILD_NUMBER != null) {//adds the build number to the end of the version string if on a build server
+    version += ".${System.getenv().BUILD_NUMBER}"
 }
 
-def config = loadProperties("build.properties")
 def env = System.getenv()
 
-task buildInfo {
-    if (env.BUILD_NUMBER != null) {
-        ext.build_number = "${env.BUILD_NUMBER}"
+// Get Jenkins metadata
+ext.jenkinsManifest = manifest {
+    if (env.BUILD_TAG != null) { // If this works, we'll assume we're in Jenkins at least.
+        attributes("Jenkins-Build": "true", "Jenkins-Tag": env.BUILD_TAG, "Jenkins-ID": env.BUILD_ID)
     } else {
-        def tag_cmd = "git rev-parse --short HEAD"
-        def tag_proc = tag_cmd.execute()
-        tag_proc.waitFor()
-        def branch_cmd = "git branch"
-        def branch_proc = branch_cmd.execute()
-        branch_proc.waitFor()
-        if (tag_proc.exitValue() == 0 && branch_proc.exitValue() == 0) {
-            ext.build_number = branch_proc.text.split(' ')[1].trim() + "-" + tag_proc.text.trim()
-        } else {
-            ext.build_number = "unknown"
-        }
+        attributes("Jenkins-Build": "false")
     }
 }
 
-group = "engineer.carrot.warren"
-version = "${config.framework_version}.${project.buildInfo.build_number}"
+// Get Git metadata (if in Jenkins)
+ext.gitManifest = manifest {
+    if (env.GIT_BRANCH != null) {
+        attributes("Git-Branch": env.GIT_BRANCH, "Git-Hash": env.GIT_COMMIT)
+    }
+}
 
 // Maven deployment
 apply plugin: 'maven'
