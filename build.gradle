@@ -48,11 +48,14 @@ shadowJar {
         exclude(dependency('com.google.guava:guava:.*'))
     }
 
-    relocate 'kotlin', 'engineer.carrot.warren.warren.repack.kotlin'
-    relocate 'com.google.gson', 'engineer.carrot.warren.warren.repack.com.google.gson'
-    relocate 'edu.umd.cs.findbugs.annotations', 'engineer.carrot.warren.warren.repack.edu.umd.cs.findbugs.annotations'
-    relocate 'javax.annotation', 'engineer.carrot.warren.warren.repack.javax.annotation'
-    relocate 'net.jcip.annotations', 'engineer.carrot.warren.warren.repack.net.jcip.annotations'
+    def repack_location = "engineer.carrot.warren.warren.repack"
+
+    relocate 'kotlin', "${repack_location}.kotlin"
+    relocate 'org.jetbrains.annotations', "${repack_location}.org.jetbrains.annotations"
+    relocate 'com.google.gson', "${repack_location}.com.google.gson"
+    relocate 'edu.umd.cs.findbugs.annotations', "${repack_location}.edu.umd.cs.findbugs.annotations"
+    relocate 'javax.annotation', "${repack_location}.javax.annotation"
+    relocate 'net.jcip.annotations', "${repack_location}.net.jcip.annotations"
 }
 
 task wrapper(type: Wrapper) {
