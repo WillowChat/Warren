@@ -59,6 +59,12 @@ shadowJar {
     relocate 'net.jcip.annotations', "${repack_location}.net.jcip.annotations"
 }
 
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardError"
+    }
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '2.10'
 }
