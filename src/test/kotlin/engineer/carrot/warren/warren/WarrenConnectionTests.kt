@@ -1,6 +1,5 @@
 package engineer.carrot.warren.warren
 
-import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*
 
