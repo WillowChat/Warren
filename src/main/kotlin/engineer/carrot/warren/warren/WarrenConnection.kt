@@ -1,5 +1,7 @@
 package engineer.carrot.warren.warren
 
-object WarrenConnection {
-
+class WarrenConnection(val connectionInformation: WarrenConnectionInformation) {
+    init {
+        print("connection information: $connectionInformation")
+    }
 }
