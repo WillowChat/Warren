@@ -45,6 +45,43 @@ public class IRCMessageTest {
         assertEquals(ircMessage.parameters, Lists.newArrayList("some", "parameters", "AND A LAST ONE"));
     }
 
+    @Test
+    public void test_complexMode() {
+        IrcMessage ircMessage = IrcMessage.parseFromLine(":subdomain.ircserver.net MODE +vvvv Nick1 Nick2 Nick3 Nick4");
+
+        assertNotNull(ircMessage);
+        assertEquals(ircMessage.command, "MODE");
+        assertFalse(ircMessage.hasTags());
+        assertTrue(ircMessage.hasPrefix());
+        assertEquals(ircMessage.prefix, "subdomain.ircserver.net");
+        assertEquals(ircMessage.parameters.size(), 5);
+        assertEquals(ircMessage.parameters, Lists.newArrayList("+vvvv", "Nick1", "Nick2", "Nick3", "Nick4"));
+    }
+
+    @Test
+    public void test_quit_netsplit() {
+        IrcMessage ircMessage = IrcMessage.parseFromLine("QUIT :*.net *.split");
+
+        assertNotNull(ircMessage);
+        assertEquals(ircMessage.command, "QUIT");
+        assertFalse(ircMessage.hasTags());
+        assertFalse(ircMessage.hasPrefix());
+        assertEquals(ircMessage.parameters.size(), 1);
+        assertEquals(ircMessage.parameters, Lists.newArrayList("*.net *.split"));
+    }
+
+    @Test
+    public void test_trailingWhitespaceIsRemoved() {
+        IrcMessage ircMessage = IrcMessage.parseFromLine("QUIT one two three  ");
+
+        assertNotNull(ircMessage);
+        assertEquals(ircMessage.command, "QUIT");
+        assertFalse(ircMessage.hasTags());
+        assertFalse(ircMessage.hasPrefix());
+        assertEquals(ircMessage.parameters.size(), 3);
+        assertEquals(ircMessage.parameters, Lists.newArrayList("one", "two", "three"));
+    }
+
     // TODO: Add tags unit testing
 
     @Test
