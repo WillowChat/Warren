@@ -73,9 +73,14 @@ public class IrcMessage {
             stringPosition = nextSpace + 1;
 
             // Trim trailing spaces (some IRC daemons had this)
-            while (line.charAt(stringPosition) == CharacterCodes.SPACE) {
+            while (stringPosition < length && line.charAt(stringPosition) == CharacterCodes.SPACE) {
                 stringPosition++;
             }
+        }
+
+        if (stringPosition >= length) {
+            LOGGER.error("Malformed message: tags but nothing else");
+            return null;
         }
 
         // Prefix
@@ -91,9 +96,14 @@ public class IrcMessage {
             stringPosition = nextSpace + 1;
 
             // Trim trailing spaces (some IRC daemons had this)
-            while (line.charAt(stringPosition) == CharacterCodes.SPACE) {
+            while (stringPosition < length && line.charAt(stringPosition) == CharacterCodes.SPACE) {
                 stringPosition++;
             }
+        }
+
+        if (stringPosition >= length) {
+            LOGGER.error("Malformed message: prefix but nothing else");
+            return null;
         }
 
         // Command
@@ -115,7 +125,7 @@ public class IrcMessage {
         }
 
         // Trim trailing spaces (some IRC daemons had this)
-        while (line.charAt(stringPosition) == CharacterCodes.SPACE) {
+        while (stringPosition < length && line.charAt(stringPosition) == CharacterCodes.SPACE) {
             stringPosition++;
         }
 
@@ -126,6 +136,11 @@ public class IrcMessage {
         while (stringPosition < length) {
             if (line.charAt(stringPosition) == CharacterCodes.COLON) {
                 // Rest of the message is one parameter
+
+                if ((stringPosition + 1) >= length) {
+                    LOGGER.error("Malformed message: ends in a colon indicating a message, but with nothing else");
+                    return null;
+                }
 
                 String finalParam = line.substring(stringPosition + 1);
                 parameters.add(finalParam);
@@ -139,12 +154,8 @@ public class IrcMessage {
                 parameters.add(param);
                 stringPosition = nextSpace + 1;
 
-                if (stringPosition >= length) {
-                    continue;
-                }
-
                 // Trim trailing spaces (some IRC daemons had this)
-                while (line.charAt(stringPosition) == CharacterCodes.SPACE) {
+                while (stringPosition < length && line.charAt(stringPosition) == CharacterCodes.SPACE) {
                     stringPosition++;
                 }
 
