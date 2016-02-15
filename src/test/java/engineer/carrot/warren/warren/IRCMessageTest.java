@@ -82,6 +82,43 @@ public class IRCMessageTest {
         assertEquals(ircMessage.parameters, Lists.newArrayList("one", "two", "three"));
     }
 
+
+    @Test
+    public void test_whitespaceAfterCommandIsRemoved() {
+        IrcMessage ircMessage = IrcMessage.parseFromLine("QUIT   one two three  ");
+
+        assertNotNull(ircMessage);
+        assertEquals(ircMessage.command, "QUIT");
+        assertFalse(ircMessage.hasTags());
+        assertFalse(ircMessage.hasPrefix());
+        assertEquals(ircMessage.parameters.size(), 3);
+        assertEquals(ircMessage.parameters, Lists.newArrayList("one", "two", "three"));
+    }
+
+    @Test
+    public void test_whitespaceBetweenParametersIsRemoved() {
+        IrcMessage ircMessage = IrcMessage.parseFromLine("QUIT   one two      three  ");
+
+        assertNotNull(ircMessage);
+        assertEquals(ircMessage.command, "QUIT");
+        assertFalse(ircMessage.hasTags());
+        assertFalse(ircMessage.hasPrefix());
+        assertEquals(ircMessage.parameters.size(), 3);
+        assertEquals(ircMessage.parameters, Lists.newArrayList("one", "two", "three"));
+    }
+
+    @Test
+    public void test_trailingWhitespaceWithColonIsPreserved() {
+        IrcMessage ircMessage = IrcMessage.parseFromLine("QUIT   one two      :three  ");
+
+        assertNotNull(ircMessage);
+        assertEquals(ircMessage.command, "QUIT");
+        assertFalse(ircMessage.hasTags());
+        assertFalse(ircMessage.hasPrefix());
+        assertEquals(ircMessage.parameters.size(), 3);
+        assertEquals(ircMessage.parameters, Lists.newArrayList("one", "two", "three  "));
+    }
+
     // TODO: Add tags unit testing
 
     @Test
