@@ -33,10 +33,13 @@ class SocketLineSourceSink(val server: String, val port: Int): ILineSourceSink {
     }
 
     override fun readLine(): String? {
-        return source.readUtf8LineStrict()
+        val line = source.readUtf8LineStrict()
+        println(">> $line")
+        return line
     }
 
     override fun writeLine(line: String) {
+        println("<< $line")
         sink.writeString(line + "\r\n", Charsets.UTF_8)
         sink.flush()
     }

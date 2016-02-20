@@ -18,13 +18,13 @@ class WarrenConnection(val connectionInformation: WarrenConnectionInformation, v
 
         var nextLine: String?
         do {
-            nextLine = lineSourceSink.readLine()
+            nextLine = lineSourceSink.readLine() ?: break
 
-            if (nextLine == null) {
-                break
+            if (nextLine.startsWith("PING ")) {
+                lineSourceSink.writeLine("PONG " + nextLine.substring(5))
+            } else if (nextLine.endsWith("376 ${connectionInformation.nickname} :End of /MOTD command.")) {
+                lineSourceSink.writeLine("JOIN #botdev")
             }
-
-            println(nextLine)
         } while (true)
 
         lineSourceSink.tearDown()
