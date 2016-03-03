@@ -18,7 +18,7 @@ class WarrenConnectionTests {
     @Test fun test_init_doesNotMutateConnectionInformation() {
         val connectionInformation = ConnectionInfo(server = "testserver", port = 1234, nickname = "testnickname")
 
-        val connection = IRCConnection(connectionInformation, lineSource, lineSink)
+        val connection = IrcRunner(connectionInformation, lineSource, lineSink)
 
         assertEquals(connection.connectionInfo.server, "testserver")
         assertEquals(connection.connectionInfo.port, 1234)
@@ -27,7 +27,7 @@ class WarrenConnectionTests {
 
     @Test fun test_run_SuccessfulSetUp_SendsNickAndUser() {
         val connectionInformation = ConnectionInfo(server = "testserver", port = 1234, nickname = "testnickname")
-        val connection = IRCConnection(connectionInformation, lineSource, lineSink)
+        val connection = IrcRunner(connectionInformation, lineSource, lineSink)
 
         connection.run()
 
@@ -38,7 +38,7 @@ class WarrenConnectionTests {
 
     @Test fun test_run_SuccessfulNickUser_ReadsOneLine() {
         val connectionInformation = ConnectionInfo(server = "testserver", port = 1234, nickname = "testnickname")
-        val connection = IRCConnection(connectionInformation, lineSource, lineSink)
+        val connection = IrcRunner(connectionInformation, lineSource, lineSink)
 
         connection.run()
 
