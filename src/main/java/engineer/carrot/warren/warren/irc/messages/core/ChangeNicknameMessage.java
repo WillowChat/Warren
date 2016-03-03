@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class ChangeNicknameMessage extends AbstractMessage {
@@ -18,7 +18,7 @@ public class ChangeNicknameMessage extends AbstractMessage {
     // Inbound
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         if (!message.hasParameters()) {
             return false;
         }
@@ -31,8 +31,8 @@ public class ChangeNicknameMessage extends AbstractMessage {
     // Outbound
 
     @Override
-    public IrcMessage build() {
-        IrcMessage.Builder builder = new IrcMessage.Builder()
+    public JavaIrcMessage build() {
+        JavaIrcMessage.Builder builder = new JavaIrcMessage.Builder()
                 .command(this.getCommand())
                 .parameters(this.nickname);
 

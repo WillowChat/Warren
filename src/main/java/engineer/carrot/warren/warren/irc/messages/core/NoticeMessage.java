@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class NoticeMessage extends AbstractMessage {
@@ -15,7 +15,7 @@ public class NoticeMessage extends AbstractMessage {
     // Inbound
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         // {"prefix":"server","parameters":["*","contents"],"command":"NOTICE"}
         // {"parameters":["*","contents"],"command":"NOTICE"}
 
@@ -32,8 +32,8 @@ public class NoticeMessage extends AbstractMessage {
     // Outbound
 
     @Override
-    public IrcMessage build() {
-        IrcMessage.Builder builder = new IrcMessage.Builder()
+    public JavaIrcMessage build() {
+        JavaIrcMessage.Builder builder = new JavaIrcMessage.Builder()
                 .command(this.getCommand())
                 .parameters(this.toTarget, this.contents);
 

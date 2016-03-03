@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.irc.messages.RPL;
 
 import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class TopicWhoTimeMessage extends AbstractMessage {
@@ -14,7 +14,7 @@ public class TopicWhoTimeMessage extends AbstractMessage {
     // Inbound
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         if (!message.hasPrefix() || message.parameters.size() < 4) {
             return false;
         }

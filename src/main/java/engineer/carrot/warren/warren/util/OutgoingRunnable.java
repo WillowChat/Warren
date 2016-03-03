@@ -3,7 +3,7 @@ package engineer.carrot.warren.warren.util;
 import com.google.common.base.Strings;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public class OutgoingRunnable implements Runnable {
                 return;
             }
 
-            IrcMessage outputMessage = message.build();
+            JavaIrcMessage outputMessage = message.build();
             String outputString = outputMessage.buildServerOutput();
             if (Strings.isNullOrEmpty(outputString)) {
                 LOGGER.error("Got an output message, but failed to create a string from it: {}", outputMessage.buildPrettyOutput());

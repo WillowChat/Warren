@@ -5,7 +5,7 @@ import engineer.carrot.warren.warren.irc.handlers.IMessageHandler;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IISupportManager;
 import engineer.carrot.warren.warren.irc.handlers.multi.IMotdMultiHandler;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 
 import java.util.Set;
 
@@ -14,7 +14,7 @@ public interface IIncomingHandler {
 
     void setNextExpectedCommandToAnything();
 
-    boolean handleIRCMessage(IrcMessage message, String originalLine);
+    boolean handleIRCMessage(JavaIrcMessage message, String originalLine);
 
     IMotdMultiHandler getMotdHandler();
 

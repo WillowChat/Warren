@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class PongMessage extends AbstractMessage {
@@ -19,7 +19,7 @@ public class PongMessage extends AbstractMessage {
     // Inbound
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         if (message.parameters.size() < 2) {
             return false;
         }
@@ -33,8 +33,8 @@ public class PongMessage extends AbstractMessage {
     // Outbound
 
     @Override
-    public IrcMessage build() {
-        return new IrcMessage.Builder()
+    public JavaIrcMessage build() {
+        return new JavaIrcMessage.Builder()
                 .command(this.getCommand())
                 .parameters(this.pongToken)
                 .build();

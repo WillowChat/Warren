@@ -10,7 +10,7 @@ import engineer.carrot.warren.warren.event.ServerConnectedEvent;
 import engineer.carrot.warren.warren.event.ServerDisconnectedEvent;
 import engineer.carrot.warren.warren.irc.Channel;
 import engineer.carrot.warren.warren.irc.User;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.core.*;
 import engineer.carrot.warren.warren.ssl.WrappedSSLSocketFactory;
 import engineer.carrot.warren.warren.util.IMessageQueue;
@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class IRCConnection implements IWarrenDelegate, IEventSink {
-    private final Logger LOGGER = LoggerFactory.getLogger(IRCConnection.class);
+public class JavaIRCConnection implements IWarrenDelegate, IEventSink {
+    private final Logger LOGGER = LoggerFactory.getLogger(JavaIRCConnection.class);
     private static final long SOCKET_TIMEOUT_NS = 60 * 1000000000L;
     private static final int SOCKET_INTERRUPT_TIMEOUT_MS = 1 * 1000;
 
@@ -63,7 +63,7 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
     private IncomingHandler incomingHandler;
     private BufferedReader currentReader;
 
-    private IRCConnection(Builder builder) {
+    private JavaIRCConnection(Builder builder) {
         this.server = builder.server;
         this.port = builder.port;
         this.nickname = builder.nickname;
@@ -185,7 +185,7 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
             }
 
             lastResponseTime = System.nanoTime();
-            IrcMessage message = IrcMessage.parseFromLine(serverResponse);
+            JavaIrcMessage message = JavaIrcMessage.parseFromLine(serverResponse);
 
             if (message == null) {
                 LOGGER.error("Parsed message was null");
@@ -375,10 +375,10 @@ public class IRCConnection implements IWarrenDelegate, IEventSink {
             return this;
         }
 
-        public IRCConnection build() {
+        public JavaIRCConnection build() {
             // TODO: Parameter verification
 
-            return new IRCConnection(this);
+            return new JavaIRCConnection(this);
         }
     }
 

@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class PartChannelMessage extends AbstractMessage {
@@ -11,7 +11,7 @@ public class PartChannelMessage extends AbstractMessage {
     // Inbound
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         // {"prefix":"test!~t@test","parameters":["#test","Part message"],"command":"PART"}
         // {"prefix":"AbcdefghIJK!~abcdef@111.111.11.11","parameters":["#test"],"command":"PART"}
 

@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.RPL;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class TopicMessage extends AbstractMessage {
@@ -12,7 +12,7 @@ public class TopicMessage extends AbstractMessage {
     // Inbound
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         // Parsed message: {"prefix":"server","parameters":["bot nickname","#channel","topic message,"command":"332"}
 
         if (!message.hasPrefix() || message.parameters.size() < 3) {

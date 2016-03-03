@@ -20,7 +20,7 @@ public abstract class AbstractMessage implements IMessage {
     // Inbound
 
     @Override
-    public IMessage build(IrcMessage message) {
+    public IMessage build(JavaIrcMessage message) {
         if (message.hasPrefix()) {
             this.prefix = Hostmask.parseFromString(message.prefix);
         }
@@ -34,14 +34,14 @@ public abstract class AbstractMessage implements IMessage {
     }
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         return false;
     }
 
     // Outbound
 
     @Override
-    public IrcMessage build() {
+    public JavaIrcMessage build() {
         throw new NoOpException();
     }
 }

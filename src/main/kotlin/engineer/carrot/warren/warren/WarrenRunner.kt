@@ -2,11 +2,18 @@ package engineer.carrot.warren.warren
 
 object WarrenRunner {
     @JvmStatic fun main(args: Array<String>) {
-        val connectionInformation = WarrenConnectionInformation(server = args[0], port = args[1].toInt(), nickname = args[2])
+        val connectionInformation = ConnectionInfo(server = args[0], port = args[1].toInt(), nickname = args[2])
 
-        val socketSourceSink = SocketLineSourceSink(connectionInformation.server, connectionInformation.port)
-        val connection = WarrenConnection(connectionInformation, socketSourceSink)
+        val socket = IRCSocket(connectionInformation.server, connectionInformation.port)
 
-        connection.connect()
+        if (!socket.setUp()) {
+            println("failed to set up irc socket for: ${connectionInformation}")
+            return
+        }
+
+        val connection = IRCConnection(connectionInformation, lineSource = socket, lineSink = socket)
+        connection.run()
+
+        socket.tearDown()
     }
 }

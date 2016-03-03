@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class JoinedChannelMessage extends AbstractMessage {
@@ -10,7 +10,7 @@ public class JoinedChannelMessage extends AbstractMessage {
     // Inbound
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         // {"prefix":"test!~t@test","parameters":["#test"],"command":"JOIN"}
         if (this.prefix == null || !message.hasParameters()) {
             return false;

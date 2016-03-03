@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren;
 
 import com.google.common.collect.Lists;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import org.junit.Test;
 
 import java.util.List;
@@ -11,112 +11,112 @@ import static org.junit.Assert.*;
 public class IRCMessageTest {
     @Test
     public void testParseFromCommandOnly() {
-        IrcMessage ircMessage = IrcMessage.parseFromLine("TEST");
+        JavaIrcMessage javaIrcMessage = JavaIrcMessage.parseFromLine("TEST");
 
-        assertNotNull(ircMessage);
-        assertEquals(ircMessage.command, "TEST");
-        assertFalse(ircMessage.hasTags());
-        assertFalse(ircMessage.hasPrefix());
-        assertFalse(ircMessage.hasParameters());
+        assertNotNull(javaIrcMessage);
+        assertEquals(javaIrcMessage.command, "TEST");
+        assertFalse(javaIrcMessage.hasTags());
+        assertFalse(javaIrcMessage.hasPrefix());
+        assertFalse(javaIrcMessage.hasParameters());
     }
 
     @Test
     public void testParseFromPrefixCommand() {
-        IrcMessage ircMessage = IrcMessage.parseFromLine(":user!host@server TEST");
+        JavaIrcMessage javaIrcMessage = JavaIrcMessage.parseFromLine(":user!host@server TEST");
 
-        assertNotNull(ircMessage);
-        assertEquals(ircMessage.command, "TEST");
-        assertFalse(ircMessage.hasTags());
-        assertTrue(ircMessage.hasPrefix());
-        assertEquals(ircMessage.prefix, "user!host@server");
-        assertFalse(ircMessage.hasParameters());
+        assertNotNull(javaIrcMessage);
+        assertEquals(javaIrcMessage.command, "TEST");
+        assertFalse(javaIrcMessage.hasTags());
+        assertTrue(javaIrcMessage.hasPrefix());
+        assertEquals(javaIrcMessage.prefix, "user!host@server");
+        assertFalse(javaIrcMessage.hasParameters());
     }
 
     @Test
     public void testParseFromPrefixCommandParameters() {
-        IrcMessage ircMessage = IrcMessage.parseFromLine(":user!host@server TEST some parameters :AND A LAST ONE");
+        JavaIrcMessage javaIrcMessage = JavaIrcMessage.parseFromLine(":user!host@server TEST some parameters :AND A LAST ONE");
 
-        assertNotNull(ircMessage);
-        assertEquals(ircMessage.command, "TEST");
-        assertFalse(ircMessage.hasTags());
-        assertTrue(ircMessage.hasPrefix());
-        assertEquals(ircMessage.prefix, "user!host@server");
-        assertEquals(ircMessage.parameters.size(), 3);
-        assertEquals(ircMessage.parameters, Lists.newArrayList("some", "parameters", "AND A LAST ONE"));
+        assertNotNull(javaIrcMessage);
+        assertEquals(javaIrcMessage.command, "TEST");
+        assertFalse(javaIrcMessage.hasTags());
+        assertTrue(javaIrcMessage.hasPrefix());
+        assertEquals(javaIrcMessage.prefix, "user!host@server");
+        assertEquals(javaIrcMessage.parameters.size(), 3);
+        assertEquals(javaIrcMessage.parameters, Lists.newArrayList("some", "parameters", "AND A LAST ONE"));
     }
 
     @Test
     public void test_complexMode() {
-        IrcMessage ircMessage = IrcMessage.parseFromLine(":subdomain.ircserver.net MODE +vvvv Nick1 Nick2 Nick3 Nick4");
+        JavaIrcMessage javaIrcMessage = JavaIrcMessage.parseFromLine(":subdomain.ircserver.net MODE +vvvv Nick1 Nick2 Nick3 Nick4");
 
-        assertNotNull(ircMessage);
-        assertEquals(ircMessage.command, "MODE");
-        assertFalse(ircMessage.hasTags());
-        assertTrue(ircMessage.hasPrefix());
-        assertEquals(ircMessage.prefix, "subdomain.ircserver.net");
-        assertEquals(ircMessage.parameters.size(), 5);
-        assertEquals(ircMessage.parameters, Lists.newArrayList("+vvvv", "Nick1", "Nick2", "Nick3", "Nick4"));
+        assertNotNull(javaIrcMessage);
+        assertEquals(javaIrcMessage.command, "MODE");
+        assertFalse(javaIrcMessage.hasTags());
+        assertTrue(javaIrcMessage.hasPrefix());
+        assertEquals(javaIrcMessage.prefix, "subdomain.ircserver.net");
+        assertEquals(javaIrcMessage.parameters.size(), 5);
+        assertEquals(javaIrcMessage.parameters, Lists.newArrayList("+vvvv", "Nick1", "Nick2", "Nick3", "Nick4"));
     }
 
     @Test
     public void test_quit_netsplit() {
-        IrcMessage ircMessage = IrcMessage.parseFromLine("QUIT :*.net *.split");
+        JavaIrcMessage javaIrcMessage = JavaIrcMessage.parseFromLine("QUIT :*.net *.split");
 
-        assertNotNull(ircMessage);
-        assertEquals(ircMessage.command, "QUIT");
-        assertFalse(ircMessage.hasTags());
-        assertFalse(ircMessage.hasPrefix());
-        assertEquals(ircMessage.parameters.size(), 1);
-        assertEquals(ircMessage.parameters, Lists.newArrayList("*.net *.split"));
+        assertNotNull(javaIrcMessage);
+        assertEquals(javaIrcMessage.command, "QUIT");
+        assertFalse(javaIrcMessage.hasTags());
+        assertFalse(javaIrcMessage.hasPrefix());
+        assertEquals(javaIrcMessage.parameters.size(), 1);
+        assertEquals(javaIrcMessage.parameters, Lists.newArrayList("*.net *.split"));
     }
 
     @Test
     public void test_trailingWhitespaceIsRemoved() {
-        IrcMessage ircMessage = IrcMessage.parseFromLine("QUIT one two three  ");
+        JavaIrcMessage javaIrcMessage = JavaIrcMessage.parseFromLine("QUIT one two three  ");
 
-        assertNotNull(ircMessage);
-        assertEquals(ircMessage.command, "QUIT");
-        assertFalse(ircMessage.hasTags());
-        assertFalse(ircMessage.hasPrefix());
-        assertEquals(ircMessage.parameters.size(), 3);
-        assertEquals(ircMessage.parameters, Lists.newArrayList("one", "two", "three"));
+        assertNotNull(javaIrcMessage);
+        assertEquals(javaIrcMessage.command, "QUIT");
+        assertFalse(javaIrcMessage.hasTags());
+        assertFalse(javaIrcMessage.hasPrefix());
+        assertEquals(javaIrcMessage.parameters.size(), 3);
+        assertEquals(javaIrcMessage.parameters, Lists.newArrayList("one", "two", "three"));
     }
 
 
     @Test
     public void test_whitespaceAfterCommandIsRemoved() {
-        IrcMessage ircMessage = IrcMessage.parseFromLine("QUIT   one two three  ");
+        JavaIrcMessage javaIrcMessage = JavaIrcMessage.parseFromLine("QUIT   one two three  ");
 
-        assertNotNull(ircMessage);
-        assertEquals(ircMessage.command, "QUIT");
-        assertFalse(ircMessage.hasTags());
-        assertFalse(ircMessage.hasPrefix());
-        assertEquals(ircMessage.parameters.size(), 3);
-        assertEquals(ircMessage.parameters, Lists.newArrayList("one", "two", "three"));
+        assertNotNull(javaIrcMessage);
+        assertEquals(javaIrcMessage.command, "QUIT");
+        assertFalse(javaIrcMessage.hasTags());
+        assertFalse(javaIrcMessage.hasPrefix());
+        assertEquals(javaIrcMessage.parameters.size(), 3);
+        assertEquals(javaIrcMessage.parameters, Lists.newArrayList("one", "two", "three"));
     }
 
     @Test
     public void test_whitespaceBetweenParametersIsRemoved() {
-        IrcMessage ircMessage = IrcMessage.parseFromLine("QUIT   one two      three  ");
+        JavaIrcMessage javaIrcMessage = JavaIrcMessage.parseFromLine("QUIT   one two      three  ");
 
-        assertNotNull(ircMessage);
-        assertEquals(ircMessage.command, "QUIT");
-        assertFalse(ircMessage.hasTags());
-        assertFalse(ircMessage.hasPrefix());
-        assertEquals(ircMessage.parameters.size(), 3);
-        assertEquals(ircMessage.parameters, Lists.newArrayList("one", "two", "three"));
+        assertNotNull(javaIrcMessage);
+        assertEquals(javaIrcMessage.command, "QUIT");
+        assertFalse(javaIrcMessage.hasTags());
+        assertFalse(javaIrcMessage.hasPrefix());
+        assertEquals(javaIrcMessage.parameters.size(), 3);
+        assertEquals(javaIrcMessage.parameters, Lists.newArrayList("one", "two", "three"));
     }
 
     @Test
     public void test_trailingWhitespaceWithColonIsPreserved() {
-        IrcMessage ircMessage = IrcMessage.parseFromLine("QUIT   one two      :three  ");
+        JavaIrcMessage javaIrcMessage = JavaIrcMessage.parseFromLine("QUIT   one two      :three  ");
 
-        assertNotNull(ircMessage);
-        assertEquals(ircMessage.command, "QUIT");
-        assertFalse(ircMessage.hasTags());
-        assertFalse(ircMessage.hasPrefix());
-        assertEquals(ircMessage.parameters.size(), 3);
-        assertEquals(ircMessage.parameters, Lists.newArrayList("one", "two", "three  "));
+        assertNotNull(javaIrcMessage);
+        assertEquals(javaIrcMessage.command, "QUIT");
+        assertFalse(javaIrcMessage.hasTags());
+        assertFalse(javaIrcMessage.hasPrefix());
+        assertEquals(javaIrcMessage.parameters.size(), 3);
+        assertEquals(javaIrcMessage.parameters, Lists.newArrayList("one", "two", "three  "));
     }
 
     // TODO: Add tags unit testing
@@ -126,7 +126,7 @@ public class IRCMessageTest {
         String test1 = "Test1";
 
         List<String> parameters = Lists.newArrayList(test1);
-        String stringParameters = IrcMessage.buildParametersString(parameters);
+        String stringParameters = JavaIrcMessage.buildParametersString(parameters);
 
         // Expected output: ":Test1"
         assertEquals(":" + test1, stringParameters);
@@ -138,7 +138,7 @@ public class IRCMessageTest {
         String test2 = "Test2";
 
         List<String> parameters = Lists.newArrayList(test1, test2);
-        String stringParameters = IrcMessage.buildParametersString(parameters);
+        String stringParameters = JavaIrcMessage.buildParametersString(parameters);
 
         // Expected output: "Test1 :Test2"
         assertEquals(test1 + " :" + test2, stringParameters);
@@ -151,7 +151,7 @@ public class IRCMessageTest {
         String test3 = "Test3 Test4 Test5";
 
         List<String> parameters = Lists.newArrayList(test1, test2, test3);
-        String stringParameters = IrcMessage.buildParametersString(parameters);
+        String stringParameters = JavaIrcMessage.buildParametersString(parameters);
 
         // Expected output: "Test1 Test2 :Test3 Test4 Test5"
         assertEquals(test1 + " " + test2 + " :" + test3, stringParameters);

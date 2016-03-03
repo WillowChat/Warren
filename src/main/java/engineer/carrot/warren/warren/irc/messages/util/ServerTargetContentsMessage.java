@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.util;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 
 public abstract class ServerTargetContentsMessage extends AbstractMessage {
     public String forServer;
@@ -11,7 +11,7 @@ public abstract class ServerTargetContentsMessage extends AbstractMessage {
     // Inbound
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         if (!message.hasPrefix() || message.parameters.size() < 2) {
             return false;
         }

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import engineer.carrot.warren.warren.IPrefixListener;
 import engineer.carrot.warren.warren.irc.CharacterCodes;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.*;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,10 +38,10 @@ public class ModeMessageTest {
         };
     }
 
-    private static ModeMessage constructMessage(IrcMessage ircMessage) {
+    private static ModeMessage constructMessage(JavaIrcMessage javaIrcMessage) {
         ModeMessage message = new ModeMessage();
         message.setISupportManager(dummySupportManager);
-        message.populate(ircMessage);
+        message.populate(javaIrcMessage);
 
         return message;
     }
@@ -49,14 +49,14 @@ public class ModeMessageTest {
     @Test
     public void testModeratedInviteAutomatically() {
         // MODE #Finnish +imI *!*@*.fi
-        IrcMessage ircMessage = new IrcMessage.Builder()
+        JavaIrcMessage javaIrcMessage = new JavaIrcMessage.Builder()
                 .command("MODE")
                 .parameter("#Finnish")
                 .parameter("+imI")
                 .parameter("*!*@*.fi")
                 .build();
 
-        ModeMessage message = constructMessage(ircMessage);
+        ModeMessage message = constructMessage(javaIrcMessage);
 
         assertNull(message.prefix);
         assertEquals(message.target, "#Finnish");
@@ -84,13 +84,13 @@ public class ModeMessageTest {
     @Test
     public void testAddingMode() {
         // MODE #Channel +A
-        IrcMessage ircMessage = new IrcMessage.Builder()
+        JavaIrcMessage javaIrcMessage = new JavaIrcMessage.Builder()
                 .command("MODE")
                 .parameter("#Channel")
                 .parameter("+A")
                 .build();
 
-        ModeMessage message = constructMessage(ircMessage);
+        ModeMessage message = constructMessage(javaIrcMessage);
 
         assertNull(message.prefix);
         assertEquals(message.target, "#Channel");
@@ -107,13 +107,13 @@ public class ModeMessageTest {
     @Test
     public void testRemovingMode() {
         // MODE #Channel -A
-        IrcMessage ircMessage = new IrcMessage.Builder()
+        JavaIrcMessage javaIrcMessage = new JavaIrcMessage.Builder()
                 .command("MODE")
                 .parameter("#Channel")
                 .parameter("-A")
                 .build();
 
-        ModeMessage message = constructMessage(ircMessage);
+        ModeMessage message = constructMessage(javaIrcMessage);
 
         assertNull(message.prefix);
         assertEquals(message.target, "#Channel");
@@ -130,7 +130,7 @@ public class ModeMessageTest {
     @Test
     public void testMultipleModifierTokensParsedCorrectly() {
         // MODE &oulu +b *!*@*.edu +e *!*@*.bu.edu
-        IrcMessage ircMessage = new IrcMessage.Builder()
+        JavaIrcMessage javaIrcMessage = new JavaIrcMessage.Builder()
                 .command("MODE")
                 .parameter("&oulu")
                 .parameter("+b")
@@ -139,7 +139,7 @@ public class ModeMessageTest {
                 .parameter("*!*@*.bu.edu")
                 .build();
 
-        ModeMessage message = constructMessage(ircMessage);
+        ModeMessage message = constructMessage(javaIrcMessage);
 
         assertNull(message.prefix);
         assertEquals(message.target, "&oulu");
@@ -163,14 +163,14 @@ public class ModeMessageTest {
     @Test
     public void testSetChannelKey() {
         // MODE #42 +k oulu
-        IrcMessage ircMessage = new IrcMessage.Builder()
+        JavaIrcMessage javaIrcMessage = new JavaIrcMessage.Builder()
                 .command("MODE")
                 .parameter("#42")
                 .parameter("+k")
                 .parameter("oulu")
                 .build();
 
-        ModeMessage message = constructMessage(ircMessage);
+        ModeMessage message = constructMessage(javaIrcMessage);
 
         assertNull(message.prefix);
         assertEquals(message.target, "#42");
@@ -188,7 +188,7 @@ public class ModeMessageTest {
     @Test
     public void testMultipleDifferentModes() {
         // MODE #Channel +o-o nick1 nick2
-        IrcMessage ircMessage = new IrcMessage.Builder()
+        JavaIrcMessage javaIrcMessage = new JavaIrcMessage.Builder()
                 .command("MODE")
                 .parameter("#Channel")
                 .parameter("+o-o")
@@ -196,7 +196,7 @@ public class ModeMessageTest {
                 .parameter("nick2")
                 .build();
 
-        ModeMessage message = constructMessage(ircMessage);
+        ModeMessage message = constructMessage(javaIrcMessage);
 
         assertNull(message.prefix);
         assertEquals(message.target, "#Channel");

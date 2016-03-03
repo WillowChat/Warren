@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc;
 
 import com.google.common.base.Strings;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 
 import javax.annotation.Nullable;
 
@@ -12,8 +12,8 @@ public class Hostmask {
     @Nullable
     public final String server;
 
-    private static final int MAX_LENGTH = IrcMessage.MAX_LENGTH;
-    private static final int MIN_LENGTH = IrcMessage.MIN_LENGTH;
+    private static final int MAX_LENGTH = JavaIrcMessage.MAX_LENGTH;
+    private static final int MIN_LENGTH = JavaIrcMessage.MIN_LENGTH;
 
     private Hostmask(Builder builder) {
         this.user = builder.user;

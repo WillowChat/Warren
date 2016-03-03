@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 import org.junit.Test;
 
@@ -10,13 +10,13 @@ public class PingMessageTest {
     // Inbound tests
     @Test
     public void testPingWithToken() {
-        IrcMessage ircMessage = new IrcMessage.Builder()
+        JavaIrcMessage javaIrcMessage = new JavaIrcMessage.Builder()
                 .command(MessageCodes.PING)
                 .parameter("TOKEN1")
                 .build();
 
         PingMessage message = new PingMessage();
-        assertTrue(message.populate(ircMessage));
+        assertTrue(message.populate(javaIrcMessage));
         assertEquals(message.pingToken, "TOKEN1");
     }
 
@@ -25,9 +25,9 @@ public class PingMessageTest {
     public void testOutboundPingWithToken() {
         PingMessage message = new PingMessage("OUTBOUND1");
 
-        IrcMessage ircMessage = message.build();
+        JavaIrcMessage javaIrcMessage = message.build();
 
-        assertTrue(ircMessage.hasParameters());
-        assertEquals(ircMessage.parameters.get(0), "OUTBOUND1");
+        assertTrue(javaIrcMessage.hasParameters());
+        assertEquals(javaIrcMessage.parameters.get(0), "OUTBOUND1");
     }
 }

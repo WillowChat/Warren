@@ -7,77 +7,41 @@ import org.junit.Before
 
 class WarrenConnectionTests {
 
-    lateinit var lineSourceSink: ILineSourceSink
+    lateinit var lineSource: ILineSource
+    lateinit var lineSink: ILineSink
 
     @Before fun setUp() {
-        lineSourceSink = mock(ILineSourceSink::class.java)
+        lineSource = mock(ILineSource::class.java)
+        lineSink = mock(ILineSink::class.java)
     }
 
     @Test fun test_init_doesNotMutateConnectionInformation() {
-        val connectionInformation = WarrenConnectionInformation(server = "testserver", port = 1234, nickname = "testnickname")
+        val connectionInformation = ConnectionInfo(server = "testserver", port = 1234, nickname = "testnickname")
 
-        val connection = WarrenConnection(connectionInformation, lineSourceSink)
+        val connection = IRCConnection(connectionInformation, lineSource, lineSink)
 
-        assertEquals(connection.connectionInformation.server, "testserver")
-        assertEquals(connection.connectionInformation.port, 1234)
-        assertEquals(connection.connectionInformation.nickname, "testnickname")
+        assertEquals(connection.connectionInfo.server, "testserver")
+        assertEquals(connection.connectionInfo.port, 1234)
+        assertEquals(connection.connectionInfo.nickname, "testnickname")
     }
 
-    @Test fun test_connect_SetsUpLineSourceSink() {
-        val connectionInformation = WarrenConnectionInformation(server = "testserver", port = 1234, nickname = "testnickname")
-        val connection = WarrenConnection(connectionInformation, lineSourceSink)
+    @Test fun test_run_SuccessfulSetUp_SendsNickAndUser() {
+        val connectionInformation = ConnectionInfo(server = "testserver", port = 1234, nickname = "testnickname")
+        val connection = IRCConnection(connectionInformation, lineSource, lineSink)
 
-        `when`(lineSourceSink.setUp()).thenReturn(true)
+        connection.run()
 
-        connection.connect()
-
-        verify(lineSourceSink).setUp()
+        val inOrderVerify = inOrder(lineSink)
+        inOrderVerify.verify(lineSink).writeLine("NICK testnickname")
+        inOrderVerify.verify(lineSink).writeLine("USER testnickname 8 * testnickname")
     }
 
-    @Test fun test_connect_SuccessfulSetUp_SendsNickAndUser() {
-        val connectionInformation = WarrenConnectionInformation(server = "testserver", port = 1234, nickname = "testnickname")
-        val connection = WarrenConnection(connectionInformation, lineSourceSink)
+    @Test fun test_run_SuccessfulNickUser_ReadsOneLine() {
+        val connectionInformation = ConnectionInfo(server = "testserver", port = 1234, nickname = "testnickname")
+        val connection = IRCConnection(connectionInformation, lineSource, lineSink)
 
-        `when`(lineSourceSink.setUp()).thenReturn(true)
+        connection.run()
 
-        connection.connect()
-
-        val inOrderVerify = inOrder(lineSourceSink)
-        inOrderVerify.verify(lineSourceSink).writeLine("NICK testnickname")
-        inOrderVerify.verify(lineSourceSink).writeLine("USER testnickname 8 * testnickname")
-    }
-
-    @Test fun test_connect_SuccessfulSetUp_TearsDown() {
-        val connectionInformation = WarrenConnectionInformation(server = "testserver", port = 1234, nickname = "testnickname")
-        val connection = WarrenConnection(connectionInformation, lineSourceSink)
-
-        `when`(lineSourceSink.setUp()).thenReturn(true)
-
-        connection.connect()
-
-        verify(lineSourceSink, times(1)).tearDown()
-    }
-
-    @Test fun test_connect_UnsuccessfulSetUp_DoesNotReadOrWriteAnything() {
-        val connectionInformation = WarrenConnectionInformation(server = "testserver", port = 1234, nickname = "testnickname")
-        val connection = WarrenConnection(connectionInformation, lineSourceSink)
-
-        `when`(lineSourceSink.setUp()).thenReturn(false)
-
-        connection.connect()
-
-        verify(lineSourceSink, never()).writeLine(anyString())
-        verify(lineSourceSink, never()).readLine()
-    }
-
-    @Test fun test_connect_SuccessfulNickUser_ReadsOneLine() {
-        val connectionInformation = WarrenConnectionInformation(server = "testserver", port = 1234, nickname = "testnickname")
-        val connection = WarrenConnection(connectionInformation, lineSourceSink)
-
-        `when`(lineSourceSink.setUp()).thenReturn(true)
-
-        connection.connect()
-
-        verify(lineSourceSink, times(1)).readLine()
+        verify(lineSource, times(1)).readLine()
     }
 }

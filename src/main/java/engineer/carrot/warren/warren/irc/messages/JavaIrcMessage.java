@@ -12,8 +12,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class IrcMessage {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IrcMessage.class);
+public class JavaIrcMessage {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JavaIrcMessage.class);
 
     private final Map<String, String> tags;
     public final String prefix;
@@ -23,7 +23,7 @@ public class IrcMessage {
     public static final int MAX_LENGTH = 510;
     public static final int MIN_LENGTH = 3;
 
-    private IrcMessage(Builder builder) {
+    private JavaIrcMessage(Builder builder) {
         this.tags = builder.tags;
         this.prefix = builder.prefix;
         this.command = builder.command;
@@ -35,7 +35,7 @@ public class IrcMessage {
     }
 
     @Nullable
-    public static IrcMessage parseFromLine(String line) {
+    public static JavaIrcMessage parseFromLine(String line) {
         int length = line.length();
         if (length > MAX_LENGTH || length < MIN_LENGTH) {
             return null;
@@ -282,12 +282,12 @@ public class IrcMessage {
             return this;
         }
 
-        public IrcMessage build() {
+        public JavaIrcMessage build() {
             if (this.command.isEmpty()) {
                 throw new IllegalStateException("IRC message must have a command!");
             }
 
-            return new IrcMessage(this);
+            return new JavaIrcMessage(this);
         }
     }
 }

@@ -7,7 +7,7 @@ import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IChanModesSupportModule;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IPrefixSupportModule;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class ModeMessage extends AbstractMessage {
     // Inbound
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         if (!message.hasParameters()) {
             return false;
         }

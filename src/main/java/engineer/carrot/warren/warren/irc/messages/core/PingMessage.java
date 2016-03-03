@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class PingMessage extends AbstractMessage {
@@ -18,7 +18,7 @@ public class PingMessage extends AbstractMessage {
     // Inbound
 
     @Override
-    public boolean populate(IrcMessage message) {
+    public boolean populate(JavaIrcMessage message) {
         // {"command":"PING","parameters":["00BCBDEC"],"tags":{}}
 
         if (!message.hasParameters()) {
@@ -33,8 +33,8 @@ public class PingMessage extends AbstractMessage {
     // Outbound
 
     @Override
-    public IrcMessage build() {
-        return new IrcMessage.Builder()
+    public JavaIrcMessage build() {
+        return new JavaIrcMessage.Builder()
                 .command(this.getCommand())
                 .parameters(this.pingToken)
                 .build();

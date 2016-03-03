@@ -13,7 +13,7 @@ import engineer.carrot.warren.warren.irc.handlers.core.mode.ModeHandler;
 import engineer.carrot.warren.warren.irc.handlers.multi.IMotdMultiHandler;
 import engineer.carrot.warren.warren.irc.handlers.multi.MotdMultiHandler;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.RPL.*;
 import engineer.carrot.warren.warren.irc.messages.core.*;
 import engineer.carrot.warren.warren.util.IMessageQueue;
@@ -145,7 +145,7 @@ public class IncomingHandler implements IIncomingHandler {
     }
 
     @Override
-    public boolean handleIRCMessage(IrcMessage message, String originalLine) {
+    public boolean handleIRCMessage(JavaIrcMessage message, String originalLine) {
         if (!this.nextExpectedCommands.isEmpty()) {
             // Check that this command is in the set of commands we're expecting next
             // LOGGER.info("Next expected commands: " + this.nextExpectedCommands);

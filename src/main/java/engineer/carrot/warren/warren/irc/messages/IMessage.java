@@ -5,11 +5,11 @@ import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IISupportManager;
 public interface IMessage {
     void setISupportManager(IISupportManager manager);
 
-    boolean populate(IrcMessage message);
+    boolean populate(JavaIrcMessage message);
 
-    IMessage build(IrcMessage message);
+    IMessage build(JavaIrcMessage message);
 
-    IrcMessage build();
+    JavaIrcMessage build();
 
     String getCommand();
 }

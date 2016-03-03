@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.irc.messages.core;
 
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 public class UserMessage extends AbstractMessage {
@@ -18,8 +18,8 @@ public class UserMessage extends AbstractMessage {
     // Outbound
 
     @Override
-    public IrcMessage build() {
-        return new IrcMessage.Builder()
+    public JavaIrcMessage build() {
+        return new JavaIrcMessage.Builder()
                 .command(this.getCommand())
                 .parameters(this.user, this.mode, "*", this.realname)
                 .build();

@@ -3,17 +3,21 @@ package engineer.carrot.warren.warren
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.Okio
+import java.io.IOException
 import java.net.Socket
+import java.net.UnknownHostException
+import java.security.KeyStore
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.*
 
-class SocketLineSourceSink(val server: String, val port: Int): ILineSourceSink {
+class IRCSocket(val server: String, val port: Int): ILineSource, ILineSink {
     lateinit var socket: Socket
     lateinit var source: BufferedSource
     lateinit var sink: BufferedSink
 
-    override fun setUp(): Boolean {
+    fun setUp(): Boolean {
         socket = try {
-            Socket(server, port)
+            SSLSocketFactory.getDefault().createSocket(server, port)
         } catch (exception: Exception) {
             println("failed to connect using: $server:$port")
 
@@ -28,7 +32,7 @@ class SocketLineSourceSink(val server: String, val port: Int): ILineSourceSink {
         return true
     }
 
-    override fun tearDown() {
+    fun tearDown() {
         socket.close()
     }
 

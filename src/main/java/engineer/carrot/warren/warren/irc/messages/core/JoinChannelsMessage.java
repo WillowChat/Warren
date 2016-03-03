@@ -3,7 +3,7 @@ package engineer.carrot.warren.warren.irc.messages.core;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
-import engineer.carrot.warren.warren.irc.messages.IrcMessage;
+import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
 
 import java.util.List;
@@ -41,14 +41,14 @@ public class JoinChannelsMessage extends AbstractMessage {
     // Outbound
 
     @Override
-    public IrcMessage build() {
+    public JavaIrcMessage build() {
         if (this.keys.isEmpty()) {
-            return new IrcMessage.Builder()
+            return new JavaIrcMessage.Builder()
                     .command(this.getCommand())
                     .parameters(Joiner.on(",").join(this.channels))
                     .build();
         } else {
-            return new IrcMessage.Builder()
+            return new JavaIrcMessage.Builder()
                     .command(this.getCommand())
                     .parameters(Joiner.on(",").join(this.channels), Joiner.on(",").join(this.keys))
                     .build();
