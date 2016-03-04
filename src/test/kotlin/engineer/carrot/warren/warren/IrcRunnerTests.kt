@@ -8,7 +8,7 @@ import org.junit.Assert.*
 import org.mockito.Mockito.*
 import org.junit.Before
 
-class WarrenConnectionTests {
+class IrcRunnerTests {
 
     lateinit var messageSource: IMessageSource
     lateinit var messageSink: IMessageSink
@@ -28,7 +28,7 @@ class WarrenConnectionTests {
         assertEquals(connection.connectionInfo.nickname, "testnickname")
     }
 
-    @Test fun test_run_SuccessfulSetUp_SendsNickAndUser() {
+    @Test fun test_run_SendsNickAndUser() {
         val connectionInformation = ConnectionInfo(server = "testserver", port = 1234, nickname = "testnickname")
         val connection = IrcRunner(connectionInformation, messageSource, messageSink)
 
