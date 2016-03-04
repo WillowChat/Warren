@@ -6,8 +6,8 @@ import engineer.carrot.warren.warren.irc.CharacterCodes
 object IrcMessageParser: IIrcMessageParser {
 
     private val CRLF_LENGTH = 2
-    private val MAX_LINE_LENGTH = 1024 - CRLF_LENGTH
-    private val MIN_LINE_LENGTH = 5 - CRLF_LENGTH
+    val MAX_LINE_LENGTH = 1024 - CRLF_LENGTH
+    val MIN_LINE_LENGTH = 5 - CRLF_LENGTH
 
     override fun parse(line: String): IrcMessage? {
         if (line.length > MAX_LINE_LENGTH || line.length < MIN_LINE_LENGTH) {
