@@ -1,9 +1,9 @@
 package engineer.carrot.warren.warren.ctcp;
 
-import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.JavaCharacterCodes;
 
 public class CtcpHelper {
-    public static final String CTCP = Character.toString(CharacterCodes.CTCP);
+    public static final String CTCP = Character.toString(JavaCharacterCodes.CTCP);
 
     public static boolean isMessageCTCP(String message) {
         if (message.startsWith(CTCP) && message.endsWith(CTCP)) {
@@ -23,7 +23,7 @@ public class CtcpHelper {
             message = message.substring(0, message.length() - 1);
         }
 
-        int spacePosition = message.indexOf(CharacterCodes.SPACE);
+        int spacePosition = message.indexOf(JavaCharacterCodes.SPACE);
         if (spacePosition > 0) {
             message = message.substring(spacePosition + 1, message.length());
         }

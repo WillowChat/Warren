@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren.irc;
 
-public class CharacterCodes {
+public class JavaCharacterCodes {
     public static final char LF = 0xA;
     public static final char CR = 0xD;
     public static final char AT = 0x40;

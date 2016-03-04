@@ -3,7 +3,7 @@ package engineer.carrot.warren.warren.irc.messages;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
-import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.JavaCharacterCodes;
 import engineer.carrot.warren.warren.irc.Hostmask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +48,8 @@ public class JavaIrcMessage {
         // http://ircv3.atheme.org/specification/message-tags-3.2
 
         // Tags
-        if (line.charAt(stringPosition) == CharacterCodes.AT) {
-            int nextSpace = line.indexOf(CharacterCodes.SPACE, stringPosition);
+        if (line.charAt(stringPosition) == JavaCharacterCodes.AT) {
+            int nextSpace = line.indexOf(JavaCharacterCodes.SPACE, stringPosition);
             if (nextSpace < 0) {
                 LOGGER.error("Malformed tag: no trailing space found");
                 return null;
@@ -57,9 +57,9 @@ public class JavaIrcMessage {
 
             Map<String, String> tags = Maps.newHashMap();
 
-            String[] tagsArray = line.substring(1, nextSpace).split(String.valueOf(CharacterCodes.SEMICOLON));
+            String[] tagsArray = line.substring(1, nextSpace).split(String.valueOf(JavaCharacterCodes.SEMICOLON));
             for (String tag : tagsArray) {
-                String[] splitTag = tag.split(String.valueOf(CharacterCodes.EQUALS), 2);
+                String[] splitTag = tag.split(String.valueOf(JavaCharacterCodes.EQUALS), 2);
                 if (splitTag.length < 2) {
                     LOGGER.error("Malformed tag: no key or value");
                     return null;
@@ -73,7 +73,7 @@ public class JavaIrcMessage {
             stringPosition = nextSpace + 1;
 
             // Trim trailing spaces (some IRC daemons had this)
-            while (stringPosition < length && line.charAt(stringPosition) == CharacterCodes.SPACE) {
+            while (stringPosition < length && line.charAt(stringPosition) == JavaCharacterCodes.SPACE) {
                 stringPosition++;
             }
         }
@@ -84,8 +84,8 @@ public class JavaIrcMessage {
         }
 
         // Prefix
-        if (line.charAt(stringPosition) == CharacterCodes.COLON) {
-            int nextSpace = line.indexOf(CharacterCodes.SPACE, stringPosition);
+        if (line.charAt(stringPosition) == JavaCharacterCodes.COLON) {
+            int nextSpace = line.indexOf(JavaCharacterCodes.SPACE, stringPosition);
             if (nextSpace < 0) {
                 LOGGER.error("Malformed prefix: no trailing space found");
                 return null;
@@ -96,7 +96,7 @@ public class JavaIrcMessage {
             stringPosition = nextSpace + 1;
 
             // Trim trailing spaces (some IRC daemons had this)
-            while (stringPosition < length && line.charAt(stringPosition) == CharacterCodes.SPACE) {
+            while (stringPosition < length && line.charAt(stringPosition) == JavaCharacterCodes.SPACE) {
                 stringPosition++;
             }
         }
@@ -107,7 +107,7 @@ public class JavaIrcMessage {
         }
 
         // Command
-        int nextSpace = line.indexOf(CharacterCodes.SPACE, stringPosition);
+        int nextSpace = line.indexOf(JavaCharacterCodes.SPACE, stringPosition);
         if (nextSpace < 0) {
             // No parameters after the command, so everything left is the command
             String command = line.substring(stringPosition);
@@ -125,7 +125,7 @@ public class JavaIrcMessage {
         }
 
         // Trim trailing spaces (some IRC daemons had this)
-        while (stringPosition < length && line.charAt(stringPosition) == CharacterCodes.SPACE) {
+        while (stringPosition < length && line.charAt(stringPosition) == JavaCharacterCodes.SPACE) {
             stringPosition++;
         }
 
@@ -134,7 +134,7 @@ public class JavaIrcMessage {
         List<String> parameters = Lists.newArrayList();
 
         while (stringPosition < length) {
-            if (line.charAt(stringPosition) == CharacterCodes.COLON) {
+            if (line.charAt(stringPosition) == JavaCharacterCodes.COLON) {
                 // Rest of the message is one parameter
 
                 if ((stringPosition + 1) >= length) {
@@ -148,14 +148,14 @@ public class JavaIrcMessage {
                 return builder.parameters(parameters).build();
             }
 
-            nextSpace = line.indexOf(CharacterCodes.SPACE, stringPosition);
+            nextSpace = line.indexOf(JavaCharacterCodes.SPACE, stringPosition);
             if (nextSpace >= 0) {
                 String param = line.substring(stringPosition, nextSpace);
                 parameters.add(param);
                 stringPosition = nextSpace + 1;
 
                 // Trim trailing spaces (some IRC daemons had this)
-                while (stringPosition < length && line.charAt(stringPosition) == CharacterCodes.SPACE) {
+                while (stringPosition < length && line.charAt(stringPosition) == JavaCharacterCodes.SPACE) {
                     stringPosition++;
                 }
 
@@ -202,14 +202,14 @@ public class JavaIrcMessage {
 
         // Prefix
         if (this.hasPrefix()) {
-            builder.append(CharacterCodes.COLON);
+            builder.append(JavaCharacterCodes.COLON);
             builder.append(prefix);
-            builder.append(CharacterCodes.SPACE);
+            builder.append(JavaCharacterCodes.SPACE);
         }
 
         // Command
         builder.append(this.command);
-        builder.append(CharacterCodes.SPACE);
+        builder.append(JavaCharacterCodes.SPACE);
 
         // Parameters
         if (this.parameters.size() >= 1) {
@@ -233,10 +233,10 @@ public class JavaIrcMessage {
         int lastItem = parametersSize - 1;
         for (int i = 0; i < lastItem; i++) {
             builder.append(parameters.get(i));
-            builder.append(CharacterCodes.SPACE);
+            builder.append(JavaCharacterCodes.SPACE);
         }
 
-        builder.append(CharacterCodes.COLON);
+        builder.append(JavaCharacterCodes.COLON);
         builder.append(parameters.get(lastItem));
 
         return builder.toString();

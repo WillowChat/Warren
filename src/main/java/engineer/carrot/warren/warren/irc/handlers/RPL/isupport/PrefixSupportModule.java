@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import engineer.carrot.warren.warren.IPrefixListener;
-import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.JavaCharacterCodes;
 
 import java.util.List;
 import java.util.Map;
@@ -37,18 +37,18 @@ public class PrefixSupportModule implements IPrefixSupportModule {
             return false;
         }
 
-        if (value.charAt(0) != CharacterCodes.LEFT_BRACKET) {
+        if (value.charAt(0) != JavaCharacterCodes.LEFT_BRACKET) {
             return false;
         }
 
         value = value.substring(1);
 
-        int rightBracketPosition = value.indexOf(CharacterCodes.RIGHT_BRACKET);
+        int rightBracketPosition = value.indexOf(JavaCharacterCodes.RIGHT_BRACKET);
         if (rightBracketPosition <= 1) {
             return false;
         }
 
-        if (value.endsWith(Character.toString(CharacterCodes.RIGHT_BRACKET))) {
+        if (value.endsWith(Character.toString(JavaCharacterCodes.RIGHT_BRACKET))) {
             return false;
         }
 

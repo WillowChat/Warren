@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.util;
 
 import com.google.common.base.Strings;
-import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.JavaCharacterCodes;
 import engineer.carrot.warren.warren.irc.messages.IMessage;
 import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class OutgoingRunnable implements Runnable {
             }
 
             try {
-                outToServer.write(outputString + CharacterCodes.CR + CharacterCodes.LF);
+                outToServer.write(outputString + JavaCharacterCodes.CR + JavaCharacterCodes.LF);
                 outToServer.flush();
             } catch (IOException e) {
                 LOGGER.error("Failed to send message, output thread quitting: {}", e);

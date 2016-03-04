@@ -1,5 +1,7 @@
 package engineer.carrot.warren.warren
 
+import engineer.carrot.warren.warren.irc.IrcMessageParser
+
 class IrcRunner(val connectionInfo: ConnectionInfo, val lineSource: ILineSource, val lineSink: ILineSink) {
 
     fun run() {
@@ -10,8 +12,17 @@ class IrcRunner(val connectionInfo: ConnectionInfo, val lineSource: ILineSource,
         do {
             nextLine = lineSource.readLine() ?: break
 
-            if (nextLine.startsWith("PING ")) {
-                lineSink.writeLine("PONG " + nextLine.substring(5))
+            val message = IrcMessageParser.parse(nextLine)
+            if (message == null) {
+                println("failed to parse line")
+
+                continue
+            } else {
+                println("parsed to: ${message}")
+            }
+
+            if (message.command == "PING") {
+                lineSink.writeLine("PONG :" + (message.parameters.getOrNull(0) ?: "MYTOKEN"))
             } else if (nextLine.endsWith("376 ${connectionInfo.nickname} :End of /MOTD command.")) {
                 lineSink.writeLine("JOIN #botdev")
             }

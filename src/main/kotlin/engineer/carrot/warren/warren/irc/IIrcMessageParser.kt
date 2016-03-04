@@ -1,5 +1,5 @@
 package engineer.carrot.warren.warren.irc
 
 interface IIrcMessageParser {
-    fun parse(line: String): IrcMessage
+    fun parse(line: String): IrcMessage?
 }

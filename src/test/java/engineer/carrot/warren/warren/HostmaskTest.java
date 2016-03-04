@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren;
 
-import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.JavaCharacterCodes;
 import engineer.carrot.warren.warren.irc.Hostmask;
 import org.junit.Test;
 
@@ -28,6 +28,6 @@ public class HostmaskTest {
     public void testBuildOutputStringUserHostServer() throws Exception {
         Hostmask hostmask = new Hostmask.Builder().user("TESTUSER").host("testhost").server("testserver").build();
 
-        assertEquals("TESTUSER" + CharacterCodes.EXCLAM + "testhost" + CharacterCodes.AT + "testserver", hostmask.buildOutputString());
+        assertEquals("TESTUSER" + JavaCharacterCodes.EXCLAM + "testhost" + JavaCharacterCodes.AT + "testserver", hostmask.buildOutputString());
     }
 }

@@ -34,7 +34,7 @@ public class Hostmask {
 
         int currentPosition = 0;
 
-        int exclamPosition = hostmask.indexOf(CharacterCodes.EXCLAM);
+        int exclamPosition = hostmask.indexOf(JavaCharacterCodes.EXCLAM);
         if (exclamPosition > 0) {
             String user = hostmask.substring(currentPosition, exclamPosition);
             builder.user(user);
@@ -45,7 +45,7 @@ public class Hostmask {
             return builder.build();
         }
 
-        int atPosition = hostmask.indexOf(CharacterCodes.AT, currentPosition);
+        int atPosition = hostmask.indexOf(JavaCharacterCodes.AT, currentPosition);
         if (atPosition > 0) {
             String host = hostmask.substring(currentPosition, atPosition);
             builder.host(host);
@@ -79,7 +79,7 @@ public class Hostmask {
         }
 
         if (this.containsHost() && this.containsServer()) {
-            return this.user + CharacterCodes.EXCLAM + this.host + CharacterCodes.AT + this.server;
+            return this.user + JavaCharacterCodes.EXCLAM + this.host + JavaCharacterCodes.AT + this.server;
         } else {
             return this.user;
         }

@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.irc.messages.RPL;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
-import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.JavaCharacterCodes;
 import engineer.carrot.warren.warren.irc.messages.AbstractMessage;
 import engineer.carrot.warren.warren.irc.messages.JavaIrcMessage;
 import engineer.carrot.warren.warren.irc.messages.MessageCodes;
@@ -42,7 +42,7 @@ public class ISupportMessage extends AbstractMessage {
             // Can be of two types: X=Y or X
             // Y must be parsed depending on the value of X
 
-            List<String> keyValue = Splitter.on(CharacterCodes.EQUALS).limit(2).splitToList(parameter);
+            List<String> keyValue = Splitter.on(JavaCharacterCodes.EQUALS).limit(2).splitToList(parameter);
             if (keyValue.size() == 1) {
                 returnParameters.put(keyValue.get(0), null);
             } else {

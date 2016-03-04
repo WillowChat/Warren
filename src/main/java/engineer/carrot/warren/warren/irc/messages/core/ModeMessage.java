@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.irc.messages.core;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import engineer.carrot.warren.warren.irc.CharacterCodes;
+import engineer.carrot.warren.warren.irc.JavaCharacterCodes;
 import engineer.carrot.warren.warren.irc.Hostmask;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IChanModesSupportModule;
 import engineer.carrot.warren.warren.irc.handlers.RPL.isupport.IPrefixSupportModule;
@@ -74,11 +74,11 @@ public class ModeMessage extends AbstractMessage {
         }
 
         public boolean isAdding() {
-            return (this.type == CharacterCodes.PLUS);
+            return (this.type == JavaCharacterCodes.PLUS);
         }
 
         public boolean isRemoving() {
-            return (this.type == CharacterCodes.MINUS);
+            return (this.type == JavaCharacterCodes.MINUS);
         }
     }
 
@@ -100,7 +100,7 @@ public class ModeMessage extends AbstractMessage {
     }
 
     private boolean isTokenStartOfModifier(Character token) {
-        return (token == CharacterCodes.PLUS || token == CharacterCodes.MINUS);
+        return (token == JavaCharacterCodes.PLUS || token == JavaCharacterCodes.MINUS);
 
     }
 
@@ -160,7 +160,7 @@ public class ModeMessage extends AbstractMessage {
 
                 ModeModifier modifier = new ModeModifier(currentMode, token, this.prefix);
 
-                boolean isAdding = (currentMode == CharacterCodes.PLUS);
+                boolean isAdding = (currentMode == JavaCharacterCodes.PLUS);
                 boolean takesAParameter = this.takesAParameter(isAdding, token);
 
                 if (takesAParameter) {
