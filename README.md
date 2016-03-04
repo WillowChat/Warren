@@ -15,10 +15,12 @@ A Kotlin IRC framework for personal use (but open-sourced). Attempts to achieve 
  * GitHub helper bots.
 * Fun.
 
-# TODO
+# Project Goals
 
-* [RFC 2812](https://tools.ietf.org/html/rfc2812)
+* [RFC 1459](https://tools.ietf.org/html/rfc1459)
 * [IRC v3](http://ircv3.net/irc/)
+* Get more widely used
+* GitHub notifier bot?
 
 ## Code License
 The source code of this project is licensed under the terms of the ISC license, listed in the [LICENSE](LICENSE.md) file. A concise summary of the ISC license is available at [choosealicense.org](http://choosealicense.com/licenses/isc/).
