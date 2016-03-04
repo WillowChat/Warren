@@ -1,6 +1,7 @@
-package engineer.carrot.warren.warren.irc
+package engineer.carrot.warren.warren.irc.message
 
 import com.google.common.base.Splitter
+import engineer.carrot.warren.warren.irc.CharacterCodes
 
 object IrcMessageParser: IIrcMessageParser {
 

@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren
 
-import engineer.carrot.warren.warren.irc.IrcMessageParser
+import engineer.carrot.warren.warren.irc.message.IrcMessageParser
 
 class IrcRunner(val connectionInfo: ConnectionInfo, val lineSource: ILineSource, val lineSink: ILineSink) {
 

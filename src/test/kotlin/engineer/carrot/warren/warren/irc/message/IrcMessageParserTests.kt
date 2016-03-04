@@ -1,4 +1,4 @@
-package engineer.carrot.warren.warren.irc
+package engineer.carrot.warren.warren.irc.message
 
 import org.junit.Assert.*
 import org.junit.Test
