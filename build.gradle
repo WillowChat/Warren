@@ -6,7 +6,14 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.1'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+    }
+}
+
+repositories {
+    maven {
+        name 'Hopper'
+        url "https://maven.hopper.bunnies.io/"
     }
 }
 
@@ -35,6 +42,7 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '18.0'
     compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.0'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.9'
+    compile group: 'engineer.carrot.warren.pellet', name: 'Pellet', version: '0.0.1.5'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.0.42-beta'
@@ -67,7 +75,7 @@ test {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.10'
+    gradleVersion = '2.11'
 }
 
 version = version_major + '.' + version_minor + '.' + version_patch
