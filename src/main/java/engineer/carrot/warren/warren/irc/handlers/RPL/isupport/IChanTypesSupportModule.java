@@ -1,7 +1,0 @@
-package engineer.carrot.warren.warren.irc.handlers.RPL.isupport;
-
-import java.util.Set;
-
-public interface IChanTypesSupportModule extends IISupportModule {
-    Set<String> getChannelPrefixes();
-}

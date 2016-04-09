@@ -1,21 +1,17 @@
 package engineer.carrot.warren.warren
 
-import engineer.carrot.warren.warren.irc.IMessageSink
-import engineer.carrot.warren.warren.irc.IMessageSource
-import engineer.carrot.warren.warren.irc.message.IIrcMessageParser
-import engineer.carrot.warren.warren.irc.message.IIrcMessageSerialiser
-import engineer.carrot.warren.warren.irc.message.IrcMessage
+import engineer.carrot.warren.kale.IKale
+import engineer.carrot.warren.kale.irc.message.IIrcMessageSerialiser
+import engineer.carrot.warren.kale.irc.message.IMessage
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.Okio
 import java.io.IOException
 import java.net.Socket
-import java.net.UnknownHostException
-import java.security.KeyStore
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.*
 
-class IrcSocket(val server: String, val port: Int, val parser: IIrcMessageParser, val serialiser: IIrcMessageSerialiser): IMessageSource, IMessageSink {
+class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialiser: IIrcMessageSerialiser): IMessageSink, IMessageProcessor {
     lateinit var socket: Socket
     lateinit var source: BufferedSource
     lateinit var sink: BufferedSink
@@ -41,23 +37,30 @@ class IrcSocket(val server: String, val port: Int, val parser: IIrcMessageParser
         socket.close()
     }
 
-    override fun nextMessage(): Pair<String, IrcMessage?>? {
+    override fun processNextMessage(): Boolean {
         val line = try {
             source.readUtf8LineStrict()
         } catch (exception: IOException) {
-            return null
+            return false
         }
 
         println(">> $line")
 
-        val message = parser.parse(line)
-        return Pair(line, message)
+        kale.process(line)
+        return true
     }
 
-    override fun writeMessage(message: IrcMessage) {
-        val line = serialiser.serialise(message)
+    override fun <T: IMessage> writeMessage(message: T) {
+        val ircMessage = kale.serialise(message)
+        if (ircMessage == null) {
+            println("failed to serialise to irc message: $message")
+            return
+        }
+
+        val line = serialiser.serialise(ircMessage)
         if (line == null) {
-            println("failed to serialise message: $message")
+            println("failed to serialise to line: $ircMessage")
+            return
         }
 
         println("<< $line")
