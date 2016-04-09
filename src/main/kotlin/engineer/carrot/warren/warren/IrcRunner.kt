@@ -39,6 +39,6 @@ class Rpl376Handler(val sink: IMessageSink): IKaleHandler<Rpl376Message> {
 
     override fun handle(message: Rpl376Message) {
         println("got end of MOTD, joining channels")
-        sink.writeMessage(JoinMessage(channels = listOf("#compsoc")))
+        sink.writeMessage(JoinMessage(channels = listOf("#carrot", "#botdev")))
     }
 }
