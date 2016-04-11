@@ -37,7 +37,7 @@ class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialis
         socket.close()
     }
 
-    override fun processNextMessage(): Boolean {
+    override fun process(): Boolean {
         val line = try {
             source.readUtf8LineStrict()
         } catch (exception: IOException) {
@@ -50,7 +50,7 @@ class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialis
         return true
     }
 
-    override fun <T: IMessage> writeMessage(message: T) {
+    override fun <T: IMessage> write(message: T) {
         val ircMessage = kale.serialise(message)
         if (ircMessage == null) {
             println("failed to serialise to irc message: $message")
