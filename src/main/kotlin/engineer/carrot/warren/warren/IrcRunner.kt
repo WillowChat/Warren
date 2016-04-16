@@ -3,11 +3,22 @@ package engineer.carrot.warren.warren
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.irc.message.rfc1459.*
 import engineer.carrot.warren.warren.handler.PingHandler
+import engineer.carrot.warren.warren.handler.Rpl005.Rpl005Handler
+import engineer.carrot.warren.warren.handler.Rpl005.Rpl005PrefixHandler
 import engineer.carrot.warren.warren.handler.Rpl376Handler
+import engineer.carrot.warren.warren.state.IrcState
 
-class IrcRunner(val connectionInfo: ConnectionInfo, val kale: IKale, val sink: IMessageSink, val processor: IMessageProcessor): IIrcRunner {
+interface IIrcRunner {
+    fun run()
+}
+
+class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessageProcessor, val initialState: IrcState): IIrcRunner {
+
+    private lateinit var state: IrcState
 
     override fun run() {
+        state = initialState
+
         registerHandlers()
         sendRegistrationMessages()
         processMessages()
@@ -15,12 +26,13 @@ class IrcRunner(val connectionInfo: ConnectionInfo, val kale: IKale, val sink: I
 
     private fun registerHandlers() {
         kale.register(PingHandler(sink))
-        kale.register(Rpl376Handler(sink))
+        kale.register(Rpl005Handler(state.parsing, Rpl005PrefixHandler))
+        kale.register(Rpl376Handler(sink, channelsToJoin = listOf("#carrot", "#botdev")))
     }
 
     private fun sendRegistrationMessages() {
-        sink.write(NickMessage(nickname = connectionInfo.nickname))
-        sink.write(UserMessage(username = connectionInfo.nickname, mode = "8", realname = connectionInfo.nickname))
+        sink.write(NickMessage(nickname = state.connection.nickname))
+        sink.write(UserMessage(username = state.connection.username, mode = "8", realname = state.connection.username))
     }
 
     private fun processMessages() {
