@@ -1,6 +1,10 @@
 package engineer.carrot.warren.warren.state
 
-data class IrcState(val connection: ConnectionState, val parsing: ParsingState)
+data class IrcState(val connection: ConnectionState, val parsing: ParsingState, val channels: ChannelsState)
+
+data class ChannelsState(val joined: MutableMap<String, ChannelState>)
+
+data class ChannelState(val name: String, val users: MutableSet<String>)
 
 data class ConnectionState(val server: String, val port: Int, val nickname: String, val username: String)
 

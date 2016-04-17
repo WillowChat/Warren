@@ -9,7 +9,7 @@ interface IRpl005ChanTypesHandler {
 }
 
 object Rpl005ChanTypesHandler : IRpl005ChanTypesHandler {
-    
+
     override fun handle(rawValue: String, state: ChannelTypesState): Boolean {
         // CHANTYPES: &#
 

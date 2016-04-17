@@ -7,10 +7,9 @@ import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.IrcMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
-import engineer.carrot.warren.warren.handler.PingHandler
+import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005Handler
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005PrefixHandler
-import engineer.carrot.warren.warren.handler.Rpl376Handler
 import engineer.carrot.warren.warren.state.*
 import org.junit.Before
 import org.junit.Test
@@ -32,8 +31,9 @@ class IrcRunnerTests {
         val channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState)
+        val channelsState = ChannelsState(joined = mutableMapOf())
 
-        val initialState = IrcState(connectionState, parsingState)
+        val initialState = IrcState(connectionState, parsingState, channelsState)
 
         mockKale = MockKale
 
@@ -48,10 +48,13 @@ class IrcRunnerTests {
     @Test fun test_run_RegistersHandlers() {
         runner.run()
 
-        assertEquals(3, mockKale.spyRegisterHandlers.size)
+        assertEquals(6, mockKale.spyRegisterHandlers.size)
         assertTrue(mockKale.spyRegisterHandlers[0] is PingHandler)
-        assertTrue(mockKale.spyRegisterHandlers[1] is Rpl005Handler)
-        assertTrue(mockKale.spyRegisterHandlers[2] is Rpl376Handler)
+        assertTrue(mockKale.spyRegisterHandlers[1] is JoinHandler)
+        assertTrue(mockKale.spyRegisterHandlers[2] is PartHandler)
+        assertTrue(mockKale.spyRegisterHandlers[3] is Rpl005Handler)
+        assertTrue(mockKale.spyRegisterHandlers[4] is Rpl353Handler)
+        assertTrue(mockKale.spyRegisterHandlers[5] is Rpl376Handler)
     }
 
     @Test fun test_run_SendsRegistrationMessages() {

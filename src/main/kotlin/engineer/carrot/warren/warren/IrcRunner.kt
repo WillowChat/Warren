@@ -3,12 +3,11 @@ package engineer.carrot.warren.warren
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
-import engineer.carrot.warren.warren.handler.PingHandler
+import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005ChanModesHandler
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005ChanTypesHandler
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005Handler
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005PrefixHandler
-import engineer.carrot.warren.warren.handler.Rpl376Handler
 import engineer.carrot.warren.warren.state.IrcState
 
 interface IIrcRunner {
@@ -29,7 +28,10 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
 
     private fun registerHandlers() {
         kale.register(PingHandler(sink))
+        kale.register(JoinHandler(state.connection, state.channels))
+        kale.register(PartHandler(state.connection, state.channels))
         kale.register(Rpl005Handler(state.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler))
+        kale.register(Rpl353Handler(state.channels, state.parsing.userPrefixes))
         kale.register(Rpl376Handler(sink, channelsToJoin = listOf("#carrot", "#botdev")))
     }
 
