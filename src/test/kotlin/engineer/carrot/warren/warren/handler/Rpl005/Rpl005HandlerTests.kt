@@ -4,7 +4,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl005Message
 import engineer.carrot.warren.warren.state.ChannelModesState
-import engineer.carrot.warren.warren.state.ChannelPrefixesState
+import engineer.carrot.warren.warren.state.ChannelTypesState
 import engineer.carrot.warren.warren.state.ParsingState
 import engineer.carrot.warren.warren.state.UserPrefixesState
 import org.junit.Before
@@ -15,18 +15,20 @@ class Rpl005HandlerTests {
     lateinit var state: ParsingState
     lateinit var userPrefixesState: UserPrefixesState
     lateinit var channelModesState: ChannelModesState
-    lateinit var channelPrefixesState: ChannelPrefixesState
+    lateinit var channelTypesState: ChannelTypesState
     lateinit var prefixHandler: IRpl005PrefixHandler
     lateinit var channelModesHandler: IRpl005ChanModesHandler
+    lateinit var channelTypesHandler: IRpl005ChanTypesHandler
 
     @Before fun setUp() {
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o'))
         channelModesState = ChannelModesState(typeA = setOf('a'), typeB = setOf('b'), typeC = setOf('c'), typeD = setOf('d'))
-        channelPrefixesState = ChannelPrefixesState(prefixes = setOf('#'))
-        state = ParsingState(userPrefixesState, channelModes = channelModesState, channelPrefixes = channelPrefixesState)
+        channelTypesState = ChannelTypesState(types = setOf('#'))
+        state = ParsingState(userPrefixesState, channelModes = channelModesState, channelTypes = channelTypesState)
         prefixHandler = mock()
         channelModesHandler = mock()
-        handler = Rpl005Handler(state, prefixHandler, channelModesHandler)
+        channelTypesHandler = mock()
+        handler = Rpl005Handler(state, prefixHandler, channelModesHandler, channelTypesHandler)
     }
 
     @Test fun test_handle_UserPrefixes() {

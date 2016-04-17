@@ -30,7 +30,7 @@ class IrcRunnerTests {
 
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         val channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
-        val channelPrefixesState = ChannelPrefixesState(prefixes = setOf('#', '&'))
+        val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState)
 
         val initialState = IrcState(connectionState, parsingState)

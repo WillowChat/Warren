@@ -51,7 +51,7 @@ object Rpl005PrefixHandler : IRpl005PrefixHandler {
 
         state.prefixesToModes = prefixesToModes
 
-        println("handled 005 PREFIX: ${state.prefixesToModes}")
+        println("handled 005 PREFIX: $state")
 
         return true
     }

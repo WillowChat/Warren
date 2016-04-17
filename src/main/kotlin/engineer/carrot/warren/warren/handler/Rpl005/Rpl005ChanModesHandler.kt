@@ -1,10 +1,7 @@
 package engineer.carrot.warren.warren.handler.Rpl005
 
 import com.google.common.base.Splitter
-import com.google.common.collect.Sets
-import engineer.carrot.warren.kale.irc.CharacterCodes
 import engineer.carrot.warren.warren.state.ChannelModesState
-import engineer.carrot.warren.warren.state.UserPrefixesState
 
 interface IRpl005ChanModesHandler {
 
@@ -40,7 +37,7 @@ object Rpl005ChanModesHandler : IRpl005ChanModesHandler {
         state.typeC = typeC
         state.typeD = typeD
 
-        println("handled 005 CHANMODES: ${state}")
+        println("handled 005 CHANMODES: $state")
 
         return true
     }
