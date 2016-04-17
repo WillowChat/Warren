@@ -9,9 +9,9 @@ import okio.Okio
 import java.io.IOException
 import java.net.Socket
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.*
+import javax.net.ssl.SSLSocketFactory
 
-class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialiser: IIrcMessageSerialiser): IMessageSink, IMessageProcessor {
+class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialiser: IIrcMessageSerialiser) : IMessageSink, IMessageProcessor {
     lateinit var socket: Socket
     lateinit var source: BufferedSource
     lateinit var sink: BufferedSink
@@ -50,7 +50,7 @@ class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialis
         return true
     }
 
-    override fun <T: IMessage> write(message: T) {
+    override fun <T : IMessage> write(message: T) {
         val ircMessage = kale.serialise(message)
         if (ircMessage == null) {
             println("failed to serialise to irc message: $message")

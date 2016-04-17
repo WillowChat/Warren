@@ -17,6 +17,7 @@ class Rpl005HandlerTests {
     lateinit var channelModesState: ChannelModesState
     lateinit var channelPrefixesState: ChannelPrefixesState
     lateinit var prefixHandler: IRpl005PrefixHandler
+    lateinit var channelModesHandler: IRpl005ChanModesHandler
 
     @Before fun setUp() {
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o'))
@@ -24,13 +25,20 @@ class Rpl005HandlerTests {
         channelPrefixesState = ChannelPrefixesState(prefixes = setOf('#'))
         state = ParsingState(userPrefixesState, channelModes = channelModesState, channelPrefixes = channelPrefixesState)
         prefixHandler = mock()
-        handler = Rpl005Handler(state, prefixHandler)
+        channelModesHandler = mock()
+        handler = Rpl005Handler(state, prefixHandler, channelModesHandler)
     }
 
     @Test fun test_handle_UserPrefixes() {
         handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("PREFIX" to "(ovh)@+%")))
 
         verify(prefixHandler).handle("(ovh)@+%", userPrefixesState)
+    }
+
+    @Test fun test_handle_ChannelModes() {
+        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CHANMODES" to "eIb,k,l,imnpstSr")))
+
+        verify(channelModesHandler).handle("eIb,k,l,imnpstSr", channelModesState)
     }
 
 }

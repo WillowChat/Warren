@@ -8,6 +8,6 @@ data class ParsingState(val userPrefixes: UserPrefixesState, val channelModes: C
 
 data class UserPrefixesState(var prefixesToModes: Map<Char, Char>)
 
-data class ChannelModesState(val typeA: Set<Char>, val typeB: Set<Char>, val typeC: Set<Char>, val typeD: Set<Char>)
+data class ChannelModesState(var typeA: Set<Char>, var typeB: Set<Char>, var typeC: Set<Char>, var typeD: Set<Char>)
 
 data class ChannelPrefixesState(val prefixes: Set<Char>)

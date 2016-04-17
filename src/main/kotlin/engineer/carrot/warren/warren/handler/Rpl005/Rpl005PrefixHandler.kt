@@ -1,14 +1,15 @@
 package engineer.carrot.warren.warren.handler.Rpl005
 
 import engineer.carrot.warren.kale.irc.CharacterCodes
-import engineer.carrot.warren.warren.state.ParsingState
 import engineer.carrot.warren.warren.state.UserPrefixesState
 
 interface IRpl005PrefixHandler {
+
     fun handle(rawValue: String, state: UserPrefixesState): Boolean
+
 }
 
-object Rpl005PrefixHandler: IRpl005PrefixHandler {
+object Rpl005PrefixHandler : IRpl005PrefixHandler {
 
     override fun handle(rawValue: String, state: UserPrefixesState): Boolean {
         // PREFIX: (ov)@+
