@@ -9,6 +9,7 @@ import engineer.carrot.warren.warren.handler.Rpl005.Rpl005ChanTypesHandler
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005Handler
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005PrefixHandler
 import engineer.carrot.warren.warren.state.IrcState
+import engineer.carrot.warren.warren.state.LifecycleState
 
 interface IIrcRunner {
     fun run()
@@ -27,12 +28,19 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
     }
 
     private fun registerHandlers() {
-        kale.register(PingHandler(sink))
         kale.register(JoinHandler(state.connection, state.channels))
+        kale.register(KickHandler(state.connection, state.channels))
+        kale.register(NickHandler(state.connection, state.channels))
+        kale.register(NoticeHandler(state.parsing.channelTypes))
         kale.register(PartHandler(state.connection, state.channels))
+        kale.register(PingHandler(sink))
+        kale.register(PrivMsgHandler(state.parsing.channelTypes))
+        kale.register(QuitHandler(state.connection, state.channels))
+        kale.register(TopicHandler(state.channels))
         kale.register(Rpl005Handler(state.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler))
+        kale.register(Rpl332Handler(state.channels))
         kale.register(Rpl353Handler(state.channels, state.parsing.userPrefixes))
-        kale.register(Rpl376Handler(sink, channelsToJoin = listOf("#carrot", "#botdev")))
+        kale.register(Rpl376Handler(sink, listOf("#carrot", "#botdev"), state.connection))
     }
 
     private fun sendRegistrationMessages() {
@@ -46,6 +54,11 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
 
             if (!processed) {
                 println("processing message returned false, bailing")
+                return
+            }
+
+            if (state.connection.lifecycle == LifecycleState.DISCONNECTED) {
+                println("we disconnected, bailing")
                 return
             }
         } while (true)
