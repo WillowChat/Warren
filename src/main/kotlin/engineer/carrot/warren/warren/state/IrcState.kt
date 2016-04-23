@@ -4,7 +4,9 @@ data class IrcState(val connection: ConnectionState, val parsing: ParsingState, 
 
 data class ChannelsState(val joined: MutableMap<String, ChannelState>)
 
-data class ChannelState(val name: String, val users: MutableSet<String>, var topic: String? = null)
+data class ChannelState(val name: String, val users: MutableMap<String, ChannelUserState>, var topic: String? = null)
+
+data class ChannelUserState(val nick: String, val modes: Set<Char> = setOf())
 
 data class ConnectionState(val server: String, val port: Int, var nickname: String, val username: String, var lifecycle: LifecycleState)
 

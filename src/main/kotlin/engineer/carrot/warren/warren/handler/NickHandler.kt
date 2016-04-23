@@ -6,6 +6,7 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.PongMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.ConnectionState
+import engineer.carrot.warren.warren.state.generateUser
 
 class NickHandler(val connectionState: ConnectionState, val channelsState: ChannelsState) : IKaleHandler<NickMessage> {
     override val messageType = NickMessage::class.java
@@ -28,7 +29,7 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Chann
         for ((name, channel) in channelsState.joined) {
             if (channel.users.contains(from)) {
                 channel.users.remove(from)
-                channel.users.add(to)
+                channel.users += generateUser(to)
             }
         }
 

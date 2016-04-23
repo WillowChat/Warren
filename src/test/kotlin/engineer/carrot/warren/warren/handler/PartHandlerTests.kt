@@ -2,10 +2,7 @@ package engineer.carrot.warren.warren.handler
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.PartMessage
 import engineer.carrot.warren.kale.irc.prefix.Prefix
-import engineer.carrot.warren.warren.state.ChannelState
-import engineer.carrot.warren.warren.state.ChannelsState
-import engineer.carrot.warren.warren.state.ConnectionState
-import engineer.carrot.warren.warren.state.LifecycleState
+import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -24,7 +21,7 @@ class PartHandlerTests {
     }
 
     @Test fun test_handle_SourceIsSelf_WellFormed_PartsCorrectChannel() {
-        channelsState.joined["#channel"] = ChannelState("#channel", users = mutableSetOf("test-nick"))
+        channelsState.joined["#channel"] = ChannelState("#channel", users = generateUsers("test-nick"))
 
         handler.handle(PartMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")))
 
@@ -44,11 +41,11 @@ class PartHandlerTests {
     }
 
     @Test fun test_handle_SourceIsOther_WellFormed() {
-        channelsState.joined["#channel"] = ChannelState("#channel", users = mutableSetOf("test-nick", "someone-else"))
+        channelsState.joined["#channel"] = ChannelState("#channel", users = generateUsers("test-nick", "someone-else"))
 
         handler.handle(PartMessage(source = Prefix(nick = "someone-else"), channels = listOf("#channel")))
 
-        assertEquals(ChannelsState(joined = mutableMapOf("#channel" to ChannelState(name = "#channel", users = mutableSetOf("test-nick")))), channelsState)
+        assertEquals(ChannelsState(joined = mutableMapOf("#channel" to ChannelState(name = "#channel", users = generateUsers("test-nick")))), channelsState)
     }
 
     @Test fun test_handle_SourceIsOther_NotInChannel() {

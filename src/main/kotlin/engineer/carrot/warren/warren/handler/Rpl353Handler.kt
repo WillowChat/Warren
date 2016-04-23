@@ -4,6 +4,7 @@ import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl353Message
 import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.UserPrefixesState
+import engineer.carrot.warren.warren.state.generateUser
 
 class Rpl353Handler(val channelsState: ChannelsState, val userPrefixesState: UserPrefixesState) : IKaleHandler<Rpl353Message> {
     override val messageType = Rpl353Message::class.java
@@ -25,7 +26,7 @@ class Rpl353Handler(val channelsState: ChannelsState, val userPrefixesState: Use
                 continue
             }
 
-            channel.users.add(nick)
+            channel.users += generateUser(nick)
         }
 
         println("channel state after 353: $channel")

@@ -2,9 +2,7 @@ package engineer.carrot.warren.warren.handler
 
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
-import engineer.carrot.warren.warren.state.ChannelState
-import engineer.carrot.warren.warren.state.ChannelsState
-import engineer.carrot.warren.warren.state.ConnectionState
+import engineer.carrot.warren.warren.state.*
 
 class JoinHandler(val connectionState: ConnectionState, val channelsState: ChannelsState) : IKaleHandler<JoinMessage> {
     override val messageType = JoinMessage::class.java
@@ -29,7 +27,7 @@ class JoinHandler(val connectionState: ConnectionState, val channelsState: Chann
                 if (!channelsState.joined.containsKey(channelName)) {
                     println("adding $channelName to joined channels with 0 users")
 
-                    channelsState.joined[channelName] = ChannelState(channelName, users = mutableSetOf())
+                    channelsState.joined[channelName] = ChannelState(channelName, users = generateUsers())
                 } else {
                     println("we're already in $channelName - not adding it again")
                 }
@@ -40,7 +38,7 @@ class JoinHandler(val connectionState: ConnectionState, val channelsState: Chann
             for (channelName in channelNames) {
                 val channelState = channelsState.joined[channelName]
                 if (channelState != null) {
-                    channelState.users += nick
+                    channelState.users += generateUser(nick)
 
                     println("new channel state: ${channelState}")
                 } else {
