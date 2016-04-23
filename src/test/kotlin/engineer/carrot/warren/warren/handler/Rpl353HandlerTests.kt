@@ -1,17 +1,12 @@
 package engineer.carrot.warren.warren.handler
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl353Message
-import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.state.ChannelState
 import engineer.carrot.warren.warren.state.ChannelsState
-import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.UserPrefixesState
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
 
 class Rpl353HandlerTests {
 

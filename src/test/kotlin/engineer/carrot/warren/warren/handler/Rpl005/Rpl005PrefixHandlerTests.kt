@@ -1,9 +1,9 @@
 package engineer.carrot.warren.warren.handler.Rpl005
 
 import engineer.carrot.warren.warren.state.UserPrefixesState
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
 
 class Rpl005PrefixHandlerTests {
 
