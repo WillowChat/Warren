@@ -6,7 +6,8 @@ import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {
     @JvmStatic fun main(args: Array<String>) {
-        val connectionState = ConnectionState(server = args[0], port = args[1].toInt(), nickname = args[2], username = args[2])
+        val lifecycleState = LifecycleState.CONNECTING
+        val connectionState = ConnectionState(server = args[0], port = args[1].toInt(), nickname = args[2], username = args[2], lifecycle = lifecycleState)
 
         val kale = Kale().addDefaultMessages()
         val serialiser = IrcMessageSerialiser
