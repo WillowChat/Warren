@@ -1,15 +1,14 @@
 package engineer.carrot.warren.warren.handler
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.state.ChannelState
 import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.ConnectionState
+import engineer.carrot.warren.warren.state.LifecycleState
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
 
 class JoinHandlerTests {
 
@@ -18,7 +17,8 @@ class JoinHandlerTests {
     lateinit var channelsState: ChannelsState
 
     @Before fun setUp() {
-        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-user")
+        val lifecycleState = LifecycleState.DISCONNECTED
+        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState)
         channelsState = ChannelsState(joined = mutableMapOf())
         handler = JoinHandler(connectionState, channelsState)
     }
