@@ -8,9 +8,13 @@ data class ChannelState(val name: String, val users: MutableMap<String, ChannelU
 
 data class ChannelUserState(val nick: String, val modes: Set<Char> = setOf())
 
-data class ConnectionState(val server: String, val port: Int, var nickname: String, val username: String, var lifecycle: LifecycleState)
+data class ConnectionState(val server: String, val port: Int, var nickname: String, val username: String, var lifecycle: LifecycleState, val cap: CapState)
 
 enum class LifecycleState { CONNECTING, REGISTERING, CONNECTED, DISCONNECTED }
+
+data class CapState(var lifecycle: CapLifecycle, var negotiate: Set<String>, var server: Map<String, String?>, var accepted: Set<String>, var rejected: Set<String>)
+
+enum class CapLifecycle { NEGOTIATING, NEGOTIATED, FAILED }
 
 data class ParsingState(val userPrefixes: UserPrefixesState, val channelModes: ChannelModesState, val channelTypes: ChannelTypesState)
 

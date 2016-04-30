@@ -7,7 +7,9 @@ import engineer.carrot.warren.warren.state.*
 object WarrenRunner {
     @JvmStatic fun main(args: Array<String>) {
         val lifecycleState = LifecycleState.CONNECTING
-        val connectionState = ConnectionState(server = args[0], port = args[1].toInt(), nickname = args[2], username = args[2], lifecycle = lifecycleState)
+        val capLifecycleState = CapLifecycle.NEGOTIATING
+        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl", "account-notify", "away-notify", "extended-join", "account-tag"), server = mapOf(), accepted = setOf(), rejected = setOf())
+        val connectionState = ConnectionState(server = args[0], port = args[1].toInt(), nickname = args[2], username = args[2], lifecycle = lifecycleState, cap = capState)
 
         val kale = Kale().addDefaultMessages()
         val serialiser = IrcMessageSerialiser

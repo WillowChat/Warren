@@ -26,7 +26,9 @@ class IrcRunnerTests {
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.DISCONNECTED
-        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState)
+        val capLifecycleState = CapLifecycle.NEGOTIATED
+        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
+        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState)
 
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         val channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
@@ -49,20 +51,23 @@ class IrcRunnerTests {
     @Test fun test_run_RegistersHandlers() {
         runner.run()
 
-        assertEquals(13, mockKale.spyRegisterHandlers.size)
-        assertTrue(mockKale.spyRegisterHandlers[0] is JoinHandler)
-        assertTrue(mockKale.spyRegisterHandlers[1] is KickHandler)
-        assertTrue(mockKale.spyRegisterHandlers[2] is NickHandler)
-        assertTrue(mockKale.spyRegisterHandlers[3] is NoticeHandler)
-        assertTrue(mockKale.spyRegisterHandlers[4] is PartHandler)
-        assertTrue(mockKale.spyRegisterHandlers[5] is PingHandler)
-        assertTrue(mockKale.spyRegisterHandlers[6] is PrivMsgHandler)
-        assertTrue(mockKale.spyRegisterHandlers[7] is QuitHandler)
-        assertTrue(mockKale.spyRegisterHandlers[8] is TopicHandler)
-        assertTrue(mockKale.spyRegisterHandlers[9] is Rpl005Handler)
-        assertTrue(mockKale.spyRegisterHandlers[10] is Rpl332Handler)
-        assertTrue(mockKale.spyRegisterHandlers[11] is Rpl353Handler)
-        assertTrue(mockKale.spyRegisterHandlers[12] is Rpl376Handler)
+        assertEquals(16, mockKale.spyRegisterHandlers.size)
+        assertTrue(mockKale.spyRegisterHandlers[0] is CapLsHandler)
+        assertTrue(mockKale.spyRegisterHandlers[1] is CapAckHandler)
+        assertTrue(mockKale.spyRegisterHandlers[2] is CapNakHandler)
+        assertTrue(mockKale.spyRegisterHandlers[3] is JoinHandler)
+        assertTrue(mockKale.spyRegisterHandlers[4] is KickHandler)
+        assertTrue(mockKale.spyRegisterHandlers[5] is NickHandler)
+        assertTrue(mockKale.spyRegisterHandlers[6] is NoticeHandler)
+        assertTrue(mockKale.spyRegisterHandlers[7] is PartHandler)
+        assertTrue(mockKale.spyRegisterHandlers[8] is PingHandler)
+        assertTrue(mockKale.spyRegisterHandlers[9] is PrivMsgHandler)
+        assertTrue(mockKale.spyRegisterHandlers[10] is QuitHandler)
+        assertTrue(mockKale.spyRegisterHandlers[11] is TopicHandler)
+        assertTrue(mockKale.spyRegisterHandlers[12] is Rpl005Handler)
+        assertTrue(mockKale.spyRegisterHandlers[13] is Rpl332Handler)
+        assertTrue(mockKale.spyRegisterHandlers[14] is Rpl353Handler)
+        assertTrue(mockKale.spyRegisterHandlers[15] is Rpl376Handler)
     }
 
     @Test fun test_run_SendsRegistrationMessages() {

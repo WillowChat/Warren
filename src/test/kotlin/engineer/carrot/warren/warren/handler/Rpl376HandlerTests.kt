@@ -51,4 +51,12 @@ class Rpl376HandlerTests {
 
         assertEquals(LifecycleState.CONNECTED, connectionState.lifecycle)
     }
+
+    @Test fun test_handle_CapNegotiating_SetsToFailed() {
+        connectionState.cap.lifecycle = CapLifecycle.NEGOTIATING
+
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"))
+
+        assertEquals(CapLifecycle.FAILED, connectionState.cap.lifecycle)
+    }
 }

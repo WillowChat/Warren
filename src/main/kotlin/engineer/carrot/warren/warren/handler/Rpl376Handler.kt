@@ -4,6 +4,7 @@ import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl376Message
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.state.CapLifecycle
 import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.LifecycleState
 
@@ -11,6 +12,11 @@ class Rpl376Handler(val sink: IMessageSink, val channelsToJoin: Map<String, Stri
     override val messageType = Rpl376Message::class.java
 
     override fun handle(message: Rpl376Message) {
+
+        if (connectionState.cap.lifecycle == CapLifecycle.NEGOTIATING) {
+            println("got MOTD end before CAP end, assuming CAP negotiation failed")
+            connectionState.cap.lifecycle = CapLifecycle.FAILED
+        }
 
         when(connectionState.lifecycle) {
             LifecycleState.CONNECTING, LifecycleState.REGISTERING -> {

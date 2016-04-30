@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren
 
 import engineer.carrot.warren.kale.IKale
+import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.warren.handler.*
@@ -30,6 +31,9 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
     }
 
     private fun registerHandlers() {
+        kale.register(CapLsHandler(state.connection.cap, sink))
+        kale.register(CapAckHandler(state.connection.cap, sink))
+        kale.register(CapNakHandler(state.connection.cap, sink))
         kale.register(JoinHandler(state.connection, state.channels))
         kale.register(KickHandler(state.connection, state.channels))
         kale.register(NickHandler(state.connection, state.channels))
@@ -46,6 +50,7 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
     }
 
     private fun sendRegistrationMessages() {
+        sink.write(CapLsMessage(caps = mapOf()))
         sink.write(NickMessage(nickname = state.connection.nickname))
         sink.write(UserMessage(username = state.connection.username, mode = "8", realname = state.connection.username))
 
