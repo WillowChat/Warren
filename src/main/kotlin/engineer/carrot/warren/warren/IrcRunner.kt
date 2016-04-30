@@ -42,7 +42,7 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
         kale.register(Rpl005Handler(state.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler))
         kale.register(Rpl332Handler(state.channels))
         kale.register(Rpl353Handler(state.channels, state.parsing.userPrefixes))
-        kale.register(Rpl376Handler(sink, listOf("#carrot", "#botdev"), state.connection))
+        kale.register(Rpl376Handler(sink, mapOf("#carrot" to null), state.connection))
     }
 
     private fun sendRegistrationMessages() {
