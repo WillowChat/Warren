@@ -19,14 +19,19 @@ class PrivMsgHandler(val channelTypesState: ChannelTypesState) : IKaleHandler<Pr
             return
         }
 
+        var serverTime = ""
+        if (message.time != null) {
+            serverTime = "${message.time} "
+        }
+
         if (channelTypesState.types.any { char -> target.startsWith(char) }) {
             // Channel message
 
-            println("$target <${source.nick}> $messageContents")
+            println("$serverTime$target <${source.nick}> $messageContents")
         } else {
             // Private message
 
-            println("PM: <${source.nick}> $messageContents")
+            println("PM: $serverTime<${source.nick}> $messageContents")
         }
     }
 }
