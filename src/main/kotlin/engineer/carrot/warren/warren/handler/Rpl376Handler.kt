@@ -7,13 +7,31 @@ import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.LifecycleState
 
-class Rpl376Handler(val sink: IMessageSink, val channelsToJoin: List<String>, val connectionState: ConnectionState) : IKaleHandler<Rpl376Message> {
+class Rpl376Handler(val sink: IMessageSink, val channelsToJoin: Map<String, String?>, val connectionState: ConnectionState) : IKaleHandler<Rpl376Message> {
     override val messageType = Rpl376Message::class.java
 
     override fun handle(message: Rpl376Message) {
-        println("got end of MOTD, updating lifecycle to CONNECTED and joining channels")
+
+        when(connectionState.lifecycle) {
+            LifecycleState.CONNECTING, LifecycleState.REGISTERING -> {
+                println("got end of MOTD, updating lifecycle to CONNECTED and joining channels")
+                join(channelsToJoin, sink)
+            }
+
+            else -> println("got end of MOTD but we don't think we're connecting")
+        }
+
         connectionState.lifecycle = LifecycleState.CONNECTED
-        sink.write(JoinMessage(channels = channelsToJoin))
+    }
+
+    private fun join(channelsWithKeys: Map<String, String?>, sink: IMessageSink) {
+        for ((channel, key) in channelsWithKeys) {
+            if (key != null) {
+                sink.write(JoinMessage(channels = listOf(channel), keys = listOf(key)))
+            } else {
+                sink.write(JoinMessage(channels = listOf(channel)))
+            }
+        }
     }
 }
 

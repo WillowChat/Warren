@@ -5,6 +5,8 @@ import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl376Message
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.state.CapLifecycle
+import engineer.carrot.warren.warren.state.CapState
 import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.LifecycleState
 import org.junit.Before
@@ -18,16 +20,30 @@ class Rpl376HandlerTests {
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.CONNECTING
-        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState)
+        val capLifecycleState = CapLifecycle.NEGOTIATED
+        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
+        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState)
 
         mockSink = mock()
-        handler = Rpl376Handler(mockSink, channelsToJoin = listOf("#channel1", "#channel2"), connectionState = connectionState)
+        handler = Rpl376Handler(mockSink, channelsToJoin = mapOf("#channel1" to null, "#channel2" to "testkey"), connectionState = connectionState)
     }
 
-    @Test fun test_handle_SendsPongWithCorrectToken() {
+    @Test fun test_handle_JoinsChannelsAfterGettingMOTD_ConnectingState() {
+        connectionState.lifecycle = LifecycleState.CONNECTING
+
         handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"))
 
-        verify(mockSink).write(JoinMessage(channels = listOf("#channel1", "#channel2")))
+        verify(mockSink).write(JoinMessage(channels = listOf("#channel1")))
+        verify(mockSink).write(JoinMessage(channels = listOf("#channel2"), keys = listOf("testkey")))
+    }
+
+    @Test fun test_handle_JoinsChannelsAfterGettingMOTD_RegisteringState() {
+        connectionState.lifecycle = LifecycleState.REGISTERING
+
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"))
+
+        verify(mockSink).write(JoinMessage(channels = listOf("#channel1")))
+        verify(mockSink).write(JoinMessage(channels = listOf("#channel2"), keys = listOf("testkey")))
     }
 
     @Test fun test_handle_UpdatesLifecycleStateToConnected() {
