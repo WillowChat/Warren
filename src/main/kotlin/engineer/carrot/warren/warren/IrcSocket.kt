@@ -3,6 +3,7 @@ package engineer.carrot.warren.warren
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.irc.message.IIrcMessageSerialiser
 import engineer.carrot.warren.kale.irc.message.IMessage
+import engineer.carrot.warren.warren.ssl.WrappedSSLSocketFactory
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.Okio
@@ -17,8 +18,11 @@ class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialis
     lateinit var sink: BufferedSink
 
     fun setUp(): Boolean {
+        val socketFactory = WrappedSSLSocketFactory
+
         socket = try {
-            SSLSocketFactory.getDefault().createSocket(server, port)
+            val socket = socketFactory.createSocket(server, port)
+            socketFactory.disableDHEKeyExchange(socket)
         } catch (exception: Exception) {
             println("failed to connect using: $server:$port")
 
