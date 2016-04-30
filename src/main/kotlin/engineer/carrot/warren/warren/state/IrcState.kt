@@ -10,7 +10,7 @@ data class ChannelUserState(val nick: String, val modes: Set<Char> = setOf())
 
 data class ConnectionState(val server: String, val port: Int, var nickname: String, val username: String, var lifecycle: LifecycleState)
 
-enum class LifecycleState { CONNECTING, CONNECTED, DISCONNECTED }
+enum class LifecycleState { CONNECTING, REGISTERING, CONNECTED, DISCONNECTED }
 
 data class ParsingState(val userPrefixes: UserPrefixesState, val channelModes: ChannelModesState, val channelTypes: ChannelTypesState)
 

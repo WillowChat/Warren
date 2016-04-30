@@ -17,6 +17,8 @@ interface IIrcRunner {
 
 class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessageProcessor, val initialState: IrcState) : IIrcRunner {
 
+    @Volatile var lastStateSnapshot: IrcState? = null
+
     private lateinit var state: IrcState
 
     override fun run() {
@@ -46,6 +48,8 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
     private fun sendRegistrationMessages() {
         sink.write(NickMessage(nickname = state.connection.nickname))
         sink.write(UserMessage(username = state.connection.username, mode = "8", realname = state.connection.username))
+
+        state.connection.lifecycle = LifecycleState.REGISTERING
     }
 
     private fun processMessages() {
@@ -54,8 +58,11 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
 
             if (!processed) {
                 println("processing message returned false, bailing")
+                state.connection.lifecycle = LifecycleState.DISCONNECTED
                 return
             }
+
+            lastStateSnapshot = state.copy()
 
             if (state.connection.lifecycle == LifecycleState.DISCONNECTED) {
                 println("we disconnected, bailing")
