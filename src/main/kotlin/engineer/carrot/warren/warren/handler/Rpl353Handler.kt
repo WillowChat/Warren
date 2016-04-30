@@ -19,31 +19,41 @@ class Rpl353Handler(val channelsState: ChannelsState, val userPrefixesState: Use
         }
 
         for (name in names) {
-            val nick = trimPrefixes(name)
+            val (prefixes, nick) = trimPrefixes(name)
 
             if (nick.isEmpty()) {
                 println("nick was empty after trimming: ${name}")
                 continue
             }
 
-            channel.users += generateUser(nick)
+            var modes = setOf<Char>()
+            for (prefix in prefixes) {
+                val mode = userPrefixesState.prefixesToModes[prefix]
+                if (mode != null) {
+                    modes += mode
+                }
+            }
+
+            channel.users += generateUser(nick, modes)
         }
 
         println("channel state after 353: $channel")
     }
 
 
-    private fun trimPrefixes(rawNick: String): String {
+    private fun trimPrefixes(rawNick: String): Pair<Set<Char>, String> {
         var nick = rawNick
+        var prefixes = setOf<Char>()
 
         for (char in nick) {
             if (userPrefixesState.prefixesToModes.keys.contains(char)) {
+                prefixes += char
                 nick = nick.substring(1)
             } else {
-                return nick
+                return Pair(prefixes, nick)
             }
         }
 
-        return nick
+        return Pair(prefixes, nick)
     }
 }
