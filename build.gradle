@@ -67,7 +67,7 @@ test {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.12'
+    gradleVersion = '2.13'
 }
 
 version = version_major + '.' + version_minor + '.' + version_patch
