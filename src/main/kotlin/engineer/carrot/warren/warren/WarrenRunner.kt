@@ -6,10 +6,27 @@ import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {
     @JvmStatic fun main(args: Array<String>) {
+        val server = args[0]
+        val port = args[1].toInt()
+        val nickname = args[2]
+        val password = args.getOrNull(3)
+
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATING
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl", "account-notify", "away-notify", "extended-join", "account-tag"), server = mapOf(), accepted = setOf(), rejected = setOf())
-        val connectionState = ConnectionState(server = args[0], port = args[1].toInt(), nickname = args[2], username = args[2], lifecycle = lifecycleState, cap = capState)
+
+        var shouldAuth = false
+        var saslLifecycleState = SaslLifecycle.NO_AUTH
+        var saslCredentials: SaslCredentials? = null
+
+        if (password != null) {
+            shouldAuth = true
+            saslLifecycleState = SaslLifecycle.AUTHING
+            saslCredentials = SaslCredentials(account = nickname, password = password)
+        }
+
+        val saslState = SaslState(shouldAuth = shouldAuth, lifecycle = saslLifecycleState, credentials = saslCredentials)
+        val connectionState = ConnectionState(server = server, port = port, nickname = nickname, username = nickname, lifecycle = lifecycleState, cap = capState, sasl = saslState)
 
         val kale = Kale().addDefaultMessages()
         val serialiser = IrcMessageSerialiser

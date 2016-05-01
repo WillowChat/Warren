@@ -9,6 +9,10 @@ import engineer.carrot.warren.warren.handler.Rpl005.Rpl005ChanModesHandler
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005ChanTypesHandler
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005Handler
 import engineer.carrot.warren.warren.handler.Rpl005.Rpl005PrefixHandler
+import engineer.carrot.warren.warren.handler.sasl.AuthenticateHandler
+import engineer.carrot.warren.warren.handler.sasl.Rpl903Handler
+import engineer.carrot.warren.warren.handler.sasl.Rpl904Handler
+import engineer.carrot.warren.warren.handler.sasl.Rpl905Handler
 import engineer.carrot.warren.warren.state.IrcState
 import engineer.carrot.warren.warren.state.LifecycleState
 
@@ -31,9 +35,13 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
     }
 
     private fun registerHandlers() {
-        kale.register(CapLsHandler(state.connection.cap, sink))
-        kale.register(CapAckHandler(state.connection.cap, sink))
-        kale.register(CapNakHandler(state.connection.cap, sink))
+        kale.register(AuthenticateHandler(state.connection.sasl, sink))
+        kale.register(Rpl903Handler(state.connection.cap, state.connection.sasl, sink))
+        kale.register(Rpl904Handler(state.connection.cap, state.connection.sasl, sink))
+        kale.register(Rpl905Handler(state.connection.cap, state.connection.sasl, sink))
+        kale.register(CapLsHandler(state.connection.cap, state.connection.sasl, sink))
+        kale.register(CapAckHandler(state.connection.cap, state.connection.sasl, sink))
+        kale.register(CapNakHandler(state.connection.cap, state.connection.sasl, sink))
         kale.register(JoinHandler(state.connection, state.channels))
         kale.register(KickHandler(state.connection, state.channels))
         kale.register(NickHandler(state.connection, state.channels))

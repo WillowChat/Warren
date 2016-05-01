@@ -17,28 +17,30 @@ import org.junit.Test
 class CapNakHandlerTests {
 
     lateinit var handler: CapNakHandler
-    lateinit var state: CapState
+    lateinit var capState: CapState
+    lateinit var saslState: SaslState
     lateinit var sink: IMessageSink
 
     @Before fun setUp() {
         val capLifecycleState = CapLifecycle.NEGOTIATING
-        state = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
+        capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
+        saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
         sink = mock()
 
-        handler = CapNakHandler(state, sink)
+        handler = CapNakHandler(capState, saslState, sink)
     }
 
     @Test fun test_handle_AddsNakedCapsToStateList() {
-        state.negotiate = setOf("cap1", "cap2", "cap3")
+        capState.negotiate = setOf("cap1", "cap2", "cap3")
 
         handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")))
 
-        assertEquals(setOf("cap1", "cap2"), state.rejected)
+        assertEquals(setOf("cap1", "cap2"), capState.rejected)
     }
 
     @Test fun test_handle_Negotiating_NoRemainingCaps_SendsCapEnd() {
-        state.lifecycle = CapLifecycle.NEGOTIATING
-        state.negotiate = setOf("cap1", "cap2")
+        capState.lifecycle = CapLifecycle.NEGOTIATING
+        capState.negotiate = setOf("cap1", "cap2")
 
         handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")))
 
@@ -46,8 +48,8 @@ class CapNakHandlerTests {
     }
 
     @Test fun test_handle_Negotiating_RemainingCaps_DoesNotSendCapEnd() {
-        state.lifecycle = CapLifecycle.NEGOTIATING
-        state.negotiate = setOf("cap1", "cap2", "cap3")
+        capState.lifecycle = CapLifecycle.NEGOTIATING
+        capState.negotiate = setOf("cap1", "cap2", "cap3")
 
         handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")))
 
@@ -55,8 +57,8 @@ class CapNakHandlerTests {
     }
 
     @Test fun test_handle_NotNegotiating_NoRemainingCaps_DoesNotSendCapEnd() {
-        state.lifecycle = CapLifecycle.NEGOTIATED
-        state.negotiate = setOf("cap1", "cap2")
+        capState.lifecycle = CapLifecycle.NEGOTIATED
+        capState.negotiate = setOf("cap1", "cap2")
 
         handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")))
 

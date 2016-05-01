@@ -17,14 +17,16 @@ class CapAckHandlerTests {
 
     lateinit var handler: CapAckHandler
     lateinit var state: CapState
+    lateinit var saslState: SaslState
     lateinit var sink: IMessageSink
 
     @Before fun setUp() {
         val capLifecycleState = CapLifecycle.NEGOTIATING
         state = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
+        saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
         sink = mock()
 
-        handler = CapAckHandler(state, sink)
+        handler = CapAckHandler(state, saslState, sink)
     }
 
     @Test fun test_handle_AddsAckedCapsToStateList() {

@@ -17,37 +17,39 @@ import org.junit.Test
 class CapLsHandlerTests {
 
     lateinit var handler: CapLsHandler
-    lateinit var state: CapState
+    lateinit var capState: CapState
+    lateinit var saslState: SaslState
     lateinit var sink: IMessageSink
 
     @Before fun setUp() {
         val capLifecycleState = CapLifecycle.NEGOTIATING
-        state = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
+        capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
+        saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
         sink = mock()
 
-        handler = CapLsHandler(state, sink)
+        handler = CapLsHandler(capState, saslState, sink)
     }
 
     @Test fun test_handle_AddsCapsToStateList() {
-        state.negotiate = setOf("cap1", "cap2", "cap3")
+        capState.negotiate = setOf("cap1", "cap2", "cap3")
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to "value")))
 
-        assertEquals(mapOf("cap1" to null, "cap2" to "value"), state.server)
+        assertEquals(mapOf("cap1" to null, "cap2" to "value"), capState.server)
     }
 
     @Test fun test_handle_Negotiating_ImplicitlyRejectsMissingCaps() {
-        state.lifecycle = CapLifecycle.NEGOTIATING
-        state.negotiate = setOf("cap1", "cap2", "cap3", "cap4")
+        capState.lifecycle = CapLifecycle.NEGOTIATING
+        capState.negotiate = setOf("cap1", "cap2", "cap3", "cap4")
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)))
 
-        assertEquals(setOf("cap3", "cap4"), state.rejected)
+        assertEquals(setOf("cap3", "cap4"), capState.rejected)
     }
 
     @Test fun test_handle_Negotiating_ImplicitlyRejectsMissingCaps_NoneLeft_SendsCapEnd() {
-        state.lifecycle = CapLifecycle.NEGOTIATING
-        state.negotiate = setOf("cap1", "cap2")
+        capState.lifecycle = CapLifecycle.NEGOTIATING
+        capState.negotiate = setOf("cap1", "cap2")
 
         handler.handle(CapLsMessage(caps = mapOf()))
 
@@ -55,8 +57,8 @@ class CapLsHandlerTests {
     }
 
     @Test fun test_handle_Negotiating_ImplicitlyRejectsMissingCaps_SomeLeft_DoesNotSendCapEnd() {
-        state.lifecycle = CapLifecycle.NEGOTIATING
-        state.negotiate = setOf("cap1", "cap2", "cap3")
+        capState.lifecycle = CapLifecycle.NEGOTIATING
+        capState.negotiate = setOf("cap1", "cap2", "cap3")
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)))
 
@@ -64,8 +66,8 @@ class CapLsHandlerTests {
     }
 
     @Test fun test_handle_Negotiating_SendsCapReqForSupportedCaps() {
-        state.lifecycle = CapLifecycle.NEGOTIATING
-        state.negotiate = setOf("cap1", "cap2")
+        capState.lifecycle = CapLifecycle.NEGOTIATING
+        capState.negotiate = setOf("cap1", "cap2")
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)))
 
@@ -74,8 +76,8 @@ class CapLsHandlerTests {
     }
 
     @Test fun test_handle_Negotiating_MultilineLs_DoesNothingElse() {
-        state.lifecycle = CapLifecycle.NEGOTIATING
-        state.negotiate = setOf("cap1", "cap2")
+        capState.lifecycle = CapLifecycle.NEGOTIATING
+        capState.negotiate = setOf("cap1", "cap2")
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null), isMultiline = true))
 
@@ -83,8 +85,8 @@ class CapLsHandlerTests {
     }
 
     @Test fun test_handle_NotNegotiating_DoesNothingElse() {
-        state.lifecycle = CapLifecycle.NEGOTIATED
-        state.negotiate = setOf("cap1", "cap2")
+        capState.lifecycle = CapLifecycle.NEGOTIATED
+        capState.negotiate = setOf("cap1", "cap2")
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)))
 

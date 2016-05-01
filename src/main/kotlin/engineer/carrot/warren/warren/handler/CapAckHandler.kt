@@ -1,37 +1,39 @@
 package engineer.carrot.warren.warren.handler
 
 import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.ircv3.CapEndMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapAckMessage
+import engineer.carrot.warren.kale.irc.message.ircv3.sasl.AuthenticateMessage
 import engineer.carrot.warren.warren.IMessageSink
-import engineer.carrot.warren.warren.state.CapLifecycle
-import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.ConnectionState
+import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
+import engineer.carrot.warren.warren.state.*
 
-class CapAckHandler(val state: CapState, val sink: IMessageSink) : IKaleHandler<CapAckMessage> {
+class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<CapAckMessage> {
     override val messageType = CapAckMessage::class.java
 
     override fun handle(message: CapAckMessage) {
         val caps = message.caps
-        val lifecycle = state.lifecycle
+        val lifecycle = capState.lifecycle
 
         println("server ACKed following caps: $caps")
 
-        state.accepted += caps
+        capState.accepted += caps
+
+        if (caps.contains("sasl") && saslState.shouldAuth) {
+            println("server acked sasl - starting authentication for user: ${saslState.credentials?.account}")
+
+            saslState.lifecycle = SaslLifecycle.AUTHING
+
+            sink.write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
+        }
 
         when(lifecycle) {
             CapLifecycle.NEGOTIATING -> {
                 println("server ACKed some caps, checked if it's the last reply")
 
-                val remainingCaps = state.negotiate.subtract(state.accepted).subtract(state.rejected)
-                println("remaining caps to negotiate: $remainingCaps")
-
-                if (remainingCaps.isEmpty()) {
-                    state.lifecycle = CapLifecycle.NEGOTIATED
-
-                    println("no more remaining caps, ending cap negotiation with state: $state")
-
-                    sink.write(CapEndMessage())
+                if (RegistrationHelper.shouldEndCapNegotiation(saslState, capState)) {
+                    RegistrationHelper.endCapNegotiation(sink, capState)
+                } else {
+                    println("didn't think we should end the registration process, waiting")
                 }
             }
 

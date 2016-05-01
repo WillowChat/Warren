@@ -5,10 +5,7 @@ import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl376Message
 import engineer.carrot.warren.warren.IMessageSink
-import engineer.carrot.warren.warren.state.CapLifecycle
-import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.ConnectionState
-import engineer.carrot.warren.warren.state.LifecycleState
+import engineer.carrot.warren.warren.state.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.assertEquals
@@ -22,7 +19,8 @@ class Rpl376HandlerTests {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATED
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
-        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState)
+        val saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
+        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState, sasl = saslState)
 
         mockSink = mock()
         handler = Rpl376Handler(mockSink, channelsToJoin = mapOf("#channel1" to null, "#channel2" to "testkey"), connectionState = connectionState)
