@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren.handler.Rpl005
 
-import com.google.common.base.Splitter
+import engineer.carrot.warren.kale.irc.CharacterCodes
 import engineer.carrot.warren.warren.state.ChannelModesState
 
 interface IRpl005ChanModesHandler {
@@ -21,7 +21,7 @@ object Rpl005ChanModesHandler : IRpl005ChanModesHandler {
             return false
         }
 
-        val modeValues = Splitter.on(',').split(value).toList()
+        val modeValues = value.split(delimiters = CharacterCodes.COMMA)
         if (modeValues.size < 4) {
             println("CHANMODES has less than 4 types, bailing")
             return false

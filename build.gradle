@@ -37,7 +37,6 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.google.guava', name: 'guava', version: '19.0'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     compile group: 'engineer.carrot.warren.kale', name: 'Kale', version: '0.0.1.70'
     compile group: 'com.squareup.okio', name: 'okio', version: '1.7.0'
