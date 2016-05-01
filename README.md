@@ -4,9 +4,9 @@ Kotlin, unit tested, IRC v3.2 state management and observing.
 
 [Kale](https://github.com/CarrotCodes/Kale) is the parsing and serialising counterpart.
 
-## Why is this better than other IRC libraries?
+## Why is this better than other IRC frameworks?
 
-Warren and Kale have a few advantages over other IRC libraries:
+Warren and Kale have a few advantages over other IRC frameworks:
 
 * The responsibilities of parsing and state management are separated
 * Both parsing and state management are verified by hundreds of unit tests
