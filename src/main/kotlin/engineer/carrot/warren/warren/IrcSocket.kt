@@ -37,7 +37,7 @@ class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialis
         return true
     }
 
-    fun tearDown() {
+    override fun tearDown() {
         socket.close()
     }
 

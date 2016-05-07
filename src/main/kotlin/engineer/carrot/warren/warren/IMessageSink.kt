@@ -6,4 +6,6 @@ interface IMessageSink {
     fun <T : IMessage> write(message: T)
 
     fun setUp(): Boolean
+
+    fun tearDown()
 }
