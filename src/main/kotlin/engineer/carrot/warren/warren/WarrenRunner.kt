@@ -29,11 +29,6 @@ object WarrenRunner {
 
         val socket = IrcSocket(connectionState.server, connectionState.port, kale, serialiser)
 
-        if (!socket.setUp()) {
-            println("failed to set up irc socket for: ${connectionState}")
-            return null
-        }
-
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         val channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))

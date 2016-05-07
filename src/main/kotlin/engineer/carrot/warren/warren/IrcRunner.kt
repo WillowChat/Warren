@@ -30,6 +30,8 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
     override fun run() {
         state = initialState
 
+        sink.setUp()
+
         registerHandlers()
         sendRegistrationMessages()
         processMessages()

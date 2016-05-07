@@ -17,7 +17,7 @@ class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialis
     lateinit var source: BufferedSource
     lateinit var sink: BufferedSink
 
-    fun setUp(): Boolean {
+    override fun setUp(): Boolean {
         val socketFactory = WrappedSSLSocketFactory
 
         socket = try {
