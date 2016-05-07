@@ -1,4 +1,4 @@
-package engineer.carrot.warren.warren.handler.Rpl005
+package engineer.carrot.warren.warren.handler.rpl.Rpl005
 
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify

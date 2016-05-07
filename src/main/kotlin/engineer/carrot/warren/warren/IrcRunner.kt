@@ -5,10 +5,11 @@ import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.warren.handler.*
-import engineer.carrot.warren.warren.handler.Rpl005.Rpl005ChanModesHandler
-import engineer.carrot.warren.warren.handler.Rpl005.Rpl005ChanTypesHandler
-import engineer.carrot.warren.warren.handler.Rpl005.Rpl005Handler
-import engineer.carrot.warren.warren.handler.Rpl005.Rpl005PrefixHandler
+import engineer.carrot.warren.warren.handler.rpl.*
+import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005ChanModesHandler
+import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005ChanTypesHandler
+import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005Handler
+import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005PrefixHandler
 import engineer.carrot.warren.warren.handler.sasl.AuthenticateHandler
 import engineer.carrot.warren.warren.handler.sasl.Rpl903Handler
 import engineer.carrot.warren.warren.handler.sasl.Rpl904Handler
@@ -54,7 +55,11 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         kale.register(Rpl005Handler(state.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler))
         kale.register(Rpl332Handler(state.channels))
         kale.register(Rpl353Handler(state.channels, state.parsing.userPrefixes))
-        kale.register(Rpl376Handler(eventDispatcher, sink, mapOf("#carrot" to "butts", "#forgecraft" to null, "#imaginary" to null), state.connection))
+        kale.register(Rpl376Handler(eventDispatcher, sink, state.channels.joining.mapValues { entry -> entry.value.key }, state.connection))
+        kale.register(Rpl471Handler(state.channels))
+        kale.register(Rpl473Handler(state.channels))
+        kale.register(Rpl474Handler(state.channels))
+        kale.register(Rpl475Handler(state.channels))
     }
 
     private fun sendRegistrationMessages() {

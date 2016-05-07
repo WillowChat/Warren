@@ -1,4 +1,4 @@
-package engineer.carrot.warren.warren.handler
+package engineer.carrot.warren.warren.handler.rpl
 
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl353Message

@@ -1,4 +1,4 @@
-package engineer.carrot.warren.warren.handler.Rpl005
+package engineer.carrot.warren.warren.handler.rpl.Rpl005
 
 import engineer.carrot.warren.kale.irc.CharacterCodes
 import engineer.carrot.warren.warren.state.ChannelModesState

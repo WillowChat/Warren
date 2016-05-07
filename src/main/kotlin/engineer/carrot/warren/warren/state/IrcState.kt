@@ -2,7 +2,15 @@ package engineer.carrot.warren.warren.state
 
 data class IrcState(val connection: ConnectionState, val parsing: ParsingState, val channels: ChannelsState)
 
-data class ChannelsState(val joined: MutableMap<String, ChannelState>)
+data class ChannelsState(val joining: MutableMap<String, JoiningChannelState> = mutableMapOf(), val joined: MutableMap<String, ChannelState>)
+
+data class JoiningChannelState(val name: String, val key: String? = null, var status: JoiningChannelLifecycle) {
+    override fun toString(): String {
+        return "JoiningChannelState(name=$name, key=${if (key == null) { "null" } else { "***" }}, status=$status)"
+    }
+}
+
+enum class JoiningChannelLifecycle { JOINING, FAILED }
 
 data class ChannelState(val name: String, val users: MutableMap<String, ChannelUserState>, var topic: String? = null)
 

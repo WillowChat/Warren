@@ -24,6 +24,8 @@ class JoinHandlerTests {
     }
 
     @Test fun test_handle_SourceIsSelf_WellFormed_JoinsCorrectChannel() {
+        channelsState.joining["#channel"] = JoiningChannelState("#channel", status = JoiningChannelLifecycle.JOINING)
+
         handler.handle(JoinMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")))
 
         assertEquals(ChannelsState(joined = mutableMapOf("#channel" to ChannelState(name = "#channel", users = generateUsers()))), channelsState)

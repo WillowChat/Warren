@@ -8,7 +8,8 @@ import engineer.carrot.warren.kale.irc.message.IrcMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.warren.handler.*
-import engineer.carrot.warren.warren.handler.Rpl005.Rpl005Handler
+import engineer.carrot.warren.warren.handler.rpl.*
+import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005Handler
 import engineer.carrot.warren.warren.handler.sasl.AuthenticateHandler
 import engineer.carrot.warren.warren.handler.sasl.Rpl903Handler
 import engineer.carrot.warren.warren.handler.sasl.Rpl904Handler
@@ -40,7 +41,7 @@ class IrcRunnerTests {
         val channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState)
-        val channelsState = ChannelsState(joined = mutableMapOf())
+        val channelsState = ChannelsState(joining = mutableMapOf(), joined = mutableMapOf())
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
@@ -58,7 +59,7 @@ class IrcRunnerTests {
     @Test fun test_run_RegistersHandlers() {
         runner.run()
 
-        assertEquals(20, mockKale.spyRegisterHandlers.size)
+        assertEquals(24, mockKale.spyRegisterHandlers.size)
         assertTrue(mockKale.spyRegisterHandlers[0] is AuthenticateHandler)
         assertTrue(mockKale.spyRegisterHandlers[1] is Rpl903Handler)
         assertTrue(mockKale.spyRegisterHandlers[2] is Rpl904Handler)
@@ -79,6 +80,10 @@ class IrcRunnerTests {
         assertTrue(mockKale.spyRegisterHandlers[17] is Rpl332Handler)
         assertTrue(mockKale.spyRegisterHandlers[18] is Rpl353Handler)
         assertTrue(mockKale.spyRegisterHandlers[19] is Rpl376Handler)
+        assertTrue(mockKale.spyRegisterHandlers[20] is Rpl471Handler)
+        assertTrue(mockKale.spyRegisterHandlers[21] is Rpl473Handler)
+        assertTrue(mockKale.spyRegisterHandlers[22] is Rpl474Handler)
+        assertTrue(mockKale.spyRegisterHandlers[23] is Rpl475Handler)
     }
 
     @Test fun test_run_SendsRegistrationMessages() {

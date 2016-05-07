@@ -43,7 +43,8 @@ object WarrenRunner {
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState)
 
-        val channelsState = ChannelsState(joined = mutableMapOf())
+        val joiningState = mutableMapOf("#carrot" to JoiningChannelState("#carrot", status = JoiningChannelLifecycle.JOINING))
+        val channelsState = ChannelsState(joining = joiningState, joined = mutableMapOf())
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 

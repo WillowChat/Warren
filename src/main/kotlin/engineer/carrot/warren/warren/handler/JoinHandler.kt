@@ -31,6 +31,9 @@ class JoinHandler(val connectionState: ConnectionState, val channelsState: Chann
                 } else {
                     println("we're already in $channelName - not adding it again")
                 }
+
+                println("removing channel from joining state: $channelName")
+                channelsState.joining.remove(channelName)
             }
         } else {
             // Someone else joined a channel
