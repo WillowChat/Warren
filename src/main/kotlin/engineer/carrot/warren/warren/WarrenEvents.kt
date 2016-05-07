@@ -38,7 +38,7 @@ interface IWarrenEventDispatcher {
     fun <T: Any> fire(event: T)
 }
 
-object WarrenEventDispatcher: IWarrenEventDispatcher {
+class WarrenEventDispatcher: IWarrenEventDispatcher {
     val onAnythingListeners: IEventListenersWrapper<Any>
     val onChannelMessageListeners: IEventListenersWrapper<ChannelMessageEvent>
     val onPrivateMessageListeners: IEventListenersWrapper<PrivateMessageEvent>
@@ -73,27 +73,29 @@ object WarrenEventDispatcher: IWarrenEventDispatcher {
         listenersWrapper?.fireToAll(event)
     }
 
-    @JvmStatic fun main(args: Array<String>) {
-        val eventDispatcher = WarrenEventDispatcher
+    companion object Runner {
+        @JvmStatic fun main(args: Array<String>) {
+            val eventDispatcher = WarrenEventDispatcher()
 
-        eventDispatcher.onAnythingListeners += {
-            println("anything listener: $it")
+            eventDispatcher.onAnythingListeners += {
+                println("anything listener: $it")
+            }
+
+            eventDispatcher.onChannelMessageListeners += {
+                println("channel message listener 1: $it")
+            }
+
+            eventDispatcher.onChannelMessageListeners += {
+                println("channel message listener 2: $it")
+            }
+
+            eventDispatcher.onPrivateMessageListeners += {
+                println("private message listener 1: $it")
+            }
+
+            eventDispatcher.fire(ChannelMessageEvent(user = Prefix(nick = "someone"), channel = "#channel", message = "something"))
+            eventDispatcher.fire(PrivateMessageEvent(user = Prefix(nick = "someone"), message = "something"))
+            eventDispatcher.fire(ConnectionLifecycleEvent(lifecycle = LifecycleState.CONNECTED))
         }
-
-        eventDispatcher.onChannelMessageListeners += {
-            println("channel message listener 1: $it")
-        }
-
-        eventDispatcher.onChannelMessageListeners += {
-            println("channel message listener 2: $it")
-        }
-
-        eventDispatcher.onPrivateMessageListeners += {
-            println("private message listener 1: $it")
-        }
-
-        eventDispatcher.fire(ChannelMessageEvent(user = Prefix(nick = "someone"), channel = "#channel", message = "something"))
-        eventDispatcher.fire(PrivateMessageEvent(user = Prefix(nick = "someone"), message = "something"))
-        eventDispatcher.fire(ConnectionLifecycleEvent(lifecycle = LifecycleState.CONNECTED))
     }
 }

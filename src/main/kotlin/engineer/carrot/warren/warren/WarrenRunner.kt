@@ -6,7 +6,7 @@ import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {
 
-    fun createRunner(server: String, port: Int, nickname: String, password: String?, channels: Map<String, String?>): IrcRunner? {
+    fun createRunner(server: String, port: Int, nickname: String, password: String?, channels: Map<String, String?>, eventDispatcher: IWarrenEventDispatcher): IrcRunner? {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATING
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl", "account-notify", "away-notify", "extended-join", "account-tag"), server = mapOf(), accepted = setOf(), rejected = setOf())
@@ -48,11 +48,6 @@ object WarrenRunner {
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
-        val eventDispatcher = WarrenEventDispatcher
-        eventDispatcher.onAnythingListeners += {
-            println("event: $it")
-        }
-
         return IrcRunner(eventDispatcher = eventDispatcher, kale = kale, sink = socket, processor = socket, initialState = initialState)
     }
 
@@ -62,7 +57,12 @@ object WarrenRunner {
         val nickname = args[2]
         val password = args.getOrNull(3)
 
-        val connection = createRunner(server, port, nickname, password, mapOf("#carrot" to null))
+        val eventDispatcher = WarrenEventDispatcher()
+        eventDispatcher.onAnythingListeners += {
+            println("event: $it")
+        }
+
+        val connection = createRunner(server, port, nickname, password, mapOf("#carrot" to null), eventDispatcher)
         connection?.run()
     }
 }
