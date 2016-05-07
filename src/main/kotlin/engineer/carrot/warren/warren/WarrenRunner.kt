@@ -5,12 +5,8 @@ import engineer.carrot.warren.kale.irc.message.IrcMessageSerialiser
 import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {
-    @JvmStatic fun main(args: Array<String>) {
-        val server = args[0]
-        val port = args[1].toInt()
-        val nickname = args[2]
-        val password = args.getOrNull(3)
 
+    fun createRunner(server: String, port: Int, nickname: String, password: String?, channels: Map<String, String?>): IrcRunner? {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATING
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl", "account-notify", "away-notify", "extended-join", "account-tag"), server = mapOf(), accepted = setOf(), rejected = setOf())
@@ -35,7 +31,7 @@ object WarrenRunner {
 
         if (!socket.setUp()) {
             println("failed to set up irc socket for: ${connectionState}")
-            return
+            return null
         }
 
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
@@ -43,7 +39,11 @@ object WarrenRunner {
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState)
 
-        val joiningState = mutableMapOf("#carrot" to JoiningChannelState("#carrot", status = JoiningChannelLifecycle.JOINING))
+        val joiningState = mutableMapOf<String, JoiningChannelState>()
+        for (channel in channels) {
+            joiningState += (channel.key to JoiningChannelState(channel.key, channel.value, status = JoiningChannelLifecycle.JOINING))
+        }
+
         val channelsState = ChannelsState(joining = joiningState, joined = mutableMapOf())
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
@@ -53,9 +53,16 @@ object WarrenRunner {
             println("event: $it")
         }
 
-        val connection = IrcRunner(eventDispatcher = eventDispatcher, kale = kale, sink = socket, processor = socket, initialState = initialState)
-        connection.run()
+        return IrcRunner(eventDispatcher = eventDispatcher, kale = kale, sink = socket, processor = socket, initialState = initialState)
+    }
 
-        socket.tearDown()
+    @JvmStatic fun main(args: Array<String>) {
+        val server = args[0]
+        val port = args[1].toInt()
+        val nickname = args[2]
+        val password = args.getOrNull(3)
+
+        val connection = createRunner(server, port, nickname, password, mapOf("#carrot" to null))
+        connection?.run()
     }
 }
