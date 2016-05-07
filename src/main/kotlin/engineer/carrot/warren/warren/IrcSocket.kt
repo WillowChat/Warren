@@ -8,6 +8,7 @@ import okio.BufferedSink
 import okio.BufferedSource
 import okio.Okio
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.net.Socket
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLSocketFactory
@@ -45,6 +46,10 @@ class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialis
         val line = try {
             source.readUtf8LineStrict()
         } catch (exception: IOException) {
+            return false
+        } catch (exception: InterruptedIOException) {
+            println("process wait interrupted, bailing out")
+            tearDown()
             return false
         }
 
