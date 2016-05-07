@@ -24,6 +24,7 @@ class IrcRunnerTests {
     lateinit var runner: IIrcRunner
     lateinit var connectionState: ConnectionState
 
+    lateinit var mockEventDispatcher: IWarrenEventDispatcher
     lateinit var mockKale: MockKale
     lateinit var mockSink: IMessageSink
     lateinit var mockProcessor: IMessageProcessor
@@ -43,12 +44,13 @@ class IrcRunnerTests {
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
+        mockEventDispatcher = mock()
         mockKale = MockKale
 
         mockSink = mock()
         mockProcessor = mock()
 
-        runner = IrcRunner(mockKale, mockSink, mockProcessor, initialState)
+        runner = IrcRunner(mockEventDispatcher, mockKale, mockSink, mockProcessor, initialState)
 
         MockitoAnnotations.initMocks(this)
     }

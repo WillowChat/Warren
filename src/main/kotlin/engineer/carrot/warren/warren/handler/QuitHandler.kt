@@ -3,12 +3,14 @@ package engineer.carrot.warren.warren.handler
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.QuitMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.PongMessage
+import engineer.carrot.warren.warren.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.LifecycleState
 
-class QuitHandler(val connectionState: ConnectionState, val channelsState: ChannelsState) : IKaleHandler<QuitMessage> {
+class QuitHandler(val eventDispatcher: IWarrenEventDispatcher, val connectionState: ConnectionState, val channelsState: ChannelsState) : IKaleHandler<QuitMessage> {
     override val messageType = QuitMessage::class.java
 
     override fun handle(message: QuitMessage) {
@@ -24,6 +26,7 @@ class QuitHandler(val connectionState: ConnectionState, val channelsState: Chann
 
             println("we quit the server")
             connectionState.lifecycle = LifecycleState.DISCONNECTED
+            eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.DISCONNECTED))
         } else {
             // Someone else quit
 

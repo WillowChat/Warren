@@ -20,7 +20,7 @@ interface IIrcRunner {
     fun run()
 }
 
-class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessageProcessor, val initialState: IrcState) : IIrcRunner {
+class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, val sink: IMessageSink, val processor: IMessageProcessor, val initialState: IrcState) : IIrcRunner {
 
     @Volatile var lastStateSnapshot: IrcState? = null
 
@@ -48,13 +48,13 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
         kale.register(NoticeHandler(state.parsing.channelTypes))
         kale.register(PartHandler(state.connection, state.channels))
         kale.register(PingHandler(sink))
-        kale.register(PrivMsgHandler(state.parsing.channelTypes))
-        kale.register(QuitHandler(state.connection, state.channels))
+        kale.register(PrivMsgHandler(eventDispatcher, state.parsing.channelTypes))
+        kale.register(QuitHandler(eventDispatcher, state.connection, state.channels))
         kale.register(TopicHandler(state.channels))
         kale.register(Rpl005Handler(state.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler))
         kale.register(Rpl332Handler(state.channels))
         kale.register(Rpl353Handler(state.channels, state.parsing.userPrefixes))
-        kale.register(Rpl376Handler(sink, mapOf("#carrot" to null), state.connection))
+        kale.register(Rpl376Handler(eventDispatcher, sink, mapOf("#carrot" to "butts", "#forgecraft" to null, "#imaginary" to null), state.connection))
     }
 
     private fun sendRegistrationMessages() {
@@ -63,6 +63,7 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
         sink.write(UserMessage(username = state.connection.username, mode = "8", realname = state.connection.username))
 
         state.connection.lifecycle = LifecycleState.REGISTERING
+        eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.REGISTERING))
     }
 
     private fun processMessages() {
@@ -72,6 +73,7 @@ class IrcRunner(val kale: IKale, val sink: IMessageSink, val processor: IMessage
             if (!processed) {
                 println("processing message returned false, bailing")
                 state.connection.lifecycle = LifecycleState.DISCONNECTED
+                eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.DISCONNECTED))
                 return
             }
 

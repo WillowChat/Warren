@@ -47,7 +47,12 @@ object WarrenRunner {
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
-        val connection = IrcRunner(kale = kale, sink = socket, processor = socket, initialState = initialState)
+        val eventDispatcher = WarrenEventDispatcher
+        eventDispatcher.onAnythingListeners += {
+            println("event: $it")
+        }
+
+        val connection = IrcRunner(eventDispatcher = eventDispatcher, kale = kale, sink = socket, processor = socket, initialState = initialState)
         connection.run()
 
         socket.tearDown()
