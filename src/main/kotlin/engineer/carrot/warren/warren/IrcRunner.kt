@@ -1,8 +1,10 @@
 package engineer.carrot.warren.warren
 
 import engineer.carrot.warren.kale.IKale
+import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
+import engineer.carrot.warren.kale.irc.message.rfc1459.QuitMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
@@ -16,14 +18,100 @@ import engineer.carrot.warren.warren.handler.sasl.Rpl904Handler
 import engineer.carrot.warren.warren.handler.sasl.Rpl905Handler
 import engineer.carrot.warren.warren.state.IrcState
 import engineer.carrot.warren.warren.state.LifecycleState
+import java.io.IOException
+import java.io.InterruptedIOException
+import java.util.concurrent.LinkedBlockingQueue
+import kotlin.concurrent.fixedRateTimer
+import kotlin.concurrent.thread
 
 interface IIrcRunner {
     fun run()
 }
 
-class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, val sink: IMessageSink, val processor: IMessageProcessor, val initialState: IrcState) : IIrcRunner {
+interface IWarrenEvent {
+    fun execute()
+}
+
+interface IWarrenEventSink {
+    fun add(event: IWarrenEvent)
+}
+
+interface IWarrenEventSource {
+    fun grab(): IWarrenEvent?
+}
+
+interface IWarrenEventQueue: IWarrenEventSource, IWarrenEventSink {
+    fun clear()
+}
+
+class WarrenEventQueue: IWarrenEventQueue {
+    private val queue = LinkedBlockingQueue<IWarrenEvent>(100)
+
+    override fun add(event: IWarrenEvent) {
+        queue.add(event)
+    }
+
+    override fun grab(): IWarrenEvent? {
+        try {
+            return queue.take()
+        } catch (e: InterruptedException) {
+            return null
+        }
+    }
+
+    override fun clear() {
+        queue.clear()
+    }
+
+}
+
+class NewLineEvent(val line: String, val kale: IKale): IWarrenEvent {
+    override fun execute() {
+        kale.process(line)
+    }
+
+}
+
+class PrintSomethingEvent(val printableThing: String): IWarrenEvent {
+    override fun execute() {
+        println("printing thing: $printableThing")
+    }
+
+}
+
+class SendSomethingEvent(val message: IMessage, val sink: IMessageSink): IWarrenEvent {
+    override fun execute() {
+        sink.write(message)
+    }
+
+}
+
+interface IWarrenEventGenerator {
+    fun run()
+}
+
+class NewLineWarrenEventGenerator(val queue: IWarrenEventQueue, val kale: IKale, val lineSource: ILineSource): IWarrenEventGenerator {
+
+    override fun run() {
+        do {
+            val line = lineSource.nextLine()
+            if (line == null) {
+                println("got null line, bailing out")
+                return
+            } else {
+                println("added to queue: $line")
+                queue.add(NewLineEvent(line, kale))
+            }
+        } while(true)
+    }
+
+}
+
+class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, val sink: IMessageSink, val lineSource: ILineSource, val initialState: IrcState) : IIrcRunner {
 
     @Volatile var lastStateSnapshot: IrcState? = null
+    private var eventQueue = WarrenEventQueue()
+    var eventSink: IWarrenEventSink = eventQueue
 
     private lateinit var state: IrcState
 
@@ -34,7 +122,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
 
         registerHandlers()
         sendRegistrationMessages()
-        processMessages()
+        startEventQueue()
     }
 
     private fun registerHandlers() {
@@ -73,23 +161,60 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.REGISTERING))
     }
 
-    private fun processMessages() {
+    private fun startEventQueue() {
+        val lineThread = thread(start = false) {
+            NewLineWarrenEventGenerator(eventQueue, kale, lineSource).run()
+            println("new line generator ended")
+
+            eventQueue.clear()
+            eventQueue.add(event = object : IWarrenEvent {
+                override fun execute() {
+                    state.connection.lifecycle = LifecycleState.DISCONNECTED
+                }
+            })
+        }
+
+        lineThread.uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { thread, exception ->
+            print("uncaught exception in line generator, forcing a disconnect: $exception")
+
+            eventQueue.clear()
+            eventQueue.add(event = object : IWarrenEvent {
+                override fun execute() {
+                    state.connection.lifecycle = LifecycleState.DISCONNECTED
+                }
+            })
+        }
+
+        lineThread.start()
+
+        var shouldExit = false
+
         do {
-            val processed = processor.process()
+            val event = eventQueue.grab()
+            if (event == null) {
+                println("got null event, bailing")
+                shouldExit = true
+            } else {
+                event.execute()
 
-            if (!processed) {
-                println("processing message returned false, bailing")
-                state.connection.lifecycle = LifecycleState.DISCONNECTED
-                eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.DISCONNECTED))
-                return
+                lastStateSnapshot = state.copy()
+
+                if (state.connection.lifecycle == LifecycleState.DISCONNECTED) {
+                    eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.DISCONNECTED))
+                    println("we disconnected, bailing")
+                    shouldExit = true
+                }
             }
+        } while(!shouldExit)
 
-            lastStateSnapshot = state.copy()
+        if (lineThread.isAlive) {
+            println("line thread still alive - interrupting and waiting for 2 seconds")
+            lineThread.interrupt()
+            lineThread.join(2000)
+        } else {
+            println("line thread not active - not killing it")
+        }
 
-            if (state.connection.lifecycle == LifecycleState.DISCONNECTED) {
-                println("we disconnected, bailing")
-                return
-            }
-        } while (true)
+        println("ending")
     }
 }

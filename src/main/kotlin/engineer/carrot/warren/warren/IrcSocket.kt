@@ -13,7 +13,11 @@ import java.net.Socket
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLSocketFactory
 
-class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialiser: IIrcMessageSerialiser) : IMessageSink, IMessageProcessor {
+interface ILineSource {
+    fun nextLine(): String?
+}
+
+class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialiser: IIrcMessageSerialiser) : IMessageSink, ILineSource {
     lateinit var socket: Socket
     lateinit var source: BufferedSource
     lateinit var sink: BufferedSink
@@ -42,21 +46,21 @@ class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialis
         socket.close()
     }
 
-    override fun process(): Boolean {
+    override fun nextLine(): String? {
         val line = try {
             source.readUtf8LineStrict()
         } catch (exception: IOException) {
-            return false
+            println("exception waiting for line: $exception")
+            return null
         } catch (exception: InterruptedIOException) {
             println("process wait interrupted, bailing out")
             tearDown()
-            return false
+            return null
         }
 
         println(">> $line")
 
-        kale.process(line)
-        return true
+        return line
     }
 
     override fun <T : IMessage> write(message: T) {

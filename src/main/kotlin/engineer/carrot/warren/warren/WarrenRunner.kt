@@ -2,6 +2,8 @@ package engineer.carrot.warren.warren
 
 import engineer.carrot.warren.kale.Kale
 import engineer.carrot.warren.kale.irc.message.IrcMessageSerialiser
+import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
+import engineer.carrot.warren.kale.irc.message.rfc1459.QuitMessage
 import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {
@@ -43,7 +45,7 @@ object WarrenRunner {
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
-        return IrcRunner(eventDispatcher = eventDispatcher, kale = kale, sink = socket, processor = socket, initialState = initialState)
+        return IrcRunner(eventDispatcher = eventDispatcher, kale = kale, sink = socket, lineSource = socket, initialState = initialState)
     }
 
     @JvmStatic fun main(args: Array<String>) {
@@ -57,7 +59,16 @@ object WarrenRunner {
             println("event: $it")
         }
 
-        val connection = createRunner(server, port, nickname, password, mapOf("#carrot" to null), eventDispatcher)
+        val connection = createRunner(server, port, nickname, password, mapOf("#carrot" to null, "#botdev" to null, "#compsoc" to null), eventDispatcher)
+
+        eventDispatcher.onChannelMessageListeners += {
+            println("channel message: $it")
+
+            if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
+                connection?.eventSink?.add(SendSomethingEvent(PrivMsgMessage(target = it.channel, message = "🐰🎉"), connection.sink))
+            }
+        }
+
         connection?.run()
     }
 }
