@@ -17,7 +17,7 @@ interface ILineSource {
     fun nextLine(): String?
 }
 
-class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialiser: IIrcMessageSerialiser) : IMessageSink, ILineSource {
+class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialiser: IIrcMessageSerialiser, val trustEverything: Boolean) : IMessageSink, ILineSource {
     private val LOGGER = loggerFor<IrcSocket>()
 
     lateinit var socket: Socket
@@ -25,7 +25,7 @@ class IrcSocket(val server: String, val port: Int, val kale: IKale, val serialis
     lateinit var sink: BufferedSink
 
     override fun setUp(): Boolean {
-        val socketFactory = WrappedSSLSocketFactory
+        val socketFactory = WrappedSSLSocketFactory(trustEverything)
 
         socket = try {
             val socket = socketFactory.createSocket(server, port)

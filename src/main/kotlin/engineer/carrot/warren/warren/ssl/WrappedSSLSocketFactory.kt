@@ -1,18 +1,53 @@
 package engineer.carrot.warren.warren.ssl
 
+import engineer.carrot.warren.warren.loggerFor
 import javax.net.ssl.*
 import java.io.IOException
 import java.net.InetAddress
 import java.net.Socket
 import java.net.UnknownHostException
+import java.security.KeyManagementException
+import java.security.NoSuchAlgorithmException
+import java.security.SecureRandom
 import java.util.ArrayList
 
-object WrappedSSLSocketFactory : SSLSocketFactory() {
+class WrappedSSLSocketFactory(val trustEverything: Boolean = false) : SSLSocketFactory() {
+    val LOGGER = loggerFor<WrappedSSLSocketFactory>()
 
     private var factory: SSLSocketFactory
 
     init {
         this.factory = SSLSocketFactory.getDefault() as SSLSocketFactory
+
+        if (trustEverything) {
+            val customFactory = createDangerZoneSocketFactory()
+            if (customFactory != null) {
+                this.factory = customFactory
+            }
+        }
+    }
+
+    private fun createDangerZoneSocketFactory(): SSLSocketFactory? {
+        val tm = arrayOf<TrustManager>(DangerZoneTrustAllX509TrustManager())
+
+        val context: SSLContext
+        try {
+            context = SSLContext.getInstance("TLS")
+        } catch (e: NoSuchAlgorithmException) {
+            LOGGER.error("failed to create custom danger zone SSL Context for CustomSSLSocketFactory: {}", e)
+
+            return null
+        }
+
+        try {
+            context.init(arrayOfNulls<KeyManager>(0), tm, SecureRandom())
+        } catch (e: KeyManagementException) {
+            LOGGER.error("failed to initialise danger zone custom SSL Context for CustomSSLSocketFactory: {}", e)
+
+            return null
+        }
+
+        return context.socketFactory
     }
 
     fun disableDHEKeyExchange(socket: Socket): SSLSocket {
