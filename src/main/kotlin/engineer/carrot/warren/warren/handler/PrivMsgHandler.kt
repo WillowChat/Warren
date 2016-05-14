@@ -7,6 +7,8 @@ import engineer.carrot.warren.warren.*
 import engineer.carrot.warren.warren.state.ChannelTypesState
 
 class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesState: ChannelTypesState) : IKaleHandler<PrivMsgMessage> {
+    private val LOGGER = loggerFor<PrivMsgHandler>()
+
     override val messageType = PrivMsgMessage::class.java
 
     override fun handle(message: PrivMsgMessage) {
@@ -15,7 +17,7 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
         var messageContents = message.message
 
         if (source == null) {
-            println("got a PrivMsg but the source was missing - bailing: $message")
+            LOGGER.warn("got a PrivMsg but the source was missing - bailing: $message")
             return
         }
 
@@ -31,7 +33,7 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
             messageContents = CtcpHelper.trimCTCP(messageContents)
 
             if (ctcp === CtcpEnum.UNKNOWN) {
-                print("dropping unknown CTCP message: $target $messageContents")
+                LOGGER.warn("dropping unknown CTCP message: $target $messageContents")
                 return
             }
         }
@@ -43,13 +45,13 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
                 CtcpEnum.NONE -> {
                     eventDispatcher.fire(ChannelMessageEvent(user = source, channel = target, message = messageContents))
 
-                    println("$serverTime$target <${source.nick}> $messageContents")
+                    LOGGER.debug("$serverTime$target <${source.nick}> $messageContents")
                 }
 
                 CtcpEnum.ACTION -> {
                     eventDispatcher.fire(ChannelActionEvent(user = source, channel = target, message = messageContents))
 
-                    println("$serverTime$target ${source.nick} * $messageContents")
+                    LOGGER.debug("$serverTime$target ${source.nick} * $messageContents")
                 }
 
                 else -> Unit
@@ -61,13 +63,13 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
                 CtcpEnum.NONE -> {
                     eventDispatcher.fire(PrivateMessageEvent(user = source, message = messageContents))
 
-                    println("PM: $serverTime <${source.nick}> $messageContents")
+                    LOGGER.debug("PM: $serverTime <${source.nick}> $messageContents")
                 }
 
                 CtcpEnum.ACTION -> {
                     eventDispatcher.fire(PrivateActionEvent(user = source, message = messageContents))
 
-                    println("PM: $serverTime ${source.nick} * $messageContents")
+                    LOGGER.debug("PM: $serverTime ${source.nick} * $messageContents")
                 }
             }
         }

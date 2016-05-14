@@ -2,11 +2,14 @@ package engineer.carrot.warren.warren.handler.rpl
 
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl353Message
+import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.UserPrefixesState
 import engineer.carrot.warren.warren.state.generateUser
 
 class Rpl353Handler(val channelsState: ChannelsState, val userPrefixesState: UserPrefixesState) : IKaleHandler<Rpl353Message> {
+    private val LOGGER = loggerFor<Rpl353Handler>()
+
     override val messageType = Rpl353Message::class.java
 
     override fun handle(message: Rpl353Message) {
@@ -14,7 +17,7 @@ class Rpl353Handler(val channelsState: ChannelsState, val userPrefixesState: Use
 
         val channel = channelsState.joined[message.channel]
         if (channel == null) {
-            println("got a 353 for a channel we don't think we're in - bailing: ${message.channel}")
+            LOGGER.warn("got a 353 for a channel we don't think we're in - bailing: ${message.channel}")
             return
         }
 
@@ -22,7 +25,7 @@ class Rpl353Handler(val channelsState: ChannelsState, val userPrefixesState: Use
             val (prefixes, nick) = trimPrefixes(name)
 
             if (nick.isEmpty()) {
-                println("nick was empty after trimming: ${name}")
+                LOGGER.warn("nick was empty after trimming: ${name}")
                 continue
             }
 
@@ -37,7 +40,7 @@ class Rpl353Handler(val channelsState: ChannelsState, val userPrefixesState: Use
             channel.users += generateUser(nick, modes)
         }
 
-        println("channel state after 353: $channel")
+        LOGGER.trace("channel state after 353: $channel")
     }
 
 

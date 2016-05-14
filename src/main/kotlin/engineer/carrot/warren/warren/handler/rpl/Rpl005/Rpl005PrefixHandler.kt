@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.handler.rpl.Rpl005
 
 import engineer.carrot.warren.kale.irc.CharacterCodes
+import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.UserPrefixesState
 
 interface IRpl005PrefixHandler {
@@ -10,6 +11,7 @@ interface IRpl005PrefixHandler {
 }
 
 object Rpl005PrefixHandler : IRpl005PrefixHandler {
+    private val LOGGER = loggerFor<Rpl005PrefixHandler>()
 
     override fun handle(rawValue: String, state: UserPrefixesState): Boolean {
         // PREFIX: (ov)@+
@@ -17,7 +19,7 @@ object Rpl005PrefixHandler : IRpl005PrefixHandler {
         var value = rawValue
 
         if (value.getOrNull(0) != CharacterCodes.LEFT_BRACKET) {
-            println("no ( in value, bailing")
+            LOGGER.warn("no ( in value, bailing")
             return false
         }
 
@@ -25,7 +27,7 @@ object Rpl005PrefixHandler : IRpl005PrefixHandler {
 
         val rightBracketPosition = value.indexOf(CharacterCodes.RIGHT_BRACKET)
         if (rightBracketPosition <= 1 || value.endsWith(CharacterCodes.RIGHT_BRACKET)) {
-            println("missing or badly placed ) in value, bailing")
+            LOGGER.warn("missing or badly placed ) in value, bailing")
             return false
         }
 
@@ -36,7 +38,7 @@ object Rpl005PrefixHandler : IRpl005PrefixHandler {
         val prefixesLength = prefixes.length
 
         if (modesLength == 0 || prefixesLength == 0 || modesLength != prefixesLength) {
-            println("mistmatched or zero modes or prefixes, bailing")
+            LOGGER.warn("mistmatched or zero modes or prefixes, bailing")
             return false
         }
 
@@ -51,7 +53,7 @@ object Rpl005PrefixHandler : IRpl005PrefixHandler {
 
         state.prefixesToModes = prefixesToModes
 
-        println("handled 005 PREFIX: $state")
+        LOGGER.debug("handled 005 PREFIX: $state")
 
         return true
     }

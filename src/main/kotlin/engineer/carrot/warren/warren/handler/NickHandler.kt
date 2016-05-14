@@ -4,11 +4,14 @@ import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.PongMessage
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.generateUser
 
 class NickHandler(val connectionState: ConnectionState, val channelsState: ChannelsState) : IKaleHandler<NickMessage> {
+    private val LOGGER = loggerFor<NickHandler>()
+
     override val messageType = NickMessage::class.java
 
     override fun handle(message: NickMessage) {
@@ -16,7 +19,7 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Chann
         val to = message.nickname
 
         if (from == null) {
-            println("from nick was missing, not doing anything: $message")
+            LOGGER.warn("from nick was missing, not doing anything: $message")
             return
         }
 
@@ -33,6 +36,6 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Chann
             }
         }
 
-        println("someone changed nick - new states: $connectionState, $channelsState")
+        LOGGER.trace("someone changed nick - new states: $connectionState, $channelsState")
     }
 }

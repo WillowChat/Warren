@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.handler.rpl.Rpl005
 
 import engineer.carrot.warren.kale.irc.CharacterCodes
+import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ChannelModesState
 
 interface IRpl005ChanModesHandler {
@@ -10,6 +11,7 @@ interface IRpl005ChanModesHandler {
 }
 
 object Rpl005ChanModesHandler : IRpl005ChanModesHandler {
+    private val LOGGER = loggerFor<Rpl005ChanModesHandler>()
 
     override fun handle(rawValue: String, state: ChannelModesState): Boolean {
         // CHANMODES: eIb,k,l,imnpstSr
@@ -17,13 +19,13 @@ object Rpl005ChanModesHandler : IRpl005ChanModesHandler {
         var value = rawValue
 
         if (value.isNullOrEmpty()) {
-            println("CHANMODES value null or empty, bailing")
+            LOGGER.warn("CHANMODES value null or empty, bailing")
             return false
         }
 
         val modeValues = value.split(delimiters = CharacterCodes.COMMA)
         if (modeValues.size < 4) {
-            println("CHANMODES has less than 4 types, bailing")
+            LOGGER.warn("CHANMODES has less than 4 types, bailing")
             return false
         }
 
@@ -37,7 +39,7 @@ object Rpl005ChanModesHandler : IRpl005ChanModesHandler {
         state.typeC = typeC
         state.typeD = typeD
 
-        println("handled 005 CHANMODES: $state")
+        LOGGER.debug("handled 005 CHANMODES: $state")
 
         return true
     }

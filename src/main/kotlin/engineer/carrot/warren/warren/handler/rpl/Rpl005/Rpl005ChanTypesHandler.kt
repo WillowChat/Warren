@@ -1,5 +1,6 @@
 package engineer.carrot.warren.warren.handler.rpl.Rpl005
 
+import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ChannelTypesState
 
 interface IRpl005ChanTypesHandler {
@@ -9,6 +10,7 @@ interface IRpl005ChanTypesHandler {
 }
 
 object Rpl005ChanTypesHandler : IRpl005ChanTypesHandler {
+    private val LOGGER = loggerFor<Rpl005ChanTypesHandler>()
 
     override fun handle(rawValue: String, state: ChannelTypesState): Boolean {
         // CHANTYPES: &#
@@ -16,7 +18,7 @@ object Rpl005ChanTypesHandler : IRpl005ChanTypesHandler {
         var value = rawValue
 
         if (value.isNullOrEmpty()) {
-            println("CHANTYPES value null or empty, bailing")
+            LOGGER.warn("CHANTYPES value null or empty, bailing")
             return false
         }
 
@@ -28,7 +30,7 @@ object Rpl005ChanTypesHandler : IRpl005ChanTypesHandler {
 
         state.types = types
 
-        println("handled 005 CHANTYPES: $state")
+        LOGGER.debug("handled 005 CHANTYPES: $state")
 
         return true
     }

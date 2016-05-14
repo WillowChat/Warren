@@ -2,9 +2,12 @@ package engineer.carrot.warren.warren.handler
 
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
+import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.*
 
 class JoinHandler(val connectionState: ConnectionState, val channelsState: ChannelsState) : IKaleHandler<JoinMessage> {
+    private val LOGGER = loggerFor<JoinHandler>()
+
     override val messageType = JoinMessage::class.java
 
     override fun handle(message: JoinMessage) {
@@ -12,7 +15,7 @@ class JoinHandler(val connectionState: ConnectionState, val channelsState: Chann
         val source = message.source
 
         if (source == null) {
-            println("got a JOIN but the source was null - not doing anything with it")
+            LOGGER.trace("got a JOIN but the source was null - not doing anything with it")
             return
         }
 
@@ -21,18 +24,18 @@ class JoinHandler(val connectionState: ConnectionState, val channelsState: Chann
         if (nick == connectionState.nickname) {
             // Us joining a channel
 
-            println("we joined channels: ${message.channels}")
+            LOGGER.debug("we joined channels: ${message.channels}")
 
             for (channelName in channelNames) {
                 if (!channelsState.joined.containsKey(channelName)) {
-                    println("adding $channelName to joined channels with 0 users")
+                    LOGGER.trace("adding $channelName to joined channels with 0 users")
 
                     channelsState.joined[channelName] = ChannelState(channelName, users = generateUsers())
                 } else {
-                    println("we're already in $channelName - not adding it again")
+                    LOGGER.trace("we're already in $channelName - not adding it again")
                 }
 
-                println("removing channel from joining state: $channelName")
+                LOGGER.trace("removing channel from joining state: $channelName")
                 channelsState.joining.remove(channelName)
             }
         } else {
@@ -43,9 +46,9 @@ class JoinHandler(val connectionState: ConnectionState, val channelsState: Chann
                 if (channelState != null) {
                     channelState.users += generateUser(nick)
 
-                    println("new channel state: ${channelState}")
+                    LOGGER.trace("new channel state: ${channelState}")
                 } else {
-                    println("we were given a JOIN for a channel we aren't in - not doing anything with it: $channelName")
+                    LOGGER.warn("we were given a JOIN for a channel we aren't in - not doing anything with it: $channelName")
                 }
             }
         }
