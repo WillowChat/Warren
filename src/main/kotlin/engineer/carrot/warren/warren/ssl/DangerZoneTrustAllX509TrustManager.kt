@@ -1,16 +1,12 @@
 package engineer.carrot.warren.warren.ssl
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
+import engineer.carrot.warren.warren.loggerFor
 import javax.net.ssl.X509TrustManager
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 
 internal class DangerZoneTrustAllX509TrustManager() : X509TrustManager {
-    private val LOGGER = LoggerFactory.getLogger(DangerZoneTrustAllX509TrustManager::class.java)
+    private val LOGGER = loggerFor<DangerZoneTrustAllX509TrustManager>()
 
     @Throws(CertificateException::class)
     override fun checkClientTrusted(x509Certificates: Array<X509Certificate>, s: String) {
