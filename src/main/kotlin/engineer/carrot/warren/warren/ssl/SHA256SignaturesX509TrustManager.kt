@@ -28,7 +28,7 @@ internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) :
 
         var allTrusted = true
 
-        LOGGER.info("Checking presented certificates against forcibly trusted: ")
+        LOGGER.warn("Checking presented certificates against forcibly trusted: ")
         for (certificate in x509Certificates) {
             certificate.checkValidity()
 
@@ -36,9 +36,9 @@ internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) :
 
             val sha256DigestString = String.format("%064x", BigInteger(1, sha256Digest.digest()));
             if (this.fingerprints.contains(sha256DigestString)) {
-                LOGGER.info(" {} IS trusted", sha256DigestString)
+                LOGGER.warn(" {} IS trusted", sha256DigestString)
             } else {
-                LOGGER.info(" {} IS NOT trusted", sha256DigestString)
+                LOGGER.warn(" {} IS NOT trusted", sha256DigestString)
                 allTrusted = false
             }
         }
@@ -46,7 +46,7 @@ internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) :
         if (!allTrusted) {
             throw CertificateException("Certificates were presented with SHA256 signatures that we DO NOT trust!")
         } else {
-            LOGGER.info("All presented certificates were forcibly trusted by us")
+            LOGGER.warn("All presented certificates were forcibly trusted by us")
         }
     }
 
