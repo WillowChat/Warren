@@ -19,7 +19,7 @@ internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) :
     @Throws(CertificateException::class)
     override fun checkServerTrusted(x509Certificates: Array<X509Certificate>, s: String) {
         var sha256Digest = try {
-            MessageDigest.getInstance("SHA256")
+            MessageDigest.getInstance("SHA-256")
         } catch (e: NoSuchAlgorithmException) {
             LOGGER.error("Couldn't get SHA256 instance: {}", e)
 
