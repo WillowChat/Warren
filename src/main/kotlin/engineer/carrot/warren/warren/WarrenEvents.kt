@@ -5,7 +5,9 @@ import engineer.carrot.warren.warren.state.LifecycleState
 import kotlin.reflect.KClass
 
 data class ChannelMessageEvent(val user: Prefix, val channel: String, val message: String)
+data class ChannelActionEvent(val user: Prefix, val channel: String, val message: String)
 data class PrivateMessageEvent(val user: Prefix, val message: String)
+data class PrivateActionEvent(val user: Prefix, val message: String)
 data class ConnectionLifecycleEvent(val lifecycle: LifecycleState)
 
 interface IEventListener<T> {
@@ -41,7 +43,9 @@ interface IWarrenEventDispatcher {
 class WarrenEventDispatcher: IWarrenEventDispatcher {
     val onAnythingListeners: IEventListenersWrapper<Any>
     val onChannelMessageListeners: IEventListenersWrapper<ChannelMessageEvent>
+    val onChannelActionListeners: IEventListenersWrapper<ChannelActionEvent>
     val onPrivateMessageListeners: IEventListenersWrapper<PrivateMessageEvent>
+    val onPrivateActionListeners: IEventListenersWrapper<PrivateActionEvent>
     val onConnectionLifecycleListeners: IEventListenersWrapper<ConnectionLifecycleEvent>
 
     private var eventToListenersMap = mutableMapOf<Class<*>, IEventListenersWrapper<*>>()
@@ -49,11 +53,15 @@ class WarrenEventDispatcher: IWarrenEventDispatcher {
     init {
         onAnythingListeners = EventListenersWrapper<Any>()
         onChannelMessageListeners = EventListenersWrapper<ChannelMessageEvent>()
+        onChannelActionListeners = EventListenersWrapper<ChannelActionEvent>()
         onPrivateMessageListeners = EventListenersWrapper<PrivateMessageEvent>()
+        onPrivateActionListeners = EventListenersWrapper<PrivateActionEvent>()
         onConnectionLifecycleListeners = EventListenersWrapper<ConnectionLifecycleEvent>()
 
         mapEventToListeners(ChannelMessageEvent::class, onChannelMessageListeners)
+        mapEventToListeners(ChannelActionEvent::class, onChannelActionListeners)
         mapEventToListeners(PrivateMessageEvent::class, onPrivateMessageListeners)
+        mapEventToListeners(PrivateActionEvent::class, onPrivateActionListeners)
         mapEventToListeners(ConnectionLifecycleEvent::class, onConnectionLifecycleListeners)
     }
 

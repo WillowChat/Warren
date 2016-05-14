@@ -3,10 +3,7 @@ package engineer.carrot.warren.warren.handler
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.PongMessage
-import engineer.carrot.warren.warren.ChannelMessageEvent
-import engineer.carrot.warren.warren.IMessageSink
-import engineer.carrot.warren.warren.IWarrenEventDispatcher
-import engineer.carrot.warren.warren.PrivateMessageEvent
+import engineer.carrot.warren.warren.*
 import engineer.carrot.warren.warren.state.ChannelTypesState
 
 class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesState: ChannelTypesState) : IKaleHandler<PrivMsgMessage> {
@@ -15,7 +12,7 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
     override fun handle(message: PrivMsgMessage) {
         val source = message.source
         val target = message.target
-        val messageContents = message.message
+        var messageContents = message.message
 
         if (source == null) {
             println("got a PrivMsg but the source was missing - bailing: $message")
@@ -27,18 +24,52 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
             serverTime = "${message.time} "
         }
 
+        var ctcp = CtcpEnum.NONE
+
+        if (CtcpHelper.isMessageCTCP(messageContents)) {
+            ctcp = CtcpEnum.from(messageContents)
+            messageContents = CtcpHelper.trimCTCP(messageContents)
+
+            if (ctcp === CtcpEnum.UNKNOWN) {
+                print("dropping unknown CTCP message: $target $messageContents")
+                return
+            }
+        }
+
         if (channelTypesState.types.any { char -> target.startsWith(char) }) {
             // Channel message
 
-            eventDispatcher.fire(ChannelMessageEvent(user = source, channel = target, message = messageContents))
+            when(ctcp) {
+                CtcpEnum.NONE -> {
+                    eventDispatcher.fire(ChannelMessageEvent(user = source, channel = target, message = messageContents))
 
-            println("$serverTime$target <${source.nick}> $messageContents")
+                    println("$serverTime$target <${source.nick}> $messageContents")
+                }
+
+                CtcpEnum.ACTION -> {
+                    eventDispatcher.fire(ChannelActionEvent(user = source, channel = target, message = messageContents))
+
+                    println("$serverTime$target ${source.nick} * $messageContents")
+                }
+
+                else -> Unit
+            }
         } else {
             // Private message
 
-            println("PM: $serverTime<${source.nick}> $messageContents")
+            when(ctcp) {
+                CtcpEnum.NONE -> {
+                    eventDispatcher.fire(PrivateMessageEvent(user = source, message = messageContents))
 
-            eventDispatcher.fire(PrivateMessageEvent(user = source, message = messageContents))
+                    println("PM: $serverTime <${source.nick}> $messageContents")
+                }
+
+                CtcpEnum.ACTION -> {
+                    eventDispatcher.fire(PrivateActionEvent(user = source, message = messageContents))
+
+                    println("PM: $serverTime ${source.nick} * $messageContents")
+                }
+            }
         }
     }
 }
