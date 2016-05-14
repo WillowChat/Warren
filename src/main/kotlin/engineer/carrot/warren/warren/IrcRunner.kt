@@ -215,6 +215,8 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
             println("line thread not active - not killing it")
         }
 
+        sink.tearDown()
+
         println("ending")
     }
 }
