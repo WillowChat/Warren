@@ -8,7 +8,7 @@ import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {
 
-    fun createRunner(server: String, port: Int, nickname: String, password: String?, channels: Map<String, String?>, eventDispatcher: IWarrenEventDispatcher, fireIncomingLineEvent: Boolean, trustEverything: Boolean): IrcRunner {
+    fun createRunner(server: String, port: Int, nickname: String, password: String?, channels: Map<String, String?>, eventDispatcher: IWarrenEventDispatcher, fireIncomingLineEvent: Boolean, fingerprints: Set<String>? = null): IrcRunner {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATING
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl", "account-notify", "away-notify", "extended-join", "account-tag"), server = mapOf(), accepted = setOf(), rejected = setOf())
@@ -29,7 +29,7 @@ object WarrenRunner {
         val kale = Kale().addDefaultMessages()
         val serialiser = IrcMessageSerialiser
 
-        val socket = IrcSocket(connectionState.server, connectionState.port, kale, serialiser, trustEverything)
+        val socket = IrcSocket(connectionState.server, connectionState.port, kale, serialiser, fingerprints)
 
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         val channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
@@ -59,7 +59,7 @@ object WarrenRunner {
             println("event: $it")
         }
 
-        val connection = createRunner(server, port, nickname, password, mapOf("#carrot" to null, "#botdev" to null, "#compsoc" to null), eventDispatcher, fireIncomingLineEvent = true, trustEverything = true)
+        val connection = createRunner(server, port, nickname, password, mapOf("#carrot" to null, "#botdev" to null, "#compsoc" to null), eventDispatcher, fireIncomingLineEvent = true)
 
         eventDispatcher.onChannelMessageListeners += {
             println("channel message: $it")

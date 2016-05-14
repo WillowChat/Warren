@@ -11,18 +11,29 @@ import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.util.ArrayList
 
-class WrappedSSLSocketFactory(val trustEverything: Boolean = false) : SSLSocketFactory() {
+class WrappedSSLSocketFactory(val fingerprints: Set<String>?) : SSLSocketFactory() {
     val LOGGER = loggerFor<WrappedSSLSocketFactory>()
 
     private var factory: SSLSocketFactory
 
     init {
-        this.factory = SSLSocketFactory.getDefault() as SSLSocketFactory
+        val defaultFactory = SSLSocketFactory.getDefault() as SSLSocketFactory
 
-        if (trustEverything) {
+        if (fingerprints == null) {
+            this.factory = defaultFactory
+        } else if (fingerprints.isEmpty()) {
             val customFactory = createDangerZoneSocketFactory()
             if (customFactory != null) {
                 this.factory = customFactory
+            } else {
+                this.factory = defaultFactory
+            }
+        } else {
+            val customFactory = createFingerprintsSocketFactory(fingerprints)
+            if (customFactory != null) {
+                this.factory = customFactory
+            } else {
+                this.factory = defaultFactory
             }
         }
     }
@@ -34,7 +45,7 @@ class WrappedSSLSocketFactory(val trustEverything: Boolean = false) : SSLSocketF
         try {
             context = SSLContext.getInstance("TLS")
         } catch (e: NoSuchAlgorithmException) {
-            LOGGER.error("failed to create custom danger zone SSL Context for CustomSSLSocketFactory: {}", e)
+            LOGGER.error("failed to create danger zone SSL Context for WrappedSSLSocketFactory: {}", e)
 
             return null
         }
@@ -42,7 +53,30 @@ class WrappedSSLSocketFactory(val trustEverything: Boolean = false) : SSLSocketF
         try {
             context.init(arrayOfNulls<KeyManager>(0), tm, SecureRandom())
         } catch (e: KeyManagementException) {
-            LOGGER.error("failed to initialise danger zone custom SSL Context for CustomSSLSocketFactory: {}", e)
+            LOGGER.error("failed to initialise danger zone custom SSL Context for WrappedSSLSocketFactory: {}", e)
+
+            return null
+        }
+
+        return context.socketFactory
+    }
+
+    private fun createFingerprintsSocketFactory(fingerprints: Set<String>): SSLSocketFactory? {
+        val tm = arrayOf<TrustManager>(SHA256SignaturesX509TrustManager(fingerprints))
+
+        val context: SSLContext
+        try {
+            context = SSLContext.getInstance("TLS")
+        } catch (e: NoSuchAlgorithmException) {
+            LOGGER.error("failed to create fingerprints SSL Context for WrappedSSLSocketFactory: {}", e)
+
+            return null
+        }
+
+        try {
+            context.init(arrayOfNulls<KeyManager>(0), tm, SecureRandom())
+        } catch (e: KeyManagementException) {
+            LOGGER.error("failed to initialise fingerprints custom SSL Context for WrappedSSLSocketFactory: {}", e)
 
             return null
         }
