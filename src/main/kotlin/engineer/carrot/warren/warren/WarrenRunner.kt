@@ -8,7 +8,7 @@ import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {
 
-    fun createRunner(server: String, port: Int, nickname: String, password: String?, channels: Map<String, String?>, eventDispatcher: IWarrenEventDispatcher): IrcRunner? {
+    fun createRunner(server: String, port: Int, nickname: String, password: String?, channels: Map<String, String?>, eventDispatcher: IWarrenEventDispatcher): IrcRunner {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATING
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl", "account-notify", "away-notify", "extended-join", "account-tag"), server = mapOf(), accepted = setOf(), rejected = setOf())
@@ -69,6 +69,6 @@ object WarrenRunner {
             }
         }
 
-        connection?.run()
+        connection.run()
     }
 }
