@@ -84,7 +84,7 @@ interface IWarrenEventGenerator {
     fun run()
 }
 
-class NewLineWarrenEventGenerator(val queue: IWarrenEventQueue, val kale: IKale, val lineSource: ILineSource): IWarrenEventGenerator {
+class NewLineWarrenEventGenerator(val queue: IWarrenEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?): IWarrenEventGenerator {
 
     private val LOGGER = loggerFor<NewLineWarrenEventGenerator>()
 
@@ -96,6 +96,11 @@ class NewLineWarrenEventGenerator(val queue: IWarrenEventQueue, val kale: IKale,
                 return
             } else {
                 LOGGER.trace("added to queue: $line")
+
+                if (fireIncomingLineEvent && warrenEventDispatcher != null) {
+                    warrenEventDispatcher.fire(RawIncomingLineEvent(line = line))
+                }
+
                 queue.add(NewLineEvent(line, kale))
             }
         } while(true)
@@ -103,7 +108,7 @@ class NewLineWarrenEventGenerator(val queue: IWarrenEventQueue, val kale: IKale,
 
 }
 
-class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, val sink: IMessageSink, val lineSource: ILineSource, val initialState: IrcState) : IIrcRunner {
+class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, val sink: IMessageSink, val lineSource: ILineSource, val initialState: IrcState, val fireIncomingLineEvent: Boolean) : IIrcRunner {
 
     private val LOGGER = loggerFor<IrcRunner>()
 
@@ -112,10 +117,6 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
     var eventSink: IWarrenEventSink = eventQueue
 
     private lateinit var state: IrcState
-
-    companion object api {
-
-    }
 
     override fun run() {
         state = initialState
@@ -165,7 +166,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
 
     private fun startEventQueue() {
         val lineThread = thread(start = false) {
-            NewLineWarrenEventGenerator(eventQueue, kale, lineSource).run()
+            NewLineWarrenEventGenerator(eventQueue, kale, lineSource, fireIncomingLineEvent, eventDispatcher).run()
             LOGGER.warn("new line generator ended")
 
             eventQueue.clear()

@@ -9,6 +9,7 @@ data class ChannelActionEvent(val user: Prefix, val channel: String, val message
 data class PrivateMessageEvent(val user: Prefix, val message: String)
 data class PrivateActionEvent(val user: Prefix, val message: String)
 data class ConnectionLifecycleEvent(val lifecycle: LifecycleState)
+data class RawIncomingLineEvent(val line: String)
 
 interface IEventListener<T> {
     fun on(event: T)
@@ -47,6 +48,7 @@ class WarrenEventDispatcher: IWarrenEventDispatcher {
     val onPrivateMessageListeners: IEventListenersWrapper<PrivateMessageEvent>
     val onPrivateActionListeners: IEventListenersWrapper<PrivateActionEvent>
     val onConnectionLifecycleListeners: IEventListenersWrapper<ConnectionLifecycleEvent>
+    val onRawLineListeners: IEventListenersWrapper<RawIncomingLineEvent>
 
     private var eventToListenersMap = mutableMapOf<Class<*>, IEventListenersWrapper<*>>()
 
@@ -57,12 +59,14 @@ class WarrenEventDispatcher: IWarrenEventDispatcher {
         onPrivateMessageListeners = EventListenersWrapper<PrivateMessageEvent>()
         onPrivateActionListeners = EventListenersWrapper<PrivateActionEvent>()
         onConnectionLifecycleListeners = EventListenersWrapper<ConnectionLifecycleEvent>()
+        onRawLineListeners = EventListenersWrapper<RawIncomingLineEvent>()
 
         mapEventToListeners(ChannelMessageEvent::class, onChannelMessageListeners)
         mapEventToListeners(ChannelActionEvent::class, onChannelActionListeners)
         mapEventToListeners(PrivateMessageEvent::class, onPrivateMessageListeners)
         mapEventToListeners(PrivateActionEvent::class, onPrivateActionListeners)
         mapEventToListeners(ConnectionLifecycleEvent::class, onConnectionLifecycleListeners)
+        mapEventToListeners(RawIncomingLineEvent::class, onRawLineListeners)
     }
 
     private fun <T : Any> mapEventToListeners(eventType: KClass<T>, listeners: IEventListenersWrapper<T>) {

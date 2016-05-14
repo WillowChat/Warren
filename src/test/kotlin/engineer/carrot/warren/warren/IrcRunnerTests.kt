@@ -51,7 +51,7 @@ class IrcRunnerTests {
         mockSink = mock()
         mockLineSource = mock()
 
-        runner = IrcRunner(mockEventDispatcher, mockKale, mockSink, mockLineSource, initialState)
+        runner = IrcRunner(mockEventDispatcher, mockKale, mockSink, mockLineSource, initialState, false)
 
         MockitoAnnotations.initMocks(this)
     }

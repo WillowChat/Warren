@@ -8,7 +8,7 @@ import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {
 
-    fun createRunner(server: String, port: Int, nickname: String, password: String?, channels: Map<String, String?>, eventDispatcher: IWarrenEventDispatcher): IrcRunner {
+    fun createRunner(server: String, port: Int, nickname: String, password: String?, channels: Map<String, String?>, eventDispatcher: IWarrenEventDispatcher, fireIncomingLineEvent: Boolean): IrcRunner {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATING
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl", "account-notify", "away-notify", "extended-join", "account-tag"), server = mapOf(), accepted = setOf(), rejected = setOf())
@@ -45,7 +45,7 @@ object WarrenRunner {
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
-        return IrcRunner(eventDispatcher = eventDispatcher, kale = kale, sink = socket, lineSource = socket, initialState = initialState)
+        return IrcRunner(eventDispatcher = eventDispatcher, kale = kale, sink = socket, lineSource = socket, initialState = initialState, fireIncomingLineEvent = fireIncomingLineEvent)
     }
 
     @JvmStatic fun main(args: Array<String>) {
@@ -59,13 +59,13 @@ object WarrenRunner {
             println("event: $it")
         }
 
-        val connection = createRunner(server, port, nickname, password, mapOf("#carrot" to null, "#botdev" to null, "#compsoc" to null), eventDispatcher)
+        val connection = createRunner(server, port, nickname, password, mapOf("#carrot" to null, "#botdev" to null, "#compsoc" to null), eventDispatcher, fireIncomingLineEvent = true)
 
         eventDispatcher.onChannelMessageListeners += {
             println("channel message: $it")
 
             if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
-                connection?.eventSink?.add(SendSomethingEvent(PrivMsgMessage(target = it.channel, message = "🐰🎉"), connection.sink))
+                connection.eventSink?.add(SendSomethingEvent(PrivMsgMessage(target = it.channel, message = "🐰🎉"), connection.sink))
             }
         }
 
