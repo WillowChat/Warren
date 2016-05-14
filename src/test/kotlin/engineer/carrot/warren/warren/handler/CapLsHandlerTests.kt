@@ -71,8 +71,7 @@ class CapLsHandlerTests {
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)))
 
-        verify(sink).write(CapReqMessage(caps = listOf("cap1")))
-        verify(sink).write(CapReqMessage(caps = listOf("cap2")))
+        verify(sink).write(CapReqMessage(caps = listOf("cap1", "cap2")))
     }
 
     @Test fun test_handle_Negotiating_MultilineLs_DoesNothingElse() {

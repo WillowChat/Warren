@@ -38,7 +38,7 @@ class CapLsHandler(val capState: CapState, val saslState: SaslState, val sink: I
                     } else if (!requestCaps.isEmpty()) {
                         LOGGER.trace("server gave us caps and ended with a non-multiline ls, requesting: $requestCaps, implicitly rejecting: $implicitlyRejectedCaps")
 
-                        requestCaps.forEach { cap -> sink.write(CapReqMessage(caps = listOf(cap))) }
+                        sink.write(CapReqMessage(caps = requestCaps.distinct()))
                     }
                 } else {
                     LOGGER.trace("server gave us a multiline cap ls, expecting more caps before ending")
