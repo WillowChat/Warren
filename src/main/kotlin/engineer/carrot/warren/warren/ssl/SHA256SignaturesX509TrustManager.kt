@@ -27,6 +27,8 @@ internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) :
         }
 
         var allTrusted = true
+        val trustedCertificates = mutableSetOf<String>()
+        val untrustedCertificates = mutableSetOf<String>()
 
         LOGGER.warn("Checking presented certificates against forcibly trusted: ")
         for (certificate in x509Certificates) {
@@ -37,14 +39,16 @@ internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) :
             val sha256DigestString = String.format("%064x", BigInteger(1, sha256Digest.digest()));
             if (this.fingerprints.contains(sha256DigestString)) {
                 LOGGER.warn(" {} IS trusted", sha256DigestString)
+                trustedCertificates.add(sha256DigestString)
             } else {
                 LOGGER.warn(" {} IS NOT trusted", sha256DigestString)
+                untrustedCertificates.add(sha256DigestString)
                 allTrusted = false
             }
         }
 
         if (!allTrusted) {
-            throw CertificateException("Certificates were presented with SHA256 signatures that we DO NOT trust!")
+            throw CertificateException("Certificates were presented with SHA256 signatures that we DO NOT trust! $untrustedCertificates")
         } else {
             LOGGER.warn("All presented certificates were forcibly trusted by us")
         }
