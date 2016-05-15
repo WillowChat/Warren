@@ -1,8 +1,5 @@
 package engineer.carrot.warren.warren
 
-import com.sun.deploy.resources.ResourceManager
-import com.sun.deploy.security.CertUtils
-import com.sun.deploy.security.CertificateHostnameVerifier
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.irc.message.IIrcMessageSerialiser
 import engineer.carrot.warren.kale.irc.message.IMessage
@@ -13,9 +10,7 @@ import okio.Okio
 import java.io.IOException
 import java.io.InterruptedIOException
 import java.net.Socket
-import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.*
 
 interface ILineSource {
     fun nextLine(): String?

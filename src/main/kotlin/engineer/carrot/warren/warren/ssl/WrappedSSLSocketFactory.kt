@@ -1,11 +1,11 @@
 package engineer.carrot.warren.warren.ssl
 
 import engineer.carrot.warren.warren.loggerFor
-import javax.net.ssl.*
 import java.security.KeyManagementException
 import java.security.KeyStore
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
+import javax.net.ssl.*
 
 class WrappedSSLSocketFactory(private val fingerprints: Set<String>?) {
     val LOGGER = loggerFor<WrappedSSLSocketFactory>()

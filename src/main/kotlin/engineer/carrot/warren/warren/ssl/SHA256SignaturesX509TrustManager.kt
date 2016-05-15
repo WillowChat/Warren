@@ -4,9 +4,9 @@ import engineer.carrot.warren.warren.loggerFor
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import javax.net.ssl.X509TrustManager
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
+import javax.net.ssl.X509TrustManager
 
 internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) : X509TrustManager {
     private val LOGGER = loggerFor<SHA256SignaturesX509TrustManager>()

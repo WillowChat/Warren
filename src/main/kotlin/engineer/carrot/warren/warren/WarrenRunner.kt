@@ -3,7 +3,6 @@ package engineer.carrot.warren.warren
 import engineer.carrot.warren.kale.Kale
 import engineer.carrot.warren.kale.irc.message.IrcMessageSerialiser
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.QuitMessage
 import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {

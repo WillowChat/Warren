@@ -1,14 +1,10 @@
 package engineer.carrot.warren.warren.handler.rpl
 
 import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl473Message
-import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ChannelsState
-import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.JoiningChannelLifecycle
-import engineer.carrot.warren.warren.state.LifecycleState
 
 class Rpl473Handler(val channelsState: ChannelsState) : IKaleHandler<Rpl473Message> {
     private val LOGGER = loggerFor<Rpl473Handler>()

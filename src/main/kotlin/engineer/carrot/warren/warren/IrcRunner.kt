@@ -4,7 +4,6 @@ import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.QuitMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
@@ -18,11 +17,7 @@ import engineer.carrot.warren.warren.handler.sasl.Rpl904Handler
 import engineer.carrot.warren.warren.handler.sasl.Rpl905Handler
 import engineer.carrot.warren.warren.state.IrcState
 import engineer.carrot.warren.warren.state.LifecycleState
-import org.slf4j.LoggerFactory
-import java.io.IOException
-import java.io.InterruptedIOException
 import java.util.concurrent.LinkedBlockingQueue
-import kotlin.concurrent.fixedRateTimer
 import kotlin.concurrent.thread
 
 interface IIrcRunner {

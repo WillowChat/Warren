@@ -1,9 +1,9 @@
 package engineer.carrot.warren.warren.ssl
 
 import engineer.carrot.warren.warren.loggerFor
-import javax.net.ssl.X509TrustManager
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
+import javax.net.ssl.X509TrustManager
 
 internal class DangerZoneTrustAllX509TrustManager() : X509TrustManager {
     private val LOGGER = loggerFor<DangerZoneTrustAllX509TrustManager>()
