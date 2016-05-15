@@ -50,6 +50,7 @@ connection.run()
  * 3.1 done - consider how to integrate tags like `account-tag` in to message parsing
  * Goal is full 3.1 and 3.2 compliance by default
 * NickServ identification (SASL only at the moment)
+* Modes are parsed and tracked but events are not fired for mode changes yet
 
 ## Code License
 The source code of this project is licensed under the terms of the ISC license, listed in the [LICENSE](LICENSE.md) file. A concise summary of the ISC license is available at [choosealicense.org](http://choosealicense.com/licenses/isc/).
