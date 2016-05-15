@@ -2,135 +2,84 @@ package engineer.carrot.warren.warren.ssl
 
 import engineer.carrot.warren.warren.loggerFor
 import javax.net.ssl.*
-import java.io.IOException
-import java.net.InetAddress
-import java.net.Socket
-import java.net.UnknownHostException
 import java.security.KeyManagementException
+import java.security.KeyStore
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
-import java.util.ArrayList
 
-class WrappedSSLSocketFactory(val fingerprints: Set<String>?) : SSLSocketFactory() {
+class WrappedSSLSocketFactory(private val fingerprints: Set<String>?) {
     val LOGGER = loggerFor<WrappedSSLSocketFactory>()
 
-    private var factory: SSLSocketFactory
-
-    init {
-        val defaultFactory = SSLSocketFactory.getDefault() as SSLSocketFactory
-
-        if (fingerprints == null) {
-            this.factory = defaultFactory
-        } else if (fingerprints.isEmpty()) {
-            val customFactory = createDangerZoneSocketFactory()
-            if (customFactory != null) {
-                this.factory = customFactory
-            } else {
-                this.factory = defaultFactory
-            }
-        } else {
-            val customFactory = createFingerprintsSocketFactory(fingerprints)
-            if (customFactory != null) {
-                this.factory = customFactory
-            } else {
-                this.factory = defaultFactory
-            }
-        }
-    }
-
-    private fun createDangerZoneSocketFactory(): SSLSocketFactory? {
+    private fun createDangerZoneSocketFactory(): SSLSocketFactory {
         val tm = arrayOf<TrustManager>(DangerZoneTrustAllX509TrustManager())
 
         val context: SSLContext
         try {
             context = SSLContext.getInstance("TLS")
         } catch (e: NoSuchAlgorithmException) {
-            LOGGER.error("failed to create danger zone SSL Context for WrappedSSLSocketFactory: {}", e)
-
-            return null
+            throw RuntimeException("failed to create danger zone SSL Context for WrappedSSLSocketFactory: {}", e)
         }
 
         try {
             context.init(arrayOfNulls<KeyManager>(0), tm, SecureRandom())
         } catch (e: KeyManagementException) {
-            LOGGER.error("failed to initialise danger zone custom SSL Context for WrappedSSLSocketFactory: {}", e)
-
-            return null
+            throw RuntimeException("failed to initialise danger zone custom SSL Context for WrappedSSLSocketFactory: {}", e)
         }
 
         return context.socketFactory
     }
 
-    private fun createFingerprintsSocketFactory(fingerprints: Set<String>): SSLSocketFactory? {
+    private fun createFingerprintsSocketFactory(fingerprints: Set<String>): SSLSocketFactory {
         val tm = arrayOf<TrustManager>(SHA256SignaturesX509TrustManager(fingerprints))
 
         val context: SSLContext
         try {
             context = SSLContext.getInstance("TLS")
         } catch (e: NoSuchAlgorithmException) {
-            LOGGER.error("failed to create fingerprints SSL Context for WrappedSSLSocketFactory: {}", e)
-
-            return null
+            throw RuntimeException("failed to create fingerprints SSL Context for WrappedSSLSocketFactory: {}", e)
         }
 
         try {
             context.init(arrayOfNulls<KeyManager>(0), tm, SecureRandom())
         } catch (e: KeyManagementException) {
-            LOGGER.error("failed to initialise fingerprints custom SSL Context for WrappedSSLSocketFactory: {}", e)
-
-            return null
+            throw RuntimeException("failed to initialise fingerprints custom SSL Context for WrappedSSLSocketFactory: {}", e)
         }
 
         return context.socketFactory
     }
 
-    fun disableDHEKeyExchange(socket: Socket): SSLSocket {
-        val sslSocket = socket as SSLSocket
+    fun createDefaultFactory(sslParameters: SSLParameters, context: SSLContext): SSLSocketFactory {
+        val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        val keyStore: KeyStore? = null
+        trustManagerFactory.init(keyStore)
 
-        val cipherSubset = ArrayList<String>()
-        for (cipherSuites in sslSocket.enabledCipherSuites) {
-            if (!cipherSuites.contains("_DHE_")) {
-                cipherSubset.add(cipherSuites)
-            }
+        context.init(arrayOfNulls<KeyManager>(0), trustManagerFactory.trustManagers, SecureRandom())
+
+        context.supportedSSLParameters.endpointIdentificationAlgorithm = sslParameters.endpointIdentificationAlgorithm
+        context.supportedSSLParameters.cipherSuites = sslParameters.cipherSuites
+        context.defaultSSLParameters.endpointIdentificationAlgorithm = sslParameters.endpointIdentificationAlgorithm
+        context.defaultSSLParameters.cipherSuites = sslParameters.cipherSuites
+
+        return context.socketFactory
+    }
+
+    fun createSocket(host: String, port: Int): SSLSocket {
+        val context = SSLContext.getInstance("TLS")
+        val sslParameters = SSLParameters()
+        sslParameters.cipherSuites = SSLContext.getDefault().defaultSSLParameters.cipherSuites.filterNot { it.contains("_DHE_") }.toTypedArray()
+
+        val factory: SSLSocketFactory = if (fingerprints == null) {
+            createDefaultFactory(sslParameters, context)
+        } else if (fingerprints.isEmpty()) {
+            createDangerZoneSocketFactory()
+        } else {
+            createFingerprintsSocketFactory(fingerprints)
         }
 
-        sslSocket.enabledCipherSuites = cipherSubset.toArray<String>(arrayOfNulls<String>(cipherSubset.size))
+        val socket = factory.createSocket(host, port) as SSLSocket
+        socket.sslParameters = sslParameters
 
-        return sslSocket
+        return socket
     }
 
-    // SSLSocketFactory
-
-    override fun getDefaultCipherSuites(): Array<String> {
-        return this.factory.defaultCipherSuites
-    }
-
-    override fun getSupportedCipherSuites(): Array<String> {
-        return this.factory.supportedCipherSuites
-    }
-
-    @Throws(IOException::class)
-    override fun createSocket(socket: Socket, host: String, port: Int, autoClose: Boolean): Socket {
-        return this.factory.createSocket(socket, host, port, autoClose)
-    }
-
-    @Throws(IOException::class, UnknownHostException::class)
-    override fun createSocket(host: String, port: Int): Socket {
-        return this.factory.createSocket(host, port)
-    }
-
-    @Throws(IOException::class, UnknownHostException::class)
-    override fun createSocket(host: String, port: Int, localAddress: InetAddress, localPort: Int): Socket {
-        return this.factory.createSocket(host, port, localAddress, localPort)
-    }
-
-    @Throws(IOException::class)
-    override fun createSocket(localAddress: InetAddress, localPort: Int): Socket {
-        return this.factory.createSocket(localAddress, localPort)
-    }
-
-    @Throws(IOException::class)
-    override fun createSocket(address: InetAddress, port: Int, localAddress: InetAddress, localPort: Int): Socket {
-        return this.factory.createSocket(address, port, localAddress, localPort)
-    }
 }
