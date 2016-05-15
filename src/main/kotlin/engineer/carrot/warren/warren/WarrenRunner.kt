@@ -58,7 +58,7 @@ object WarrenRunner {
             println("event: $it")
         }
 
-        val connection = createRunner(server, port, (port != 6667), nickname, password, mapOf("#botdev" to null), eventDispatcher)
+        val connection = createRunner(server, port, (port != 6667), nickname, password, mapOf("#botdev" to null), eventDispatcher, fireIncomingLineEvent = true)
 
         eventDispatcher.onChannelMessageListeners += {
             println("channel message: $it")
