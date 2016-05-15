@@ -19,6 +19,8 @@ Warren and Kale have a few advantages over other IRC frameworks:
 
 The project includes a simple [example runner](https://github.com/CarrotCodes/Warren/blob/develop/src/main/kotlin/engineer/carrot/warren/warren/WarrenRunner.kt) that prints out events as they happen, logs in using SASL and replies to me saying `rabbit party` in a channel.
 
+If you're interested in more complex usage, come talk to me on IRC: #carrot on [ImaginaryNet](http://imaginarynet.uk/)
+
 ```kotlin
 val eventDispatcher = WarrenEventDispatcher()
 eventDispatcher.onAnythingListeners += {
