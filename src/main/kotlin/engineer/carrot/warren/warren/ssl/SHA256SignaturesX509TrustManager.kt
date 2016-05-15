@@ -9,7 +9,7 @@ import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 
 internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) : X509TrustManager {
-    private val LOGGER = loggerFor<DangerZoneTrustAllX509TrustManager>()
+    private val LOGGER = loggerFor<SHA256SignaturesX509TrustManager>()
 
     @Throws(CertificateException::class)
     override fun checkClientTrusted(x509Certificates: Array<X509Certificate>, s: String) {
