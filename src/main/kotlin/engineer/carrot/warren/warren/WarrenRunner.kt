@@ -58,13 +58,13 @@ object WarrenRunner {
             println("event: $it")
         }
 
-        val connection = createRunner(server, port, (port != 6667), nickname, password, mapOf("#carrot" to null, "#botdev" to null, "#compsoc" to null), eventDispatcher, fireIncomingLineEvent = true)
+        val connection = createRunner(server, port, (port != 6667), nickname, password, mapOf("#botdev" to null), eventDispatcher)
 
         eventDispatcher.onChannelMessageListeners += {
             println("channel message: $it")
 
             if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
-                connection.eventSink?.add(SendSomethingEvent(PrivMsgMessage(target = it.channel, message = "🐰🎉"), connection.sink))
+                connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel, message = "🐰🎉"), connection.sink))
             }
         }
 
