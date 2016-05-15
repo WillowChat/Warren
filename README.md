@@ -15,6 +15,29 @@ Warren and Kale have a few advantages over other IRC frameworks:
 * Messages, and state handlers, are individually encapsulated
  * Dependencies are clear, and there are no enormous, unverifiable disaster zones
 
+## Example usage
+
+The project includes a simple [example runner](https://github.com/CarrotCodes/Warren/blob/develop/src/main/kotlin/engineer/carrot/warren/warren/WarrenRunner.kt) that prints out events as they happen, logs in using SASL and replies to me saying `rabbit party` in a channel.
+
+```kotlin
+val eventDispatcher = WarrenEventDispatcher()
+eventDispatcher.onAnythingListeners += {
+    println("event: $it")
+}
+
+val connection = createRunner(server, port, (port != 6667), nickname, password, mapOf("#botdev" to null), eventDispatcher, fireIncomingLineEvent = true)
+
+eventDispatcher.onChannelMessageListeners += {
+    println("channel message: $it")
+
+    if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
+        connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel, message = "🐰🎉"), connection.sink))
+    }
+}
+
+connection.run()
+```
+
 ## TODO
 
 * [RFC 1459](https://tools.ietf.org/html/rfc1459)
