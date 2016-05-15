@@ -4,6 +4,8 @@ Kotlin, unit tested, IRC v3.2 state management and observing.
 
 [Kale](https://github.com/CarrotCodes/Kale) is the parsing and serialising counterpart.
 
+[Thump](https://github.com/CarrotCodes/Thump) is the primary upstream project - a bridge that lets people chat between Minecraft and IRC whilst they play.
+
 ## Why is this better than other IRC frameworks?
 
 Warren and Kale have a few advantages over other IRC frameworks:
