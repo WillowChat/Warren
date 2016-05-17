@@ -10,7 +10,7 @@ object WarrenRunner {
     fun createRunner(server: String, port: Int, useTLS: Boolean, nickname: String, password: String?, channels: Map<String, String?>, eventDispatcher: IWarrenEventDispatcher, fireIncomingLineEvent: Boolean, fingerprints: Set<String>? = null): IrcRunner {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATING
-        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl", "account-notify", "away-notify", "extended-join", "account-tag"), server = mapOf(), accepted = setOf(), rejected = setOf())
+        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl", "account-notify", "extended-join"), server = mapOf(), accepted = setOf(), rejected = setOf())
 
         var shouldAuth = false
         var saslLifecycleState = SaslLifecycle.NO_AUTH
