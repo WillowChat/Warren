@@ -106,8 +106,6 @@ class IrcRunnerTests {
 //    }
 
     @Test fun test_modeTakesAParameter_TypeDAlwaysFalse() {
-        runner.run()
-
         channelModesState.typeD = setOf('x')
 
         assertFalse(runner.modeTakesAParameter(isAdding = true, token = 'x'))
@@ -115,8 +113,6 @@ class IrcRunnerTests {
     }
 
     @Test fun test_modeTakesAParameter_TypeABAlwaysTrue() {
-        runner.run()
-
         channelModesState.typeA = setOf('x')
         channelModesState.typeB = setOf('y')
 
@@ -127,8 +123,6 @@ class IrcRunnerTests {
     }
 
     @Test fun test_modeTakesAParameter_TypeCTrueIfAdding() {
-        runner.run()
-
         channelModesState.typeC = setOf('c')
 
         assertTrue(runner.modeTakesAParameter(isAdding = true, token = 'c'))
@@ -136,8 +130,6 @@ class IrcRunnerTests {
     }
 
     @Test fun test_modeTakesAParameter_PrefixRelated_ReturnsTrue() {
-        runner.run()
-
         userPrefixesState.prefixesToModes = mapOf('+' to 'v')
 
         assertTrue(runner.modeTakesAParameter(isAdding = true, token = 'v'))
@@ -145,8 +137,6 @@ class IrcRunnerTests {
     }
 
     @Test fun test_modeTakesAParameter_Unknown_NonPrefix_ReturnsFalse() {
-        runner.run()
-
         assertFalse(runner.modeTakesAParameter(isAdding = true, token = 'z'))
         assertFalse(runner.modeTakesAParameter(isAdding = false, token = 'z'))
     }

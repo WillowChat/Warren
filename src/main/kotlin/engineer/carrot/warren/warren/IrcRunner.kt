@@ -114,6 +114,10 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
 
     private lateinit var state: IrcState
 
+    init {
+        state = initialState
+    }
+
     override fun run() {
         state = initialState
 
