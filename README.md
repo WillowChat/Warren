@@ -45,12 +45,11 @@ connection.run()
 ## TODO
 
 * [RFC 1459](https://tools.ietf.org/html/rfc1459)
- * Essentials are done - last remaining thing is MODE tracking
+ * Case mapping
 * [IRC v3](http://ircv3.net/irc/)
- * 3.1 done - consider how to integrate tags like `account-tag` in to message parsing
+ * 3.1 base done
  * Goal is full 3.1 and 3.2 compliance by default
 * NickServ identification (SASL only at the moment)
-* Modes are parsed and tracked but events are not fired for mode changes yet
 
 ## Code License
 The source code of this project is licensed under the terms of the ISC license, listed in the [LICENSE](LICENSE.md) file. A concise summary of the ISC license is available at [choosealicense.org](http://choosealicense.com/licenses/isc/).
