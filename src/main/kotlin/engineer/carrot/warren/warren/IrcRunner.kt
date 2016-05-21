@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren
 
 import engineer.carrot.warren.kale.IKale
+import engineer.carrot.warren.kale.IKaleParsingStateDelegate
 import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
@@ -103,7 +104,7 @@ class NewLineWarrenEventGenerator(val queue: IWarrenEventQueue, val kale: IKale,
 
 }
 
-class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, val sink: IMessageSink, val lineSource: ILineSource, val initialState: IrcState, val fireIncomingLineEvent: Boolean) : IIrcRunner {
+class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, val sink: IMessageSink, val lineSource: ILineSource, val initialState: IrcState, val fireIncomingLineEvent: Boolean) : IIrcRunner, IKaleParsingStateDelegate {
 
     private val LOGGER = loggerFor<IrcRunner>()
 
@@ -117,6 +118,8 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         state = initialState
 
         sink.setUp()
+
+        kale.parsingStateDelegate = this
 
         registerHandlers()
         sendRegistrationMessages()
@@ -133,6 +136,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         kale.register(CapNakHandler(state.connection.cap, state.connection.sasl, sink))
         kale.register(JoinHandler(state.connection, state.channels))
         kale.register(KickHandler(state.connection, state.channels))
+        kale.register(ModeHandler(eventDispatcher, state.parsing.channelTypes))
         kale.register(NickHandler(state.connection, state.channels))
         kale.register(NoticeHandler(state.parsing.channelTypes))
         kale.register(PartHandler(state.connection, state.channels))
@@ -217,4 +221,25 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
 
         LOGGER.info("ending")
     }
+
+    // IKaleParsingStateDelegate
+
+    override fun modeTakesAParameter(isAdding: Boolean, token: Char): Boolean {
+        val parsingState = state.parsing.channelModes
+
+        if (parsingState.typeD.contains(token)) {
+            return false
+        }
+
+        if (parsingState.typeA.contains(token) || parsingState.typeB.contains(token)) {
+            return true
+        }
+
+        if (isAdding) {
+            return parsingState.typeC.contains(token)
+        }
+
+        return false
+    }
+
 }

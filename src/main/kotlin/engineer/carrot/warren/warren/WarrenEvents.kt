@@ -1,11 +1,14 @@
 package engineer.carrot.warren.warren
 
+import engineer.carrot.warren.kale.irc.message.rfc1459.ModeMessage
 import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.state.LifecycleState
 import kotlin.reflect.KClass
 
 data class ChannelMessageEvent(val user: Prefix, val channel: String, val message: String)
 data class ChannelActionEvent(val user: Prefix, val channel: String, val message: String)
+data class ChannelModeEvent(val user: Prefix?, val channel: String, val modifier: ModeMessage.ModeModifier)
+data class UserModeEvent(val user: String, val modifier: ModeMessage.ModeModifier)
 data class PrivateMessageEvent(val user: Prefix, val message: String)
 data class PrivateActionEvent(val user: Prefix, val message: String)
 data class ConnectionLifecycleEvent(val lifecycle: LifecycleState)
