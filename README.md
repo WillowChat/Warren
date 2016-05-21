@@ -25,14 +25,14 @@ If you're interested in more complex usage, come talk to me on IRC: #carrot on [
 
 ```kotlin
 val eventDispatcher = WarrenEventDispatcher()
-eventDispatcher.onAnythingListeners += {
-    println("event: $it")
+eventDispatcher.onAnything {
+    LOGGER.info("event: $it")
 }
 
 val connection = createRunner(server, port, (port != 6667), nickname, password, mapOf("#botdev" to null), eventDispatcher, fireIncomingLineEvent = true)
 
-eventDispatcher.onChannelMessageListeners += {
-    println("channel message: $it")
+eventDispatcher.on(ChannelMessageEvent::class) {
+    LOGGER.info("channel message: $it")
 
     if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
         connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel, message = "🐰🎉"), connection.sink))

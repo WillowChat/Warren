@@ -76,11 +76,11 @@ class SendSomethingEvent(val message: IMessage, val sink: IMessageSink) : IWarre
 
 }
 
-interface IWarrenEventGenerator {
+interface IWarrenInternalEventGenerator {
     fun run()
 }
 
-class NewLineWarrenEventGenerator(val queue: IWarrenInternalEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?) : IWarrenEventGenerator {
+class NewLineWarrenEventGenerator(val queue: IWarrenInternalEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?) : IWarrenInternalEventGenerator {
 
     private val LOGGER = loggerFor<NewLineWarrenEventGenerator>()
 
