@@ -66,6 +66,26 @@ class ModeHandlerTests {
         assertEquals(mutableSetOf<Char>(), channelsState.joined["#channel"]!!.users["someone"]!!.modes)
     }
 
+    @Test fun test_handle_ChannelModeChange_UserPrefixForNonExistentChannel_NothingHappens() {
+        channelsState.joined["#channel"] = ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
+
+        val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone")
+
+        handler.handle(ModeMessage(target = "#anotherchannel", modifiers = listOf(addVoiceModifier)))
+
+        assertEquals(mutableSetOf('o'), channelsState.joined["#channel"]!!.users["someone"]!!.modes)
+    }
+
+    @Test fun test_handle_ChannelModeChange_UserPrefixForNonExistentUser_NothingHappens() {
+        channelsState.joined["#channel"] = ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
+
+        val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone-else")
+
+        handler.handle(ModeMessage(target = "#channel", modifiers = listOf(addVoiceModifier)))
+
+        assertEquals(mutableSetOf('o'), channelsState.joined["#channel"]!!.users["someone"]!!.modes)
+    }
+
     @Test fun test_handle_UserModeChange_FiresEvents() {
         val firstExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'v', parameter = "someone")
         val secondExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'x')
