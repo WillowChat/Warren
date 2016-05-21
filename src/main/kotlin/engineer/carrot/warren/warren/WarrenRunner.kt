@@ -6,6 +6,7 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {
+    private val LOGGER = loggerFor<WarrenRunner>()
 
     fun createRunner(server: String, port: Int, useTLS: Boolean, nickname: String, password: String?, channels: Map<String, String?>, eventDispatcher: IWarrenEventDispatcher, fireIncomingLineEvent: Boolean, fingerprints: Set<String>? = null): IrcRunner {
         val lifecycleState = LifecycleState.CONNECTING
@@ -55,13 +56,13 @@ object WarrenRunner {
 
         val eventDispatcher = WarrenEventDispatcher()
         eventDispatcher.onAnythingListeners += {
-            println("event: $it")
+            LOGGER.info("event: $it")
         }
 
-        val connection = createRunner(server, port, (port != 6667), nickname, password, mapOf("#botdev" to null), eventDispatcher, fireIncomingLineEvent = true)
+        val connection = createRunner(server, port, (port != 6667), nickname, password, mapOf("#carrot" to null, "#botdev" to null), eventDispatcher, fireIncomingLineEvent = true)
 
         eventDispatcher.onChannelMessageListeners += {
-            println("channel message: $it")
+            LOGGER.info("channel message: $it")
 
             if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
                 connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel, message = "🐰🎉"), connection.sink))

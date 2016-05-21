@@ -16,7 +16,7 @@ object Rpl005ChanModesHandler : IRpl005ChanModesHandler {
     override fun handle(rawValue: String, state: ChannelModesState): Boolean {
         // CHANMODES: eIb,k,l,imnpstSr
 
-        var value = rawValue
+        val value = rawValue
 
         if (value.isNullOrEmpty()) {
             LOGGER.warn("CHANMODES value null or empty, bailing")
