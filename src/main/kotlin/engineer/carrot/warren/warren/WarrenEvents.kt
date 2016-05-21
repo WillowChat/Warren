@@ -5,14 +5,16 @@ import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.state.LifecycleState
 import kotlin.reflect.KClass
 
-data class ChannelMessageEvent(val user: Prefix, val channel: String, val message: String)
-data class ChannelActionEvent(val user: Prefix, val channel: String, val message: String)
-data class ChannelModeEvent(val user: Prefix?, val channel: String, val modifier: ModeMessage.ModeModifier)
-data class UserModeEvent(val user: String, val modifier: ModeMessage.ModeModifier)
-data class PrivateMessageEvent(val user: Prefix, val message: String)
-data class PrivateActionEvent(val user: Prefix, val message: String)
-data class ConnectionLifecycleEvent(val lifecycle: LifecycleState)
-data class RawIncomingLineEvent(val line: String)
+interface IWarrenEvent { }
+
+data class ChannelMessageEvent(val user: Prefix, val channel: String, val message: String) : IWarrenEvent
+data class ChannelActionEvent(val user: Prefix, val channel: String, val message: String) : IWarrenEvent
+data class ChannelModeEvent(val user: Prefix?, val channel: String, val modifier: ModeMessage.ModeModifier) : IWarrenEvent
+data class UserModeEvent(val user: String, val modifier: ModeMessage.ModeModifier) : IWarrenEvent
+data class PrivateMessageEvent(val user: Prefix, val message: String) : IWarrenEvent
+data class PrivateActionEvent(val user: Prefix, val message: String) : IWarrenEvent
+data class ConnectionLifecycleEvent(val lifecycle: LifecycleState) : IWarrenEvent
+data class RawIncomingLineEvent(val line: String) : IWarrenEvent
 
 interface IEventListener<T> {
     fun on(event: T)
@@ -41,46 +43,23 @@ class EventListenersWrapper<T> : IEventListenersWrapper<T> {
 }
 
 interface IWarrenEventDispatcher {
-    fun <T : Any> fire(event: T)
+    fun <T : IWarrenEvent> fire(event: T)
+
+    fun <T : IWarrenEvent> on(eventClass: KClass<T>, listener: (T) -> Unit)
+
+    fun onAnything(listener: (Any) -> Unit)
 }
 
 class WarrenEventDispatcher : IWarrenEventDispatcher {
-    val onAnythingListeners: IEventListenersWrapper<Any>
-    val onChannelMessageListeners: IEventListenersWrapper<ChannelMessageEvent>
-    val onChannelActionListeners: IEventListenersWrapper<ChannelActionEvent>
-    val onPrivateMessageListeners: IEventListenersWrapper<PrivateMessageEvent>
-    val onPrivateActionListeners: IEventListenersWrapper<PrivateActionEvent>
-    val onConnectionLifecycleListeners: IEventListenersWrapper<ConnectionLifecycleEvent>
-    val onRawLineListeners: IEventListenersWrapper<RawIncomingLineEvent>
+    private val onAnythingListeners: IEventListenersWrapper<Any>
 
     private var eventToListenersMap = mutableMapOf<Class<*>, IEventListenersWrapper<*>>()
 
     init {
         onAnythingListeners = EventListenersWrapper<Any>()
-        onChannelMessageListeners = EventListenersWrapper<ChannelMessageEvent>()
-        onChannelActionListeners = EventListenersWrapper<ChannelActionEvent>()
-        onPrivateMessageListeners = EventListenersWrapper<PrivateMessageEvent>()
-        onPrivateActionListeners = EventListenersWrapper<PrivateActionEvent>()
-        onConnectionLifecycleListeners = EventListenersWrapper<ConnectionLifecycleEvent>()
-        onRawLineListeners = EventListenersWrapper<RawIncomingLineEvent>()
-
-        mapEventToListeners(ChannelMessageEvent::class, onChannelMessageListeners)
-        mapEventToListeners(ChannelActionEvent::class, onChannelActionListeners)
-        mapEventToListeners(PrivateMessageEvent::class, onPrivateMessageListeners)
-        mapEventToListeners(PrivateActionEvent::class, onPrivateActionListeners)
-        mapEventToListeners(ConnectionLifecycleEvent::class, onConnectionLifecycleListeners)
-        mapEventToListeners(RawIncomingLineEvent::class, onRawLineListeners)
     }
 
-    private fun <T : Any> mapEventToListeners(eventType: KClass<T>, listeners: IEventListenersWrapper<T>) {
-        mapEventToListenersUsingJavaClassType(eventType.java, listeners)
-    }
-
-    private fun <T : Any> mapEventToListenersUsingJavaClassType(eventType: Class<T>, listeners: IEventListenersWrapper<T>) {
-        eventToListenersMap[eventType] = listeners
-    }
-
-    override fun <T : Any> fire(event: T) {
+    override fun <T : IWarrenEvent> fire(event: T) {
         onAnythingListeners.fireToAll(event)
 
         @Suppress("UNCHECKED_CAST")
@@ -88,24 +67,39 @@ class WarrenEventDispatcher : IWarrenEventDispatcher {
         listenersWrapper?.fireToAll(event)
     }
 
+    override fun <T : IWarrenEvent> on(eventClass: KClass<T>, listener: (T) -> Unit) {
+        val wrapper = eventToListenersMap[eventClass.java] ?: constructAndAddWrapperForEvent(eventClass)
+
+        @Suppress("UNCHECKED_CAST")
+        val typedWrapper = wrapper as? IEventListenersWrapper<T> ?: return
+        typedWrapper += listener
+    }
+
+    override fun onAnything(listener: (Any) -> Unit) {
+        onAnythingListeners += listener
+    }
+
+    private fun <T : IWarrenEvent> constructAndAddWrapperForEvent(eventClass: KClass<T>): IEventListenersWrapper<T> {
+        val newWrapper = EventListenersWrapper<T>()
+        eventToListenersMap[eventClass.java] = newWrapper
+
+        return newWrapper
+    }
+
     companion object Runner {
         @JvmStatic fun main(args: Array<String>) {
             val eventDispatcher = WarrenEventDispatcher()
 
-            eventDispatcher.onAnythingListeners += {
+            eventDispatcher.onAnything() {
                 println("anything listener: $it")
             }
 
-            eventDispatcher.onChannelMessageListeners += {
+            eventDispatcher.on(ChannelMessageEvent::class) {
                 println("channel message listener 1: $it")
             }
 
-            eventDispatcher.onChannelMessageListeners += {
-                println("channel message listener 2: $it")
-            }
-
-            eventDispatcher.onPrivateMessageListeners += {
-                println("private message listener 1: $it")
+            eventDispatcher.on(PrivateMessageEvent::class) {
+                println("private message listener 2: $it")
             }
 
             eventDispatcher.fire(ChannelMessageEvent(user = Prefix(nick = "someone"), channel = "#channel", message = "something"))

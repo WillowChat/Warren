@@ -55,13 +55,13 @@ object WarrenRunner {
         val password = args.getOrNull(3)
 
         val eventDispatcher = WarrenEventDispatcher()
-        eventDispatcher.onAnythingListeners += {
+        eventDispatcher.onAnything {
             LOGGER.info("event: $it")
         }
 
         val connection = createRunner(server, port, (port != 6667), nickname, password, mapOf("#carrot" to null, "#botdev" to null), eventDispatcher, fireIncomingLineEvent = true)
 
-        eventDispatcher.onChannelMessageListeners += {
+        eventDispatcher.on(ChannelMessageEvent::class) {
             LOGGER.info("channel message: $it")
 
             if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {

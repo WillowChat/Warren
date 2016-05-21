@@ -39,7 +39,7 @@ class PrivMsgHandlerTests {
     @Test fun test_handle_NoSource_DoesNothing() {
         handler.handle(PrivMsgMessage(source = null, target = "not-a-channel", message = "a test message"))
 
-        verify(mockEventDispatcher, never()).fire(any<Any>())
+        verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
     @Test fun test_handle_ChannelMessage_Action_FiresEvent() {

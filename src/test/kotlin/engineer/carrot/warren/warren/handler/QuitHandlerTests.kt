@@ -7,6 +7,7 @@ import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.QuitMessage
 import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.ConnectionLifecycleEvent
+import engineer.carrot.warren.warren.IWarrenEvent
 import engineer.carrot.warren.warren.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals
@@ -78,7 +79,7 @@ class QuitHandlerTests {
     @Test fun test_handle_SourceIsOther_DoesNotFireDisconnectedEvent() {
         handler.handle(QuitMessage(source = Prefix(nick = "someone-else")))
 
-        verify(mockEventDispatcher, never()).fire(any<Any>())
+        verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
 }

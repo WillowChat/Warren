@@ -25,30 +25,30 @@ interface IIrcRunner {
     fun run()
 }
 
-interface IWarrenEvent {
+interface IWarrenInternalEvent {
     fun execute()
 }
 
-interface IWarrenEventSink {
-    fun add(event: IWarrenEvent)
+interface IWarrenInternalEventSink {
+    fun add(event: IWarrenInternalEvent)
 }
 
-interface IWarrenEventSource {
-    fun grab(): IWarrenEvent?
+interface IWarrenInternalEventSource {
+    fun grab(): IWarrenInternalEvent?
 }
 
-interface IWarrenEventQueue : IWarrenEventSource, IWarrenEventSink {
+interface IWarrenInternalEventQueue : IWarrenInternalEventSource, IWarrenInternalEventSink {
     fun clear()
 }
 
-class WarrenEventQueue : IWarrenEventQueue {
-    private val queue = LinkedBlockingQueue<IWarrenEvent>(100)
+class WarrenInternalEventQueue : IWarrenInternalEventQueue {
+    private val queue = LinkedBlockingQueue<IWarrenInternalEvent>(100)
 
-    override fun add(event: IWarrenEvent) {
+    override fun add(event: IWarrenInternalEvent) {
         queue.add(event)
     }
 
-    override fun grab(): IWarrenEvent? {
+    override fun grab(): IWarrenInternalEvent? {
         try {
             return queue.take()
         } catch (e: InterruptedException) {
@@ -62,14 +62,14 @@ class WarrenEventQueue : IWarrenEventQueue {
 
 }
 
-class NewLineEvent(val line: String, val kale: IKale) : IWarrenEvent {
+class NewLineEvent(val line: String, val kale: IKale) : IWarrenInternalEvent {
     override fun execute() {
         kale.process(line)
     }
 
 }
 
-class SendSomethingEvent(val message: IMessage, val sink: IMessageSink) : IWarrenEvent {
+class SendSomethingEvent(val message: IMessage, val sink: IMessageSink) : IWarrenInternalEvent {
     override fun execute() {
         sink.write(message)
     }
@@ -80,7 +80,7 @@ interface IWarrenEventGenerator {
     fun run()
 }
 
-class NewLineWarrenEventGenerator(val queue: IWarrenEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?) : IWarrenEventGenerator {
+class NewLineWarrenEventGenerator(val queue: IWarrenInternalEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?) : IWarrenEventGenerator {
 
     private val LOGGER = loggerFor<NewLineWarrenEventGenerator>()
 
@@ -109,8 +109,8 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
     private val LOGGER = loggerFor<IrcRunner>()
 
     @Volatile var lastStateSnapshot: IrcState? = null
-    private var eventQueue = WarrenEventQueue()
-    var eventSink: IWarrenEventSink = eventQueue
+    private var eventQueue = WarrenInternalEventQueue()
+    var eventSink: IWarrenInternalEventSink = eventQueue
 
     private lateinit var state: IrcState
 
@@ -173,7 +173,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
             LOGGER.warn("new line generator ended")
 
             eventQueue.clear()
-            eventQueue.add(event = object : IWarrenEvent {
+            eventQueue.add(event = object : IWarrenInternalEvent {
                 override fun execute() {
                     state.connection.lifecycle = LifecycleState.DISCONNECTED
                 }
@@ -184,7 +184,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
             LOGGER.warn("uncaught exception in line generator, forcing a disconnect: $exception")
 
             eventQueue.clear()
-            eventQueue.add(event = object : IWarrenEvent {
+            eventQueue.add(event = object : IWarrenInternalEvent {
                 override fun execute() {
                     state.connection.lifecycle = LifecycleState.DISCONNECTED
                 }
