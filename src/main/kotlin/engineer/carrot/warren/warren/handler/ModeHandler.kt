@@ -7,8 +7,10 @@ import engineer.carrot.warren.warren.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.UserModeEvent
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ChannelTypesState
+import engineer.carrot.warren.warren.state.ChannelsState
+import engineer.carrot.warren.warren.state.UserPrefixesState
 
-class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesState: ChannelTypesState) : IKaleHandler<ModeMessage> {
+class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesState: ChannelTypesState, val channelsState: ChannelsState, val userPrefixesState: UserPrefixesState) : IKaleHandler<ModeMessage> {
     private val LOGGER = loggerFor<ModeHandler>()
 
     override val messageType = ModeMessage::class.java
@@ -20,6 +22,40 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
             // Channel mode
 
             for (modifier in message.modifiers) {
+                if (userPrefixesState.prefixesToModes.values.contains(modifier.mode)) {
+                    // User mode changed
+
+                    val channel = channelsState.joined[target]
+                    if (channel == null) {
+                        LOGGER.warn("user mode changed for a channel we don't think we're in, bailing: $message")
+                        continue
+                    }
+
+                    val nick = modifier.parameter
+                    if (nick == null) {
+                        LOGGER.warn("user mode changed but missing users name from mode modifier, bailing: $message")
+                        continue
+                    }
+
+                    val user = channel.users[nick]
+                    if (user == null) {
+                        LOGGER.warn("user mode changed but not tracking that user, bailing: $message")
+                        continue
+                    }
+
+                    when {
+                        modifier.isAdding -> {
+                            user.modes += modifier.mode
+                        }
+
+                        modifier.isRemoving -> {
+                            user.modes -= modifier.mode
+                        }
+                    }
+
+                    LOGGER.debug("user mode state changed: $user")
+                }
+
                 eventDispatcher.fire(ChannelModeEvent(user = message.source, channel = target, modifier = modifier))
             }
         } else {

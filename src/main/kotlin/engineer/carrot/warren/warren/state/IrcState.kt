@@ -18,7 +18,7 @@ enum class JoiningChannelLifecycle { JOINING, FAILED }
 
 data class ChannelState(val name: String, val users: MutableMap<String, ChannelUserState>, var topic: String? = null)
 
-data class ChannelUserState(val nick: String, val modes: Set<Char> = setOf())
+data class ChannelUserState(val nick: String, val modes: MutableSet<Char> = mutableSetOf())
 
 data class ConnectionState(val server: String, val port: Int, var nickname: String, val username: String, var lifecycle: LifecycleState, val cap: CapState, val sasl: SaslState)
 

@@ -26,5 +26,5 @@ fun generateUser(nick: String): Pair<String, ChannelUserState> {
 }
 
 fun generateUser(nick: String, modes: Set<Char>): Pair<String, ChannelUserState> {
-    return (nick to ChannelUserState(nick, modes))
+    return (nick to ChannelUserState(nick, modes.toMutableSet()))
 }
