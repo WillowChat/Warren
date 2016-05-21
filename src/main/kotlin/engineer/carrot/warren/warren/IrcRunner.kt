@@ -225,18 +225,24 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
     // IKaleParsingStateDelegate
 
     override fun modeTakesAParameter(isAdding: Boolean, token: Char): Boolean {
-        val parsingState = state.parsing.channelModes
+        val prefixState = state.parsing.userPrefixes
 
-        if (parsingState.typeD.contains(token)) {
+        if (prefixState.prefixesToModes.containsValue(token)) {
+            return true
+        }
+
+        val modesState = state.parsing.channelModes
+
+        if (modesState.typeD.contains(token)) {
             return false
         }
 
-        if (parsingState.typeA.contains(token) || parsingState.typeB.contains(token)) {
+        if (modesState.typeA.contains(token) || modesState.typeB.contains(token)) {
             return true
         }
 
         if (isAdding) {
-            return parsingState.typeC.contains(token)
+            return modesState.typeC.contains(token)
         }
 
         return false

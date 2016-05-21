@@ -27,6 +27,7 @@ class IrcRunnerTests {
     lateinit var runner: IrcRunner
     lateinit var connectionState: ConnectionState
     lateinit var channelModesState: ChannelModesState
+    lateinit var userPrefixesState: UserPrefixesState
 
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
     lateinit var mockKale: MockKale
@@ -40,7 +41,7 @@ class IrcRunnerTests {
         val saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
         connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState, sasl = saslState)
 
-        val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
+        userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState)
@@ -132,6 +133,22 @@ class IrcRunnerTests {
 
         assertTrue(runner.modeTakesAParameter(isAdding = true, token = 'c'))
         assertFalse(runner.modeTakesAParameter(isAdding = false, token = 'c'))
+    }
+
+    @Test fun test_modeTakesAParameter_PrefixRelated_ReturnsTrue() {
+        runner.run()
+
+        userPrefixesState.prefixesToModes = mapOf('+' to 'v')
+
+        assertTrue(runner.modeTakesAParameter(isAdding = true, token = 'v'))
+        assertTrue(runner.modeTakesAParameter(isAdding = false, token = 'v'))
+    }
+
+    @Test fun test_modeTakesAParameter_Unknown_NonPrefix_ReturnsFalse() {
+        runner.run()
+
+        assertFalse(runner.modeTakesAParameter(isAdding = true, token = 'z'))
+        assertFalse(runner.modeTakesAParameter(isAdding = false, token = 'z'))
     }
 
 }
