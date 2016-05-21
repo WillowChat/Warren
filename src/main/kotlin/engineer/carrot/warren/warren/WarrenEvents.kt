@@ -26,7 +26,7 @@ interface IEventListenersWrapper<T> {
     operator fun plusAssign(listener: (T) -> Unit) = add(listener)
 }
 
-class EventListenersWrapper<T>: IEventListenersWrapper<T> {
+class EventListenersWrapper<T> : IEventListenersWrapper<T> {
     private var listeners: Set<IEventListener<T>> = setOf()
 
     override fun fireToAll(event: T) {
@@ -41,10 +41,10 @@ class EventListenersWrapper<T>: IEventListenersWrapper<T> {
 }
 
 interface IWarrenEventDispatcher {
-    fun <T: Any> fire(event: T)
+    fun <T : Any> fire(event: T)
 }
 
-class WarrenEventDispatcher: IWarrenEventDispatcher {
+class WarrenEventDispatcher : IWarrenEventDispatcher {
     val onAnythingListeners: IEventListenersWrapper<Any>
     val onChannelMessageListeners: IEventListenersWrapper<ChannelMessageEvent>
     val onChannelActionListeners: IEventListenersWrapper<ChannelActionEvent>
@@ -80,7 +80,7 @@ class WarrenEventDispatcher: IWarrenEventDispatcher {
         eventToListenersMap[eventType] = listeners
     }
 
-    override fun <T: Any> fire(event: T) {
+    override fun <T : Any> fire(event: T) {
         onAnythingListeners.fireToAll(event)
 
         @Suppress("UNCHECKED_CAST")

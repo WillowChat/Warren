@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren
 
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockito_kotlin.inOrder
+import com.nhaarman.mockito_kotlin.mock
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.IKaleParsingStateDelegate
@@ -16,9 +17,7 @@ import engineer.carrot.warren.warren.handler.sasl.Rpl903Handler
 import engineer.carrot.warren.warren.handler.sasl.Rpl904Handler
 import engineer.carrot.warren.warren.handler.sasl.Rpl905Handler
 import engineer.carrot.warren.warren.state.*
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertFalse
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.MockitoAnnotations
@@ -99,12 +98,6 @@ class IrcRunnerTests {
         inOrder.verify(mockSink).write(UserMessage(username = connectionState.nickname, mode = "8", realname = connectionState.nickname))
     }
 
-//    @Test fun test_run_ProcessesOnce() {
-//        runner.run()
-//
-//        verify(mockProcessor).process()
-//    }
-
     @Test fun test_modeTakesAParameter_TypeDAlwaysFalse() {
         channelModesState.typeD = setOf('x')
 
@@ -143,7 +136,7 @@ class IrcRunnerTests {
 
 }
 
-class MockKale: IKale {
+class MockKale : IKale {
     var spyRegisterHandlers = mutableListOf<IKaleHandler<*>>()
 
     override fun <T : IMessage> register(handler: IKaleHandler<T>) {

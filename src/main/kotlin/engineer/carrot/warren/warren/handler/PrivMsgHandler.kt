@@ -40,7 +40,7 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
         if (channelTypesState.types.any { char -> target.startsWith(char) }) {
             // Channel message
 
-            when(ctcp) {
+            when (ctcp) {
                 CtcpEnum.NONE -> {
                     eventDispatcher.fire(ChannelMessageEvent(user = source, channel = target, message = messageContents))
 
@@ -58,7 +58,7 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
         } else {
             // Private message
 
-            when(ctcp) {
+            when (ctcp) {
                 CtcpEnum.NONE -> {
                     eventDispatcher.fire(PrivateMessageEvent(user = source, message = messageContents))
 

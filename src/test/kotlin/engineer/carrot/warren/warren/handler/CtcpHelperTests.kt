@@ -1,12 +1,8 @@
 package engineer.carrot.warren.warren.handler
 
 import engineer.carrot.warren.kale.irc.CharacterCodes
-import engineer.carrot.warren.warren.IMessageSink
-import org.junit.Before
+import org.junit.Assert.*
 import org.junit.Test
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 
 class CtcpEnumTests {
 

@@ -1,8 +1,9 @@
 package engineer.carrot.warren.warren.handler.rpl
 
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl473Message
-import engineer.carrot.warren.warren.handler.rpl.Rpl473Handler
-import engineer.carrot.warren.warren.state.*
+import engineer.carrot.warren.warren.state.ChannelsState
+import engineer.carrot.warren.warren.state.JoiningChannelLifecycle
+import engineer.carrot.warren.warren.state.JoiningChannelState
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

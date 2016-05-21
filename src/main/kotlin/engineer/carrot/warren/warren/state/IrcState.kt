@@ -6,7 +6,11 @@ data class ChannelsState(val joining: MutableMap<String, JoiningChannelState> = 
 
 data class JoiningChannelState(val name: String, val key: String? = null, var status: JoiningChannelLifecycle) {
     override fun toString(): String {
-        return "JoiningChannelState(name=$name, key=${if (key == null) { "null" } else { "***" }}, status=$status)"
+        return "JoiningChannelState(name=$name, key=${if (key == null) {
+            "null"
+        } else {
+            "***"
+        }}, status=$status)"
     }
 }
 

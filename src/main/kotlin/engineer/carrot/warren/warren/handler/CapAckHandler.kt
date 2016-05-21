@@ -32,7 +32,7 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
             sink.write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
         }
 
-        when(lifecycle) {
+        when (lifecycle) {
             CapLifecycle.NEGOTIATING -> {
                 LOGGER.trace("server ACKed some caps, checked if it's the last reply")
 

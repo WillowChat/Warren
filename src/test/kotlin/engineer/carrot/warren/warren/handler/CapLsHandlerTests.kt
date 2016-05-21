@@ -5,11 +5,14 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.IMessage
-import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapEndMessage
+import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapReqMessage
 import engineer.carrot.warren.warren.IMessageSink
-import engineer.carrot.warren.warren.state.*
+import engineer.carrot.warren.warren.state.CapLifecycle
+import engineer.carrot.warren.warren.state.CapState
+import engineer.carrot.warren.warren.state.SaslLifecycle
+import engineer.carrot.warren.warren.state.SaslState
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

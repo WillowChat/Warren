@@ -3,9 +3,10 @@ package engineer.carrot.warren.warren.handler
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.ModeMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.PongMessage
 import engineer.carrot.warren.kale.irc.prefix.Prefix
-import engineer.carrot.warren.warren.*
+import engineer.carrot.warren.warren.ChannelModeEvent
+import engineer.carrot.warren.warren.IWarrenEventDispatcher
+import engineer.carrot.warren.warren.UserModeEvent
 import engineer.carrot.warren.warren.state.ChannelTypesState
 import org.junit.Before
 import org.junit.Test

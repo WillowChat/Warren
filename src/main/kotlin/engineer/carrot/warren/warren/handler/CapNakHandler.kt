@@ -22,7 +22,7 @@ class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: 
 
         capState.rejected += caps
 
-        when(lifecycle) {
+        when (lifecycle) {
             CapLifecycle.NEGOTIATING -> {
                 LOGGER.trace("server NAKed some caps, checked if it's the last reply")
 

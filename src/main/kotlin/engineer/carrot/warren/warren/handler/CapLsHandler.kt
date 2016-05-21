@@ -23,7 +23,7 @@ class CapLsHandler(val capState: CapState, val saslState: SaslState, val sink: I
 
         LOGGER.trace("server supports following caps: $caps")
 
-        when(lifecycle) {
+        when (lifecycle) {
             CapLifecycle.NEGOTIATING -> {
                 if (!message.isMultiline) {
                     val requestCaps = capState.server.keys.intersect(capState.negotiate)

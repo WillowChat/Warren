@@ -37,11 +37,11 @@ interface IWarrenEventSource {
     fun grab(): IWarrenEvent?
 }
 
-interface IWarrenEventQueue: IWarrenEventSource, IWarrenEventSink {
+interface IWarrenEventQueue : IWarrenEventSource, IWarrenEventSink {
     fun clear()
 }
 
-class WarrenEventQueue: IWarrenEventQueue {
+class WarrenEventQueue : IWarrenEventQueue {
     private val queue = LinkedBlockingQueue<IWarrenEvent>(100)
 
     override fun add(event: IWarrenEvent) {
@@ -62,14 +62,14 @@ class WarrenEventQueue: IWarrenEventQueue {
 
 }
 
-class NewLineEvent(val line: String, val kale: IKale): IWarrenEvent {
+class NewLineEvent(val line: String, val kale: IKale) : IWarrenEvent {
     override fun execute() {
         kale.process(line)
     }
 
 }
 
-class SendSomethingEvent(val message: IMessage, val sink: IMessageSink): IWarrenEvent {
+class SendSomethingEvent(val message: IMessage, val sink: IMessageSink) : IWarrenEvent {
     override fun execute() {
         sink.write(message)
     }
@@ -80,7 +80,7 @@ interface IWarrenEventGenerator {
     fun run()
 }
 
-class NewLineWarrenEventGenerator(val queue: IWarrenEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?): IWarrenEventGenerator {
+class NewLineWarrenEventGenerator(val queue: IWarrenEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?) : IWarrenEventGenerator {
 
     private val LOGGER = loggerFor<NewLineWarrenEventGenerator>()
 
@@ -99,7 +99,7 @@ class NewLineWarrenEventGenerator(val queue: IWarrenEventQueue, val kale: IKale,
 
                 queue.add(NewLineEvent(line, kale))
             }
-        } while(true)
+        } while (true)
     }
 
 }
@@ -211,7 +211,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
                     shouldExit = true
                 }
             }
-        } while(!shouldExit)
+        } while (!shouldExit)
 
         if (lineThread.isAlive) {
             LOGGER.trace("line thread still alive - interrupting and waiting for 2 seconds")

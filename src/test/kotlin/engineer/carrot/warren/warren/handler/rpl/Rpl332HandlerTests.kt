@@ -1,7 +1,6 @@
 package engineer.carrot.warren.warren.handler.rpl
 
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl332Message
-import engineer.carrot.warren.warren.handler.rpl.Rpl332Handler
 import engineer.carrot.warren.warren.state.ChannelState
 import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.generateUsers

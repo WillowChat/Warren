@@ -8,9 +8,9 @@ import engineer.carrot.warren.warren.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.state.*
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.assertEquals
 
 class Rpl376HandlerTests {
     lateinit var handler: Rpl376Handler

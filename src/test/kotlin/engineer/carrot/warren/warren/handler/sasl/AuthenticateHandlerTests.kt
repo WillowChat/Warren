@@ -7,7 +7,9 @@ import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.sasl.AuthenticateMessage
 import engineer.carrot.warren.warren.IMessageSink
-import engineer.carrot.warren.warren.state.*
+import engineer.carrot.warren.warren.state.SaslCredentials
+import engineer.carrot.warren.warren.state.SaslLifecycle
+import engineer.carrot.warren.warren.state.SaslState
 import org.junit.Before
 import org.junit.Test
 

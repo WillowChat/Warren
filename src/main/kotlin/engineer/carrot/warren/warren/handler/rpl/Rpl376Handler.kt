@@ -23,7 +23,7 @@ class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMess
             connectionState.cap.lifecycle = CapLifecycle.FAILED
         }
 
-        when(connectionState.lifecycle) {
+        when (connectionState.lifecycle) {
             LifecycleState.CONNECTING, LifecycleState.REGISTERING -> {
                 LOGGER.debug("got end of MOTD, updating lifecycle to CONNECTED and joining channels")
                 join(channelsToJoin, sink)
