@@ -20,7 +20,7 @@ class KickHandlerTests {
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
         val saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
         connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState, sasl = saslState)
-        channelsState = channelsStateWith(listOf(), caseMappingState)
+        channelsState = emptyChannelsState(caseMappingState)
         handler = KickHandler(connectionState, channelsState.joined, caseMappingState)
     }
 
@@ -64,7 +64,7 @@ class KickHandlerTests {
 
         handler.handle(KickMessage(users = listOf("test-nick"), channels = listOf("#channel")))
 
-        val expectedChannelsState = channelsStateWith(listOf(), caseMappingState)
+        val expectedChannelsState = emptyChannelsState(caseMappingState)
 
         assertEquals(channelsState, expectedChannelsState)
     }

@@ -23,7 +23,7 @@ class ModeHandlerTests {
     @Before fun setUp() {
         mockEventDispatcher = mock()
         val channelTypes = ChannelTypesState(types = setOf('#'))
-        channelsState = channelsStateWith(listOf(), caseMappingState)
+        channelsState = emptyChannelsState(caseMappingState)
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('+' to 'v', '@' to 'o'))
         handler = ModeHandler(mockEventDispatcher, channelTypes, channelsState.joined, userPrefixesState, caseMappingState)
     }
