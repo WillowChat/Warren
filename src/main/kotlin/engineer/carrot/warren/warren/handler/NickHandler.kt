@@ -28,9 +28,10 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Joine
         }
 
         for ((name, channel) in channelsState.all) {
-            if (channel.users.contains(from)) {
-                channel.users.remove(from)
-                channel.users += generateUser(to)
+            val user = channel.users[from]
+            if (user != null) {
+                channel.users -= from
+                channel.users += user.copy(nick = to)
             }
         }
 

@@ -51,6 +51,17 @@ class NickHandlerTests {
         assertEquals(channelsState, expectedChannelsState)
     }
 
+    @Test fun test_handle_UserChangesCaseInName_RetainsModes() {
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsersWithModes(("me" to setOf('o', 'v')), mappingState = caseMappingState))
+
+        handler.handle(NickMessage(source = Prefix(nick = "me", host = "somewhere"), nickname = "me-new"))
+
+        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersWithModes(("me-new" to setOf('o', 'v')), mappingState = caseMappingState))
+        val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
+
+        assertEquals(channelsState, expectedChannelsState)
+    }
+
     @Test fun test_handle_FromIsSomeoneElse_UserIsRenamedInAllChannels() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", mappingState = caseMappingState))
         channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
