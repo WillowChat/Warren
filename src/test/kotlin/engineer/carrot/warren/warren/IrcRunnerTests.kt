@@ -9,6 +9,7 @@ import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.IrcMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
+import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005Handler
@@ -43,7 +44,8 @@ class IrcRunnerTests {
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
-        val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState)
+        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
+        val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState, caseMappingState)
         val channelsState = ChannelsState(joining = mutableMapOf(), joined = mutableMapOf())
 
         val initialState = IrcState(connectionState, parsingState, channelsState)

@@ -3,16 +3,17 @@ package engineer.carrot.warren.warren.handler.rpl
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl471Message
 import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.JoiningChannelLifecycle
 
-class Rpl471Handler(val channelsState: ChannelsState) : IKaleHandler<Rpl471Message> {
+class Rpl471Handler(val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl471Message> {
     private val LOGGER = loggerFor<Rpl471Handler>()
 
     override val messageType = Rpl471Message::class.java
 
     override fun handle(message: Rpl471Message) {
-        val channel = channelsState.joining[message.channel]
+        val channel = channelsState.getJoining(message.channel, caseMappingState.mapping)
 
         if (channel == null) {
             LOGGER.warn("got a full channel reply for a channel we don't think we're joining: $message")

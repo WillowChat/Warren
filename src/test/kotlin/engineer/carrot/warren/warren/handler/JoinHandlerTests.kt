@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.handler
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
+import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals
@@ -20,7 +21,8 @@ class JoinHandlerTests {
         val saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
         connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState, sasl = saslState)
         channelsState = ChannelsState(joined = mutableMapOf())
-        handler = JoinHandler(connectionState, channelsState)
+        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
+        handler = JoinHandler(connectionState, channelsState, caseMappingState)
     }
 
     @Test fun test_handle_SourceIsSelf_WellFormed_JoinsCorrectChannel() {

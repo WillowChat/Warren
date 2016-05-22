@@ -5,7 +5,7 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.*
 
-class JoinHandler(val connectionState: ConnectionState, val channelsState: ChannelsState) : IKaleHandler<JoinMessage> {
+class JoinHandler(val connectionState: ConnectionState, val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<JoinMessage> {
     private val LOGGER = loggerFor<JoinHandler>()
 
     override val messageType = JoinMessage::class.java
@@ -27,22 +27,22 @@ class JoinHandler(val connectionState: ConnectionState, val channelsState: Chann
             LOGGER.debug("we joined channels: ${message.channels}")
 
             for (channelName in channelNames) {
-                if (!channelsState.joined.containsKey(channelName)) {
+                if (!channelsState.containsJoined(channelName, caseMappingState.mapping)) {
                     LOGGER.trace("adding $channelName to joined channels with 0 users")
 
-                    channelsState.joined[channelName] = ChannelState(channelName, users = generateUsers())
+                    channelsState.putJoined(ChannelState(channelName, users = generateUsers()), caseMappingState.mapping)
                 } else {
                     LOGGER.trace("we're already in $channelName - not adding it again")
                 }
 
                 LOGGER.trace("removing channel from joining state: $channelName")
-                channelsState.joining.remove(channelName)
+                channelsState.removeJoining(channelName, caseMappingState.mapping)
             }
         } else {
             // Someone else joined a channel
 
             for (channelName in channelNames) {
-                val channelState = channelsState.joined[channelName]
+                val channelState = channelsState.getJoined(channelName, caseMappingState.mapping)
                 if (channelState != null) {
                     channelState.users += generateUser(nick)
 

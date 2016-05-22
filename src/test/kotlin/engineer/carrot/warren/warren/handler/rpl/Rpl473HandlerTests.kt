@@ -1,6 +1,8 @@
 package engineer.carrot.warren.warren.handler.rpl
 
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl473Message
+import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.JoiningChannelLifecycle
 import engineer.carrot.warren.warren.state.JoiningChannelState
@@ -15,7 +17,8 @@ class Rpl473HandlerTests {
 
     @Before fun setUp() {
         channelsState = ChannelsState(joined = mutableMapOf())
-        handler = Rpl473Handler(channelsState)
+        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
+        handler = Rpl473Handler(channelsState, caseMappingState)
     }
 
     @Test fun test_handle_NonexistentChannel_DoesNothing() {

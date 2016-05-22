@@ -8,10 +8,7 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
-import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005ChanModesHandler
-import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005ChanTypesHandler
-import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005Handler
-import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005PrefixHandler
+import engineer.carrot.warren.warren.handler.rpl.Rpl005.*
 import engineer.carrot.warren.warren.handler.sasl.AuthenticateHandler
 import engineer.carrot.warren.warren.handler.sasl.Rpl903Handler
 import engineer.carrot.warren.warren.handler.sasl.Rpl904Handler
@@ -138,24 +135,24 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         kale.register(CapLsHandler(state.connection.cap, state.connection.sasl, sink))
         kale.register(CapAckHandler(state.connection.cap, state.connection.sasl, sink))
         kale.register(CapNakHandler(state.connection.cap, state.connection.sasl, sink))
-        kale.register(JoinHandler(state.connection, state.channels))
-        kale.register(KickHandler(state.connection, state.channels))
-        kale.register(ModeHandler(eventDispatcher, state.parsing.channelTypes, state.channels, state.parsing.userPrefixes))
+        kale.register(JoinHandler(state.connection, state.channels, state.parsing.caseMapping))
+        kale.register(KickHandler(state.connection, state.channels, state.parsing.caseMapping))
+        kale.register(ModeHandler(eventDispatcher, state.parsing.channelTypes, state.channels, state.parsing.userPrefixes, state.parsing.caseMapping))
         kale.register(NickHandler(state.connection, state.channels))
         kale.register(NoticeHandler(state.parsing.channelTypes))
-        kale.register(PartHandler(state.connection, state.channels))
+        kale.register(PartHandler(state.connection, state.channels, state.parsing.caseMapping))
         kale.register(PingHandler(sink))
         kale.register(PrivMsgHandler(eventDispatcher, state.parsing.channelTypes))
         kale.register(QuitHandler(eventDispatcher, state.connection, state.channels))
-        kale.register(TopicHandler(state.channels))
-        kale.register(Rpl005Handler(state.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler))
-        kale.register(Rpl332Handler(state.channels))
-        kale.register(Rpl353Handler(state.channels, state.parsing.userPrefixes))
+        kale.register(TopicHandler(state.channels, state.parsing.caseMapping))
+        kale.register(Rpl005Handler(state.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler, Rpl005CaseMappingHandler))
+        kale.register(Rpl332Handler(state.channels, state.parsing.caseMapping))
+        kale.register(Rpl353Handler(state.channels, state.parsing.userPrefixes, state.parsing.caseMapping))
         kale.register(Rpl376Handler(eventDispatcher, sink, state.channels.joining.mapValues { entry -> entry.value.key }, state.connection))
-        kale.register(Rpl471Handler(state.channels))
-        kale.register(Rpl473Handler(state.channels))
-        kale.register(Rpl474Handler(state.channels))
-        kale.register(Rpl475Handler(state.channels))
+        kale.register(Rpl471Handler(state.channels, state.parsing.caseMapping))
+        kale.register(Rpl473Handler(state.channels, state.parsing.caseMapping))
+        kale.register(Rpl474Handler(state.channels, state.parsing.caseMapping))
+        kale.register(Rpl475Handler(state.channels, state.parsing.caseMapping))
     }
 
     private fun sendRegistrationMessages() {

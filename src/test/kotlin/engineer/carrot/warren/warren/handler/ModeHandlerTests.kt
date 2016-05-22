@@ -3,6 +3,7 @@ package engineer.carrot.warren.warren.handler
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.ModeMessage
+import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.ChannelModeEvent
 import engineer.carrot.warren.warren.IWarrenEventDispatcher
@@ -23,7 +24,8 @@ class ModeHandlerTests {
         val channelTypes = ChannelTypesState(types = setOf('#'))
         channelsState = ChannelsState(joining = mutableMapOf(), joined = mutableMapOf())
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('+' to 'v', '@' to 'o'))
-        handler = ModeHandler(mockEventDispatcher, channelTypes, channelsState, userPrefixesState)
+        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
+        handler = ModeHandler(mockEventDispatcher, channelTypes, channelsState, userPrefixesState, caseMappingState)
     }
 
     @Test fun test_handle_ChannelModeChange_NoPrefix_FiresEvents() {

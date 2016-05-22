@@ -3,10 +3,8 @@ package engineer.carrot.warren.warren.handler.rpl.Rpl005
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl005Message
-import engineer.carrot.warren.warren.state.ChannelModesState
-import engineer.carrot.warren.warren.state.ChannelTypesState
-import engineer.carrot.warren.warren.state.ParsingState
-import engineer.carrot.warren.warren.state.UserPrefixesState
+import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import engineer.carrot.warren.warren.state.*
 import org.junit.Before
 import org.junit.Test
 
@@ -16,19 +14,23 @@ class Rpl005HandlerTests {
     lateinit var userPrefixesState: UserPrefixesState
     lateinit var channelModesState: ChannelModesState
     lateinit var channelTypesState: ChannelTypesState
+    lateinit var caseMappingState: CaseMappingState
     lateinit var prefixHandler: IRpl005PrefixHandler
     lateinit var channelModesHandler: IRpl005ChanModesHandler
     lateinit var channelTypesHandler: IRpl005ChanTypesHandler
+    lateinit var caseMappingHandler: IRpl005CaseMappingHandler
 
     @Before fun setUp() {
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o'))
         channelModesState = ChannelModesState(typeA = setOf('a'), typeB = setOf('b'), typeC = setOf('c'), typeD = setOf('d'))
         channelTypesState = ChannelTypesState(types = setOf('#'))
-        state = ParsingState(userPrefixesState, channelModes = channelModesState, channelTypes = channelTypesState)
+        caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
+        state = ParsingState(userPrefixesState, channelModes = channelModesState, channelTypes = channelTypesState, caseMapping = caseMappingState)
         prefixHandler = mock()
         channelModesHandler = mock()
         channelTypesHandler = mock()
-        handler = Rpl005Handler(state, prefixHandler, channelModesHandler, channelTypesHandler)
+        caseMappingHandler = mock()
+        handler = Rpl005Handler(state, prefixHandler, channelModesHandler, channelTypesHandler, caseMappingHandler)
     }
 
     @Test fun test_handle_UserPrefixes() {
@@ -41,6 +43,12 @@ class Rpl005HandlerTests {
         handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CHANMODES" to "eIb,k,l,imnpstSr")))
 
         verify(channelModesHandler).handle("eIb,k,l,imnpstSr", channelModesState)
+    }
+
+    @Test fun test_handle_CaseMapping() {
+        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CASEMAPPING" to "something")))
+
+        verify(caseMappingHandler).handle("something", caseMappingState)
     }
 
 }

@@ -3,6 +3,7 @@ package engineer.carrot.warren.warren
 import engineer.carrot.warren.kale.Kale
 import engineer.carrot.warren.kale.irc.message.IrcMessageSerialiser
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
+import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.state.*
 
 object WarrenRunner {
@@ -34,7 +35,8 @@ object WarrenRunner {
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         val channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
-        val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState)
+        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
+        val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState, caseMappingState)
 
         val joiningState = mutableMapOf<String, JoiningChannelState>()
         for (channel in channels) {

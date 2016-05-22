@@ -3,15 +3,16 @@ package engineer.carrot.warren.warren.handler
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.TopicMessage
 import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.ChannelsState
 
-class TopicHandler(val channelsState: ChannelsState) : IKaleHandler<TopicMessage> {
+class TopicHandler(val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<TopicMessage> {
     private val LOGGER = loggerFor<TopicHandler>()
 
     override val messageType = TopicMessage::class.java
 
     override fun handle(message: TopicMessage) {
-        val channel = channelsState.joined[message.channel]
+        val channel = channelsState.getJoined(message.channel, caseMappingState.mapping)
         val topic = message.topic
 
         if (channel == null) {

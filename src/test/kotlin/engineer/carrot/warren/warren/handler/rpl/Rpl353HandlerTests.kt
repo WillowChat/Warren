@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.handler.rpl
 
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl353Message
+import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -15,7 +16,8 @@ class Rpl353HandlerTests {
     @Before fun setUp() {
         channelsState = ChannelsState(joined = mutableMapOf())
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
-        handler = Rpl353Handler(channelsState, userPrefixesState)
+        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
+        handler = Rpl353Handler(channelsState, userPrefixesState, caseMappingState)
     }
 
     @Test fun test_handle_WellFormed_AddsCorrectNicksToChannel() {

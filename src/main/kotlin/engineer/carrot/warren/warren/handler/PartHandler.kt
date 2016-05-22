@@ -3,10 +3,11 @@ package engineer.carrot.warren.warren.handler
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.PartMessage
 import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.ConnectionState
 
-class PartHandler(val connectionState: ConnectionState, val channelsState: ChannelsState) : IKaleHandler<PartMessage> {
+class PartHandler(val connectionState: ConnectionState, val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<PartMessage> {
     private val LOGGER = loggerFor<PartHandler>()
 
     override val messageType = PartMessage::class.java
@@ -28,10 +29,10 @@ class PartHandler(val connectionState: ConnectionState, val channelsState: Chann
             LOGGER.debug("we parted channels: ${message.channels}")
 
             for (channelName in channelNames) {
-                if (channelsState.joined.containsKey(channelName)) {
+                if (channelsState.containsJoined(channelName, caseMappingState.mapping)) {
                     LOGGER.trace("removing $channelName from joined channels")
 
-                    channelsState.joined.remove(channelName)
+                    channelsState.removeJoined(channelName, caseMappingState.mapping)
                 } else {
                     LOGGER.trace("we already left $channelName - not leaving it again")
                 }
@@ -42,7 +43,7 @@ class PartHandler(val connectionState: ConnectionState, val channelsState: Chann
             LOGGER.debug("$nick left $channelNames")
 
             for (channelName in channelNames) {
-                val channelState = channelsState.joined[channelName]
+                val channelState = channelsState.getJoined(channelName, caseMappingState.mapping)
                 if (channelState != null) {
                     channelState.users.remove(nick)
 

@@ -1,8 +1,48 @@
 package engineer.carrot.warren.warren.state
 
+import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+
 data class IrcState(val connection: ConnectionState, val parsing: ParsingState, val channels: ChannelsState)
 
-data class ChannelsState(val joining: MutableMap<String, JoiningChannelState> = mutableMapOf(), val joined: MutableMap<String, ChannelState>)
+data class ChannelsState(val joining: MutableMap<String, JoiningChannelState> = mutableMapOf(), val joined: MutableMap<String, ChannelState>) {
+
+    // Joining channels
+
+    fun containsJoining(channel: String, mapping: CaseMapping): Boolean {
+        return joining.containsKey(mapping.toLower(channel))
+    }
+
+    fun getJoining(channel: String, mapping: CaseMapping): JoiningChannelState? {
+        return joining[mapping.toLower(channel)]
+    }
+
+    fun putJoining(channel: JoiningChannelState, mapping: CaseMapping) {
+        joining[mapping.toLower(channel.name)] = channel
+    }
+
+    fun removeJoining(channel: String, mapping: CaseMapping): JoiningChannelState? {
+        return joining.remove(mapping.toLower(channel))
+    }
+    
+    // Joined channels
+    
+    fun containsJoined(channel: String, mapping: CaseMapping): Boolean {
+        return joined.containsKey(mapping.toLower(channel))
+    }
+
+    fun getJoined(channel: String, mapping: CaseMapping): ChannelState? {
+        return joined[mapping.toLower(channel)]
+    }
+
+    fun putJoined(channel: ChannelState, mapping: CaseMapping) {
+        joined[mapping.toLower(channel.name)] = channel
+    }
+
+    fun removeJoined(channel: String, mapping: CaseMapping): ChannelState? {
+        return joined.remove(mapping.toLower(channel))
+    }
+
+}
 
 data class JoiningChannelState(val name: String, val key: String? = null, var status: JoiningChannelLifecycle) {
     override fun toString(): String {
@@ -38,10 +78,12 @@ data class SaslCredentials(val account: String, val password: String) {
     }
 }
 
-data class ParsingState(val userPrefixes: UserPrefixesState, val channelModes: ChannelModesState, val channelTypes: ChannelTypesState)
+data class ParsingState(val userPrefixes: UserPrefixesState, val channelModes: ChannelModesState, val channelTypes: ChannelTypesState, val caseMapping: CaseMappingState)
 
 data class UserPrefixesState(var prefixesToModes: Map<Char, Char>)
 
 data class ChannelModesState(var typeA: Set<Char>, var typeB: Set<Char>, var typeC: Set<Char>, var typeD: Set<Char>)
 
 data class ChannelTypesState(var types: Set<Char>)
+
+data class CaseMappingState(var mapping: CaseMapping)

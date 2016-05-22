@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.handler
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.KickMessage
+import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -19,7 +20,8 @@ class KickHandlerTests {
         val saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
         connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState, sasl = saslState)
         channelsState = ChannelsState(joined = mutableMapOf())
-        handler = KickHandler(connectionState, channelsState)
+        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
+        handler = KickHandler(connectionState, channelsState, caseMappingState)
     }
 
     @Test fun test_handle_SingleNick_MultipleUsers_RemovesUserFromChannels() {

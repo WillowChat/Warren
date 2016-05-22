@@ -18,15 +18,15 @@ object Rpl005PrefixHandler : IRpl005PrefixHandler {
 
         var value = rawValue
 
-        if (value.getOrNull(0) != CharacterCodes.LEFT_BRACKET) {
+        if (value.getOrNull(0) != CharacterCodes.LEFT_ROUNDED_BRACKET) {
             LOGGER.warn("no ( in value, bailing")
             return false
         }
 
         value = value.substring(1)
 
-        val rightBracketPosition = value.indexOf(CharacterCodes.RIGHT_BRACKET)
-        if (rightBracketPosition <= 1 || value.endsWith(CharacterCodes.RIGHT_BRACKET)) {
+        val rightBracketPosition = value.indexOf(CharacterCodes.RIGHT_ROUNDED_BRACKET)
+        if (rightBracketPosition <= 1 || value.endsWith(CharacterCodes.RIGHT_ROUNDED_BRACKET)) {
             LOGGER.warn("missing or badly placed ) in value, bailing")
             return false
         }
