@@ -45,7 +45,6 @@ connection.run()
 ## TODO
 
 * [RFC 1459](https://tools.ietf.org/html/rfc1459)
- * Case mapping
 * [IRC v3](http://ircv3.net/irc/)
  * 3.1 base done
  * Goal is full 3.1 and 3.2 compliance by default
