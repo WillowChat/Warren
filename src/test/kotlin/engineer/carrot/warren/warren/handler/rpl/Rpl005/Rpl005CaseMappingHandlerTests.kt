@@ -1,10 +1,7 @@
 package engineer.carrot.warren.warren.handler.rpl.Rpl005
 
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
-import engineer.carrot.warren.warren.state.CaseMappingState
-import engineer.carrot.warren.warren.state.ChannelTypesState
-import engineer.carrot.warren.warren.state.JoinedChannelsState
-import engineer.carrot.warren.warren.state.JoiningChannelsState
+import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -15,6 +12,7 @@ class Rpl005CaseMappingHandlerTests {
     lateinit var caseMappingState: CaseMappingState
     lateinit var joinedChannelsState: JoinedChannelsState
     lateinit var joiningChannelsState: JoiningChannelsState
+    lateinit var channelUsersState: ChannelUsersState
     val caseMapping = CaseMapping.RFC1459
 
     @Before fun setUp() {
@@ -22,6 +20,7 @@ class Rpl005CaseMappingHandlerTests {
         caseMappingState = CaseMappingState(caseMapping)
         joinedChannelsState = JoinedChannelsState(caseMappingState)
         joiningChannelsState = JoiningChannelsState(caseMappingState)
+        channelUsersState = ChannelUsersState(caseMappingState)
     }
 
     @Test fun test_handle_RFC1459() {
@@ -53,6 +52,7 @@ class Rpl005CaseMappingHandlerTests {
 
         assertEquals(CaseMappingState(mapping = CaseMapping.ASCII), joinedChannelsState.mappingState)
         assertEquals(CaseMappingState(mapping = CaseMapping.ASCII), joiningChannelsState.mappingState)
+        assertEquals(CaseMappingState(mapping = CaseMapping.ASCII), channelUsersState.mappingState)
     }
 
 }
