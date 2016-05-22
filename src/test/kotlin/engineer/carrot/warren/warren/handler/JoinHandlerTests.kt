@@ -30,15 +30,15 @@ class JoinHandlerTests {
 
         handler.handle(JoinMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")))
 
-        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers())), caseMappingState), channelsState)
+        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers(mappingState = caseMappingState))), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsSelf_AlreadyInChannel() {
-        channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick"))
+        channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick", mappingState = caseMappingState))
 
         handler.handle(JoinMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")))
 
-        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers("test-nick"))), caseMappingState), channelsState)
+        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers("test-nick", mappingState = caseMappingState))), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsSelf_MissingSource_DoesNothing() {
@@ -48,19 +48,19 @@ class JoinHandlerTests {
     }
 
     @Test fun test_handle_SourceIsOther_WellFormed() {
-        channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick"))
+        channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick", mappingState = caseMappingState))
 
         handler.handle(JoinMessage(source = Prefix(nick = "someone-else"), channels = listOf("#channel")))
 
-        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers("test-nick", "someone-else"))), caseMappingState), channelsState)
+        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers("test-nick", "someone-else", mappingState = caseMappingState))), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsOther_AlreadyInChannel() {
-        channelsState.joined += ChannelState("#channel", users = generateUsers("someone-else"))
+        channelsState.joined += ChannelState("#channel", users = generateUsers("someone-else", mappingState = caseMappingState))
 
         handler.handle(JoinMessage(source = Prefix(nick = "someone-else"), channels = listOf("#channel")))
 
-        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers("someone-else"))), caseMappingState), channelsState)
+        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers("someone-else", mappingState = caseMappingState))), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsOther_NotInChannel() {

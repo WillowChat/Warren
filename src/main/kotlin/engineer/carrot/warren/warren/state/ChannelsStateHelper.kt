@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.state
 
-fun generateUsers(vararg nicks: String): MutableMap<String, ChannelUserState> {
-    val users = mutableMapOf<String, ChannelUserState>()
+fun generateUsers(vararg nicks: String, mappingState: CaseMappingState): ChannelUsersState {
+    val users = ChannelUsersState(mappingState)
 
     for (nick in nicks) {
         users += generateUser(nick)
@@ -10,8 +10,8 @@ fun generateUsers(vararg nicks: String): MutableMap<String, ChannelUserState> {
     return users
 }
 
-fun generateUsersWithModes(vararg nicks: Pair<String, Set<Char>>): MutableMap<String, ChannelUserState> {
-    val users = mutableMapOf<String, ChannelUserState>()
+fun generateUsersWithModes(vararg nicks: Pair<String, Set<Char>>, mappingState: CaseMappingState): ChannelUsersState {
+    val users = ChannelUsersState(mappingState)
 
     for ((nick, modes) in nicks) {
         users += generateUser(nick, modes)
@@ -21,12 +21,12 @@ fun generateUsersWithModes(vararg nicks: Pair<String, Set<Char>>): MutableMap<St
 }
 
 
-fun generateUser(nick: String): Pair<String, ChannelUserState> {
-    return (nick to ChannelUserState(nick))
+fun generateUser(nick: String): ChannelUserState {
+    return ChannelUserState(nick)
 }
 
-fun generateUser(nick: String, modes: Set<Char>): Pair<String, ChannelUserState> {
-    return (nick to ChannelUserState(nick, modes.toMutableSet()))
+fun generateUser(nick: String, modes: Set<Char>): ChannelUserState {
+    return ChannelUserState(nick, modes.toMutableSet())
 }
 
 fun emptyChannelsState(mappingState: CaseMappingState): ChannelsState {

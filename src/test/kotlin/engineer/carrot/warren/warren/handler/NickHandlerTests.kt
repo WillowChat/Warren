@@ -26,39 +26,39 @@ class NickHandlerTests {
     }
 
     @Test fun test_handle_FromIsNull_DoesNothing() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else"))
-        channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else"))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", mappingState = caseMappingState))
+        channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
 
         handler.handle(NickMessage(nickname = "someone-else-2"))
 
-        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone", "someone-else"))
-        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else"))
+        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", mappingState = caseMappingState))
+        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState, expectedChannelTwoState), caseMappingState)
 
         assertEquals(channelsState, expectedChannelsState)
     }
 
     @Test fun test_handle_FromIsSelf_RenamesSelf() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick", "someone-else"))
-        channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else"))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick", "someone-else", mappingState = caseMappingState))
+        channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
 
         handler.handle(NickMessage(source = Prefix(nick = "test-nick", host = "somewhere"), nickname = "test-new-nick"))
 
-        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("test-new-nick", "someone-else"))
-        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else"))
+        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("test-new-nick", "someone-else", mappingState = caseMappingState))
+        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState, expectedChannelTwoState), caseMappingState)
 
         assertEquals(channelsState, expectedChannelsState)
     }
 
     @Test fun test_handle_FromIsSomeoneElse_UserIsRenamedInAllChannels() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else"))
-        channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else"))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", mappingState = caseMappingState))
+        channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
 
         handler.handle(NickMessage(source = Prefix(nick = "someone-else", host = "somewhere"), nickname = "someone-else-2"))
 
-        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone", "someone-else-2"))
-        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else-2"))
+        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone", "someone-else-2", mappingState = caseMappingState))
+        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else-2", mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState, expectedChannelTwoState), caseMappingState)
 
         assertEquals(channelsState, expectedChannelsState)

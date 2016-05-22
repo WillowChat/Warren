@@ -26,7 +26,7 @@ class PartHandlerTests {
     }
 
     @Test fun test_handle_SourceIsSelf_WellFormed_PartsCorrectChannel() {
-        channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick"))
+        channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick", mappingState = caseMappingState))
 
         handler.handle(PartMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")))
 
@@ -46,11 +46,11 @@ class PartHandlerTests {
     }
 
     @Test fun test_handle_SourceIsOther_WellFormed() {
-        channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick", "someone-else"))
+        channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick", "someone-else", mappingState = caseMappingState))
 
         handler.handle(PartMessage(source = Prefix(nick = "someone-else"), channels = listOf("#channel")))
 
-        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers("test-nick"))), caseMappingState), channelsState)
+        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers("test-nick", mappingState = caseMappingState))), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsOther_NotInChannel() {

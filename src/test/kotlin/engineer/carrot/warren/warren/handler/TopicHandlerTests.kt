@@ -19,21 +19,21 @@ class TopicHandlerTests {
     }
 
     @Test fun test_handle_NonexistentChannel_DoesNothing() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick"))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick", mappingState = caseMappingState))
 
         handler.handle(TopicMessage(channel = "#somewhere", topic = "test topic"))
 
-        val expectedChannelState = ChannelState(name = "#channel", users = generateUsers("test-nick"))
+        val expectedChannelState = ChannelState(name = "#channel", users = generateUsers("test-nick", mappingState = caseMappingState))
 
         assertEquals(channelsStateWith(listOf(expectedChannelState), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_ValidChannel_SetsTopic() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick"))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick", mappingState = caseMappingState))
 
         handler.handle(TopicMessage(channel = "#channel", topic = "test topic"))
 
-        val expectedChannelState = ChannelState(name = "#channel", users = generateUsers("test-nick"), topic = "test topic")
+        val expectedChannelState = ChannelState(name = "#channel", users = generateUsers("test-nick", mappingState = caseMappingState), topic = "test topic")
 
         assertEquals(channelsStateWith(listOf(expectedChannelState), caseMappingState), channelsState)
     }

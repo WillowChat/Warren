@@ -25,42 +25,42 @@ class KickHandlerTests {
     }
 
     @Test fun test_handle_SingleNick_MultipleUsers_RemovesUserFromChannels() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else"))
-        channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else"))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", mappingState = caseMappingState))
+        channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
 
         handler.handle(KickMessage(users = listOf("someone"), channels = listOf("#channel", "#channel2")))
 
-        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone-else"))
-        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else"))
+        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone-else", mappingState = caseMappingState))
+        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState, expectedChannelTwoState), caseMappingState)
 
         assertEquals(channelsState, expectedChannelsState)
     }
 
     @Test fun test_handle_MultipleNicks_NotSelf_RemovesFromChannel() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", "last-person"))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", "last-person", mappingState = caseMappingState))
 
         handler.handle(KickMessage(users = listOf("someone", "someone-else"), channels = listOf("#channel")))
 
-        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("last-person"))
+        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("last-person", mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
 
         assertEquals(channelsState, expectedChannelsState)
     }
 
     @Test fun test_handle_UserNotInChannel_DoesNothing() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone"))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", mappingState = caseMappingState))
 
         handler.handle(KickMessage(users = listOf("nonexistent-user"), channels = listOf("#channel")))
 
-        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone"))
+        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone", mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
 
         assertEquals(channelsState, expectedChannelsState)
     }
 
     @Test fun test_handle_KickSelf_LeavesChannel() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick"))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick", mappingState = caseMappingState))
 
         handler.handle(KickMessage(users = listOf("test-nick"), channels = listOf("#channel")))
 

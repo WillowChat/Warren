@@ -49,7 +49,7 @@ class ModeHandlerTests {
     }
 
     @Test fun test_handle_ChannelModeChange_UserPrefixAdded() {
-        channelsState.joined += ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf())))
+        channelsState.joined += ChannelState("#channel", generateUsersWithModes(("someone" to mutableSetOf()), mappingState = caseMappingState))
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '+', mode = 'v', parameter = "someone")
 
@@ -59,7 +59,7 @@ class ModeHandlerTests {
     }
 
     @Test fun test_handle_ChannelModeChange_UserPrefixRemoved() {
-        channelsState.joined += ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
+        channelsState.joined += ChannelState("#channel", generateUsersWithModes(("someone" to mutableSetOf('o')), mappingState = caseMappingState))
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone")
 
@@ -69,7 +69,7 @@ class ModeHandlerTests {
     }
 
     @Test fun test_handle_ChannelModeChange_UserPrefixForNonExistentChannel_NothingHappens() {
-        channelsState.joined += ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
+        channelsState.joined += ChannelState("#channel", generateUsersWithModes(("someone" to mutableSetOf('o')), mappingState = caseMappingState))
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone")
 
@@ -79,7 +79,7 @@ class ModeHandlerTests {
     }
 
     @Test fun test_handle_ChannelModeChange_UserPrefixForNonExistentUser_NothingHappens() {
-        channelsState.joined += ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
+        channelsState.joined += ChannelState("#channel", generateUsersWithModes(("someone" to mutableSetOf('o')), mappingState = caseMappingState))
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone-else")
 
