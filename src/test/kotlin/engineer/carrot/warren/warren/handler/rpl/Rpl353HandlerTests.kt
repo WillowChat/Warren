@@ -12,33 +12,33 @@ class Rpl353HandlerTests {
     lateinit var handler: Rpl353Handler
     lateinit var channelsState: ChannelsState
     lateinit var userPrefixesState: UserPrefixesState
+    val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
 
     @Before fun setUp() {
-        channelsState = ChannelsState(joined = mutableMapOf())
+        channelsState = emptyChannelsState(caseMappingState)
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
-        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
-        handler = Rpl353Handler(channelsState, userPrefixesState, caseMappingState)
+        handler = Rpl353Handler(channelsState.joined, userPrefixesState, caseMappingState)
     }
 
     @Test fun test_handle_WellFormed_AddsCorrectNicksToChannel() {
-        channelsState.joined["#channel"] = ChannelState("#channel", users = generateUsers())
+        channelsState.joined += ChannelState("#channel", users = generateUsers())
 
         handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@test-nick", "+another-person", "someone-else")))
 
-        assertEquals(ChannelsState(joined = mutableMapOf("#channel" to ChannelState(name = "#channel", users = generateUsersWithModes(("test-nick" to setOf('o')), ("another-person" to setOf('v')), ("someone-else" to setOf()))))), channelsState)
+        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsersWithModes(("test-nick" to setOf('o')), ("another-person" to setOf('v')), ("someone-else" to setOf())))), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_MalformedUserNick_ProcessesTheRestAnyway() {
-        channelsState.joined["#channel"] = ChannelState("#channel", users = generateUsers())
+        channelsState.joined += ChannelState("#channel", users = generateUsers())
 
         handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@", "+another-person", "someone-else")))
 
-        assertEquals(ChannelsState(joined = mutableMapOf("#channel" to ChannelState(name = "#channel", users = generateUsersWithModes(("another-person" to setOf('v')), ("someone-else" to setOf()))))), channelsState)
+        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsersWithModes(("another-person" to setOf('v')), ("someone-else" to setOf())))), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_NotInChannel_DoesNothing() {
         handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@test-nick", "+another-person", "someone-else")))
 
-        assertEquals(ChannelsState(joined = mutableMapOf()), channelsState)
+        assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
 }

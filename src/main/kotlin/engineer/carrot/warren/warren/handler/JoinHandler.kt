@@ -5,7 +5,7 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.*
 
-class JoinHandler(val connectionState: ConnectionState, val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<JoinMessage> {
+class JoinHandler(val connectionState: ConnectionState, val joiningChannelsState: JoiningChannelsState, val joinedChannelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<JoinMessage> {
     private val LOGGER = loggerFor<JoinHandler>()
 
     override val messageType = JoinMessage::class.java
@@ -27,22 +27,22 @@ class JoinHandler(val connectionState: ConnectionState, val channelsState: Chann
             LOGGER.debug("we joined channels: ${message.channels}")
 
             for (channelName in channelNames) {
-                if (!channelsState.containsJoined(channelName, caseMappingState.mapping)) {
+                if (!joinedChannelsState.contains(channelName)) {
                     LOGGER.trace("adding $channelName to joined channels with 0 users")
 
-                    channelsState.putJoined(ChannelState(channelName, users = generateUsers()), caseMappingState.mapping)
+                    joinedChannelsState += ChannelState(channelName, users = generateUsers())
                 } else {
                     LOGGER.trace("we're already in $channelName - not adding it again")
                 }
 
                 LOGGER.trace("removing channel from joining state: $channelName")
-                channelsState.removeJoining(channelName, caseMappingState.mapping)
+                joiningChannelsState -= channelName
             }
         } else {
             // Someone else joined a channel
 
             for (channelName in channelNames) {
-                val channelState = channelsState.getJoined(channelName, caseMappingState.mapping)
+                val channelState = joinedChannelsState[channelName]
                 if (channelState != null) {
                     channelState.users += generateUser(nick)
 

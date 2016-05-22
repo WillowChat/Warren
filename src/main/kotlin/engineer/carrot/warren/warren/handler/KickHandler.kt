@@ -4,10 +4,10 @@ import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.KickMessage
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.CaseMappingState
-import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.ConnectionState
+import engineer.carrot.warren.warren.state.JoinedChannelsState
 
-class KickHandler(val connectionState: ConnectionState, val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<KickMessage> {
+class KickHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<KickMessage> {
     private val LOGGER = loggerFor<KickHandler>()
 
     override val messageType = KickMessage::class.java
@@ -20,12 +20,12 @@ class KickHandler(val connectionState: ConnectionState, val channelsState: Chann
             if (kickedNick == connectionState.nickname) {
                 // We were forcibly kicked
 
-                val removedChannels = channels.map { channel -> channelsState.removeJoined(channel, caseMappingState.mapping) }
+                val removedChannels = channels.map { channel -> channelsState.remove(channel) }
                 LOGGER.debug("we were kicked from channels: $removedChannels")
             } else {
                 // Someone else was kicked
 
-                for ((name, channel) in channelsState.joined) {
+                for ((name, channel) in channelsState.all) {
                     if (channel.users.contains(kickedNick)) {
                         channel.users.remove(kickedNick)
                     }

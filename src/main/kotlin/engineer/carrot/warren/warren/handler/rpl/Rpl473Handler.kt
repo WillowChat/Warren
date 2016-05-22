@@ -4,16 +4,16 @@ import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl473Message
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.CaseMappingState
-import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.JoiningChannelLifecycle
+import engineer.carrot.warren.warren.state.JoiningChannelsState
 
-class Rpl473Handler(val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl473Message> {
+class Rpl473Handler(val channelsState: JoiningChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl473Message> {
     private val LOGGER = loggerFor<Rpl473Handler>()
 
     override val messageType = Rpl473Message::class.java
 
     override fun handle(message: Rpl473Message) {
-        val channel = channelsState.getJoining(message.channel, caseMappingState.mapping)
+        val channel = channelsState[message.channel]
 
         if (channel == null) {
             LOGGER.warn("got an invite only channel reply for a channel we don't think we're joining: $message")

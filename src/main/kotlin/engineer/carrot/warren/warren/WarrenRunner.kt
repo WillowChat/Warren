@@ -38,12 +38,12 @@ object WarrenRunner {
         val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState, caseMappingState)
 
-        val joiningState = mutableMapOf<String, JoiningChannelState>()
+        val joiningState = JoiningChannelsState(caseMappingState)
         for (channel in channels) {
-            joiningState += (channel.key to JoiningChannelState(channel.key, channel.value, status = JoiningChannelLifecycle.JOINING))
+            joiningState += JoiningChannelState(channel.key, channel.value, status = JoiningChannelLifecycle.JOINING)
         }
 
-        val channelsState = ChannelsState(joining = joiningState, joined = mutableMapOf())
+        val channelsState = ChannelsState(joining = joiningState, joined = JoinedChannelsState(caseMappingState))
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 

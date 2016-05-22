@@ -4,11 +4,11 @@ import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl353Message
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.CaseMappingState
-import engineer.carrot.warren.warren.state.ChannelsState
+import engineer.carrot.warren.warren.state.JoinedChannelsState
 import engineer.carrot.warren.warren.state.UserPrefixesState
 import engineer.carrot.warren.warren.state.generateUser
 
-class Rpl353Handler(val channelsState: ChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl353Message> {
+class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl353Message> {
     private val LOGGER = loggerFor<Rpl353Handler>()
 
     override val messageType = Rpl353Message::class.java
@@ -16,7 +16,7 @@ class Rpl353Handler(val channelsState: ChannelsState, val userPrefixesState: Use
     override fun handle(message: Rpl353Message) {
         val names = message.names
 
-        val channel = channelsState.getJoined(message.channel, caseMappingState.mapping)
+        val channel = channelsState[message.channel]
         if (channel == null) {
             LOGGER.warn("got a 353 for a channel we don't think we're in - bailing: ${message.channel}")
             return

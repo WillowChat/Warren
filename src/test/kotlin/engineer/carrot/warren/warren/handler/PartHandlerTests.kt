@@ -13,6 +13,7 @@ class PartHandlerTests {
     lateinit var handler: PartHandler
     lateinit var connectionState: ConnectionState
     lateinit var channelsState: ChannelsState
+    val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.DISCONNECTED
@@ -20,43 +21,42 @@ class PartHandlerTests {
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
         val saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
         connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState, sasl = saslState)
-        channelsState = ChannelsState(joined = mutableMapOf())
-        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
-        handler = PartHandler(connectionState, channelsState, caseMappingState)
+        channelsState = emptyChannelsState(caseMappingState)
+        handler = PartHandler(connectionState, channelsState.joined, caseMappingState)
     }
 
     @Test fun test_handle_SourceIsSelf_WellFormed_PartsCorrectChannel() {
-        channelsState.joined["#channel"] = ChannelState("#channel", users = generateUsers("test-nick"))
+        channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick"))
 
         handler.handle(PartMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")))
 
-        assertEquals(ChannelsState(joined = mutableMapOf()), channelsState)
+        assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsSelf_NotInChannel() {
         handler.handle(PartMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")))
 
-        assertEquals(ChannelsState(joined = mutableMapOf()), channelsState)
+        assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsSelf_MissingSource_DoesNothing() {
         handler.handle(PartMessage(channels = listOf("#channel")))
 
-        assertEquals(ChannelsState(joined = mutableMapOf()), channelsState)
+        assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsOther_WellFormed() {
-        channelsState.joined["#channel"] = ChannelState("#channel", users = generateUsers("test-nick", "someone-else"))
+        channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick", "someone-else"))
 
         handler.handle(PartMessage(source = Prefix(nick = "someone-else"), channels = listOf("#channel")))
 
-        assertEquals(ChannelsState(joined = mutableMapOf("#channel" to ChannelState(name = "#channel", users = generateUsers("test-nick")))), channelsState)
+        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers("test-nick"))), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsOther_NotInChannel() {
         handler.handle(PartMessage(source = Prefix(nick = "someone-else"), channels = listOf("#channel")))
 
-        assertEquals(ChannelsState(joined = mutableMapOf()), channelsState)
+        assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
 
 }

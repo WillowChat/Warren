@@ -4,10 +4,10 @@ import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.PartMessage
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.CaseMappingState
-import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.ConnectionState
+import engineer.carrot.warren.warren.state.JoinedChannelsState
 
-class PartHandler(val connectionState: ConnectionState, val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<PartMessage> {
+class PartHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<PartMessage> {
     private val LOGGER = loggerFor<PartHandler>()
 
     override val messageType = PartMessage::class.java
@@ -29,10 +29,10 @@ class PartHandler(val connectionState: ConnectionState, val channelsState: Chann
             LOGGER.debug("we parted channels: ${message.channels}")
 
             for (channelName in channelNames) {
-                if (channelsState.containsJoined(channelName, caseMappingState.mapping)) {
+                if (channelsState.contains(channelName)) {
                     LOGGER.trace("removing $channelName from joined channels")
 
-                    channelsState.removeJoined(channelName, caseMappingState.mapping)
+                    channelsState -= channelName
                 } else {
                     LOGGER.trace("we already left $channelName - not leaving it again")
                 }
@@ -43,7 +43,7 @@ class PartHandler(val connectionState: ConnectionState, val channelsState: Chann
             LOGGER.debug("$nick left $channelNames")
 
             for (channelName in channelNames) {
-                val channelState = channelsState.getJoined(channelName, caseMappingState.mapping)
+                val channelState = channelsState[channelName]
                 if (channelState != null) {
                     channelState.users.remove(nick)
 

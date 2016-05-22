@@ -8,10 +8,10 @@ import engineer.carrot.warren.warren.UserModeEvent
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.ChannelTypesState
-import engineer.carrot.warren.warren.state.ChannelsState
+import engineer.carrot.warren.warren.state.JoinedChannelsState
 import engineer.carrot.warren.warren.state.UserPrefixesState
 
-class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesState: ChannelTypesState, val channelsState: ChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : IKaleHandler<ModeMessage> {
+class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesState: ChannelTypesState, val channelsState: JoinedChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : IKaleHandler<ModeMessage> {
     private val LOGGER = loggerFor<ModeHandler>()
 
     override val messageType = ModeMessage::class.java
@@ -26,7 +26,7 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
                 if (userPrefixesState.prefixesToModes.values.contains(modifier.mode)) {
                     // User mode changed
 
-                    val channel = channelsState.getJoined(target, caseMappingState.mapping)
+                    val channel = channelsState[target]
                     if (channel == null) {
                         LOGGER.warn("user mode changed for a channel we don't think we're in, bailing: $message")
                         continue

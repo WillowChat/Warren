@@ -3,11 +3,11 @@ package engineer.carrot.warren.warren.handler
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.warren.loggerFor
-import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.ConnectionState
+import engineer.carrot.warren.warren.state.JoinedChannelsState
 import engineer.carrot.warren.warren.state.generateUser
 
-class NickHandler(val connectionState: ConnectionState, val channelsState: ChannelsState) : IKaleHandler<NickMessage> {
+class NickHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState) : IKaleHandler<NickMessage> {
     private val LOGGER = loggerFor<NickHandler>()
 
     override val messageType = NickMessage::class.java
@@ -27,7 +27,7 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Chann
             connectionState.nickname = from
         }
 
-        for ((name, channel) in channelsState.joined) {
+        for ((name, channel) in channelsState.all) {
             if (channel.users.contains(from)) {
                 channel.users.remove(from)
                 channel.users += generateUser(to)

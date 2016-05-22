@@ -5,11 +5,11 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.QuitMessage
 import engineer.carrot.warren.warren.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.loggerFor
-import engineer.carrot.warren.warren.state.ChannelsState
 import engineer.carrot.warren.warren.state.ConnectionState
+import engineer.carrot.warren.warren.state.JoinedChannelsState
 import engineer.carrot.warren.warren.state.LifecycleState
 
-class QuitHandler(val eventDispatcher: IWarrenEventDispatcher, val connectionState: ConnectionState, val channelsState: ChannelsState) : IKaleHandler<QuitMessage> {
+class QuitHandler(val eventDispatcher: IWarrenEventDispatcher, val connectionState: ConnectionState, val channelsState: JoinedChannelsState) : IKaleHandler<QuitMessage> {
     private val LOGGER = loggerFor<QuitHandler>()
 
     override val messageType = QuitMessage::class.java
@@ -31,7 +31,7 @@ class QuitHandler(val eventDispatcher: IWarrenEventDispatcher, val connectionSta
         } else {
             // Someone else quit
 
-            for ((name, channel) in channelsState.joined) {
+            for ((name, channel) in channelsState.all) {
                 if (channel.users.contains(from)) {
                     channel.users.remove(from)
                 }

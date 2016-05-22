@@ -46,7 +46,7 @@ class IrcRunnerTests {
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
         val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState, caseMappingState)
-        val channelsState = ChannelsState(joining = mutableMapOf(), joined = mutableMapOf())
+        val channelsState = ChannelsState(joining = JoiningChannelsState(caseMappingState), joined = JoinedChannelsState(caseMappingState))
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 

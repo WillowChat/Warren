@@ -4,15 +4,15 @@ import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl332Message
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.CaseMappingState
-import engineer.carrot.warren.warren.state.ChannelsState
+import engineer.carrot.warren.warren.state.JoinedChannelsState
 
-class Rpl332Handler(val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl332Message> {
+class Rpl332Handler(val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl332Message> {
     private val LOGGER = loggerFor<Rpl332Handler>()
 
     override val messageType = Rpl332Message::class.java
 
     override fun handle(message: Rpl332Message) {
-        val channel = channelsState.getJoined(message.channel, caseMappingState.mapping)
+        val channel = channelsState[message.channel]
         val topic = message.topic
 
         if (channel == null) {

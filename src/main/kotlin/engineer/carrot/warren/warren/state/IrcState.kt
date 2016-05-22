@@ -4,47 +4,66 @@ import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 
 data class IrcState(val connection: ConnectionState, val parsing: ParsingState, val channels: ChannelsState)
 
-data class ChannelsState(val joining: MutableMap<String, JoiningChannelState> = mutableMapOf(), val joined: MutableMap<String, ChannelState>) {
+data class ChannelsState(val joining: JoiningChannelsState, val joined: JoinedChannelsState)
 
-    // Joining channels
+interface IChannelNameOwning { val name: String }
 
-    fun containsJoining(channel: String, mapping: CaseMapping): Boolean {
-        return joining.containsKey(mapping.toLower(channel))
+open class ChannelWrangler<ChannelType: IChannelNameOwning>(var mappingState: CaseMappingState) {
+    private val channels = mutableMapOf<String, ChannelType>()
+
+    operator fun get(key: String): ChannelType? {
+        return channels[mappingState.mapping.toLower(key)]
     }
 
-    fun getJoining(channel: String, mapping: CaseMapping): JoiningChannelState? {
-        return joining[mapping.toLower(channel)]
+    fun put(value: ChannelType) {
+        channels[mappingState.mapping.toLower(value.name)] = value
     }
 
-    fun putJoining(channel: JoiningChannelState, mapping: CaseMapping) {
-        joining[mapping.toLower(channel.name)] = channel
+    operator fun minusAssign(key: String) {
+        remove(key)
     }
 
-    fun removeJoining(channel: String, mapping: CaseMapping): JoiningChannelState? {
-        return joining.remove(mapping.toLower(channel))
-    }
-    
-    // Joined channels
-    
-    fun containsJoined(channel: String, mapping: CaseMapping): Boolean {
-        return joined.containsKey(mapping.toLower(channel))
+    fun remove(key: String): ChannelType? {
+        return channels.remove(mappingState.mapping.toLower(key))
     }
 
-    fun getJoined(channel: String, mapping: CaseMapping): ChannelState? {
-        return joined[mapping.toLower(channel)]
+    operator fun plusAssign(channel: ChannelType) {
+        put(channel)
     }
 
-    fun putJoined(channel: ChannelState, mapping: CaseMapping) {
-        joined[mapping.toLower(channel.name)] = channel
+    operator fun plusAssign(channels: Collection<ChannelType>) {
+        for (channel in channels) {
+            put(channel)
+        }
     }
 
-    fun removeJoined(channel: String, mapping: CaseMapping): ChannelState? {
-        return joined.remove(mapping.toLower(channel))
+    fun contains(key: String): Boolean {
+        return channels.contains(mappingState.mapping.toLower(key))
     }
 
+    val all: Map<String, ChannelType>
+        get() = channels
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is ChannelWrangler<*>) {
+            return false
+        }
+
+        return channels == other.channels && mappingState == other.mappingState
+    }
+
+    override fun hashCode(): Int{
+        var result = mappingState.hashCode()
+        result = 31 * result + channels.hashCode()
+        return result
+    }
 }
 
-data class JoiningChannelState(val name: String, val key: String? = null, var status: JoiningChannelLifecycle) {
+class JoinedChannelsState(mappingState: CaseMappingState): ChannelWrangler<ChannelState>(mappingState)
+
+class JoiningChannelsState(mappingState: CaseMappingState): ChannelWrangler<JoiningChannelState>(mappingState)
+
+data class JoiningChannelState(override val name: String, val key: String? = null, var status: JoiningChannelLifecycle): IChannelNameOwning {
     override fun toString(): String {
         return "JoiningChannelState(name=$name, key=${if (key == null) {
             "null"
@@ -56,7 +75,7 @@ data class JoiningChannelState(val name: String, val key: String? = null, var st
 
 enum class JoiningChannelLifecycle { JOINING, FAILED }
 
-data class ChannelState(val name: String, val users: MutableMap<String, ChannelUserState>, var topic: String? = null)
+data class ChannelState(override val name: String, val users: MutableMap<String, ChannelUserState>, var topic: String? = null) : IChannelNameOwning
 
 data class ChannelUserState(val nick: String, val modes: MutableSet<Char> = mutableSetOf())
 

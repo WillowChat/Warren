@@ -18,14 +18,14 @@ class ModeHandlerTests {
     lateinit var handler: ModeHandler
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
     lateinit var channelsState: ChannelsState
+    val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
 
     @Before fun setUp() {
         mockEventDispatcher = mock()
         val channelTypes = ChannelTypesState(types = setOf('#'))
-        channelsState = ChannelsState(joining = mutableMapOf(), joined = mutableMapOf())
+        channelsState = channelsStateWith(listOf(), caseMappingState)
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('+' to 'v', '@' to 'o'))
-        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
-        handler = ModeHandler(mockEventDispatcher, channelTypes, channelsState, userPrefixesState, caseMappingState)
+        handler = ModeHandler(mockEventDispatcher, channelTypes, channelsState.joined, userPrefixesState, caseMappingState)
     }
 
     @Test fun test_handle_ChannelModeChange_NoPrefix_FiresEvents() {
@@ -49,7 +49,7 @@ class ModeHandlerTests {
     }
 
     @Test fun test_handle_ChannelModeChange_UserPrefixAdded() {
-        channelsState.joined["#channel"] = ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf())))
+        channelsState.joined += ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf())))
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '+', mode = 'v', parameter = "someone")
 
@@ -59,7 +59,7 @@ class ModeHandlerTests {
     }
 
     @Test fun test_handle_ChannelModeChange_UserPrefixRemoved() {
-        channelsState.joined["#channel"] = ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
+        channelsState.joined += ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone")
 
@@ -69,7 +69,7 @@ class ModeHandlerTests {
     }
 
     @Test fun test_handle_ChannelModeChange_UserPrefixForNonExistentChannel_NothingHappens() {
-        channelsState.joined["#channel"] = ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
+        channelsState.joined += ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone")
 
@@ -79,7 +79,7 @@ class ModeHandlerTests {
     }
 
     @Test fun test_handle_ChannelModeChange_UserPrefixForNonExistentUser_NothingHappens() {
-        channelsState.joined["#channel"] = ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
+        channelsState.joined += ChannelState("#channel", mutableMapOf("someone" to ChannelUserState(nick = "someone", modes = mutableSetOf('o'))))
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone-else")
 
