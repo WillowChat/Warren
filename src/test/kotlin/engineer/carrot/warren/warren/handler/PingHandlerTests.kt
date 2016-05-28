@@ -19,7 +19,7 @@ class PingHandlerTests {
     }
 
     @Test fun test_handle_SendsPongWithCorrectToken() {
-        handler.handle(PingMessage(token = "TestToken"))
+        handler.handle(PingMessage(token = "TestToken"), mapOf())
 
         verify(mockSink).write(PongMessage(token = "TestToken"))
     }

@@ -19,7 +19,7 @@ class Rpl475HandlerTests {
     }
 
     @Test fun test_handle_NonexistentChannel_DoesNothing() {
-        handler.handle(Rpl475Message(source = "", target = "", channel = "#somewhere", contents = ""))
+        handler.handle(Rpl475Message(source = "", target = "", channel = "#somewhere", contents = ""), mapOf())
 
         assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
@@ -27,7 +27,7 @@ class Rpl475HandlerTests {
     @Test fun test_handle_ValidChannel_SetsStatusToFailed() {
         channelsState.joining += JoiningChannelState("#channel", status = JoiningChannelLifecycle.JOINING)
 
-        handler.handle(Rpl475Message(source = "", target = "", channel = "#channel", contents = ""))
+        handler.handle(Rpl475Message(source = "", target = "", channel = "#channel", contents = ""), mapOf())
 
         val expectedChannelState = JoiningChannelState("#channel", status = JoiningChannelLifecycle.FAILED)
 

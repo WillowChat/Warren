@@ -10,7 +10,7 @@ class Rpl005Handler(val state: ParsingState, val prefixHandler: IRpl005PrefixHan
 
     override val messageType = Rpl005Message::class.java
 
-    override fun handle(message: Rpl005Message) {
+    override fun handle(message: Rpl005Message, tags: Map<String, String?>) {
         LOGGER.debug("got isupport additions: ${message.tokens}")
 
         for ((key, value) in message.tokens) {

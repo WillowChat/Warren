@@ -10,7 +10,7 @@ class JoinHandler(val connectionState: ConnectionState, val joiningChannelsState
 
     override val messageType = JoinMessage::class.java
 
-    override fun handle(message: JoinMessage) {
+    override fun handle(message: JoinMessage, tags: Map<String, String?>) {
         val channelNames = message.channels
         val source = message.source
 

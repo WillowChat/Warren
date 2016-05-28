@@ -12,7 +12,7 @@ class KickHandler(val connectionState: ConnectionState, val channelsState: Joine
 
     override val messageType = KickMessage::class.java
 
-    override fun handle(message: KickMessage) {
+    override fun handle(message: KickMessage, tags: Map<String, String?>) {
         val kickedNicks = message.users
         val channels = message.channels
 

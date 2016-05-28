@@ -14,7 +14,7 @@ class Rpl904Handler(val capState: CapState, val saslState: SaslState, val sink: 
 
     override val messageType = Rpl904Message::class.java
 
-    override fun handle(message: Rpl904Message) {
+    override fun handle(message: Rpl904Message, tags: Map<String, String?>) {
         LOGGER.warn("invalid mechanism, or sasl auth failed: ${message.contents}")
 
         saslState.lifecycle = SaslLifecycle.AUTH_FAILED

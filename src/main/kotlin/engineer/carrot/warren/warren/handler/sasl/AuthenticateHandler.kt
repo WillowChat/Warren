@@ -13,7 +13,7 @@ class AuthenticateHandler(val state: SaslState, val sink: IMessageSink) : IKaleH
 
     override val messageType = AuthenticateMessage::class.java
 
-    override fun handle(message: AuthenticateMessage) {
+    override fun handle(message: AuthenticateMessage, tags: Map<String, String?>) {
         if (state.lifecycle != SaslLifecycle.AUTHING) {
             LOGGER.warn("got an auth challenge, but we don't think we're authenticating - ignoring: $message")
             return

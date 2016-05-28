@@ -11,7 +11,7 @@ class TopicHandler(val channelsState: JoinedChannelsState, val caseMappingState:
 
     override val messageType = TopicMessage::class.java
 
-    override fun handle(message: TopicMessage) {
+    override fun handle(message: TopicMessage, tags: Map<String, String?>) {
         val channel = channelsState[message.channel]
         val topic = message.topic
 

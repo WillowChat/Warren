@@ -32,7 +32,7 @@ class ModeHandlerTests {
         val firstExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'x', parameter = "someone")
         val secondExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'y')
 
-        handler.handle(ModeMessage(source = null, target = "#channel", modifiers = listOf(firstExpectedModifier, secondExpectedModifier)))
+        handler.handle(ModeMessage(source = null, target = "#channel", modifiers = listOf(firstExpectedModifier, secondExpectedModifier)), mapOf())
 
         verify(mockEventDispatcher).fire(ChannelModeEvent(user = null, channel = "#channel", modifier = firstExpectedModifier))
         verify(mockEventDispatcher).fire(ChannelModeEvent(user = null, channel = "#channel", modifier = secondExpectedModifier))
@@ -42,7 +42,7 @@ class ModeHandlerTests {
         val firstExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'x', parameter = "someone")
         val secondExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'y')
 
-        handler.handle(ModeMessage(source = Prefix(nick = "admin"), target = "#channel", modifiers = listOf(firstExpectedModifier, secondExpectedModifier)))
+        handler.handle(ModeMessage(source = Prefix(nick = "admin"), target = "#channel", modifiers = listOf(firstExpectedModifier, secondExpectedModifier)), mapOf())
 
         verify(mockEventDispatcher).fire(ChannelModeEvent(user = Prefix(nick = "admin"), channel = "#channel", modifier = firstExpectedModifier))
         verify(mockEventDispatcher).fire(ChannelModeEvent(user = Prefix(nick = "admin"), channel = "#channel", modifier = secondExpectedModifier))
@@ -53,7 +53,7 @@ class ModeHandlerTests {
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '+', mode = 'v', parameter = "someone")
 
-        handler.handle(ModeMessage(target = "#channel", modifiers = listOf(addVoiceModifier)))
+        handler.handle(ModeMessage(target = "#channel", modifiers = listOf(addVoiceModifier)), mapOf())
 
         assertEquals(mutableSetOf('v'), channelsState.joined["#channel"]!!.users["someone"]!!.modes)
     }
@@ -63,7 +63,7 @@ class ModeHandlerTests {
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone")
 
-        handler.handle(ModeMessage(target = "#channel", modifiers = listOf(addVoiceModifier)))
+        handler.handle(ModeMessage(target = "#channel", modifiers = listOf(addVoiceModifier)), mapOf())
 
         assertEquals(mutableSetOf<Char>(), channelsState.joined["#channel"]!!.users["someone"]!!.modes)
     }
@@ -73,7 +73,7 @@ class ModeHandlerTests {
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone")
 
-        handler.handle(ModeMessage(target = "#anotherchannel", modifiers = listOf(addVoiceModifier)))
+        handler.handle(ModeMessage(target = "#anotherchannel", modifiers = listOf(addVoiceModifier)), mapOf())
 
         assertEquals(mutableSetOf('o'), channelsState.joined["#channel"]!!.users["someone"]!!.modes)
     }
@@ -83,7 +83,7 @@ class ModeHandlerTests {
 
         val addVoiceModifier = ModeMessage.ModeModifier(type = '-', mode = 'o', parameter = "someone-else")
 
-        handler.handle(ModeMessage(target = "#channel", modifiers = listOf(addVoiceModifier)))
+        handler.handle(ModeMessage(target = "#channel", modifiers = listOf(addVoiceModifier)), mapOf())
 
         assertEquals(mutableSetOf('o'), channelsState.joined["#channel"]!!.users["someone"]!!.modes)
     }
@@ -92,7 +92,7 @@ class ModeHandlerTests {
         val firstExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'v', parameter = "someone")
         val secondExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'x')
 
-        handler.handle(ModeMessage(source = null, target = "someone", modifiers = listOf(firstExpectedModifier, secondExpectedModifier)))
+        handler.handle(ModeMessage(source = null, target = "someone", modifiers = listOf(firstExpectedModifier, secondExpectedModifier)), mapOf())
 
         verify(mockEventDispatcher).fire(UserModeEvent(user = "someone", modifier = firstExpectedModifier))
         verify(mockEventDispatcher).fire(UserModeEvent(user = "someone", modifier = secondExpectedModifier))

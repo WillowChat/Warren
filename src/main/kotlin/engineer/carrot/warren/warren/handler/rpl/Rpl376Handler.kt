@@ -16,7 +16,7 @@ class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMess
 
     override val messageType = Rpl376Message::class.java
 
-    override fun handle(message: Rpl376Message) {
+    override fun handle(message: Rpl376Message, tags: Map<String, String?>) {
 
         if (connectionState.cap.lifecycle == CapLifecycle.NEGOTIATING) {
             LOGGER.warn("got MOTD end before CAP end, assuming CAP negotiation failed")

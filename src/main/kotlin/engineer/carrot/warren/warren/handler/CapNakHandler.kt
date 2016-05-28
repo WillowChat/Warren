@@ -14,7 +14,7 @@ class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: 
 
     override val messageType = CapNakMessage::class.java
 
-    override fun handle(message: CapNakMessage) {
+    override fun handle(message: CapNakMessage, tags: Map<String, String?>) {
         val caps = message.caps
         val lifecycle = capState.lifecycle
 

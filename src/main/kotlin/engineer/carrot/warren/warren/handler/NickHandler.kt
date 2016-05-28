@@ -12,7 +12,7 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Joine
 
     override val messageType = NickMessage::class.java
 
-    override fun handle(message: NickMessage) {
+    override fun handle(message: NickMessage, tags: Map<String, String?>) {
         val from = message.source?.nick
         val to = message.nickname
 

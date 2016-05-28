@@ -33,7 +33,7 @@ class Rpl905HandlerTests {
     }
 
     @Test fun test_handle_LifecycleSetToAuthFailed() {
-        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth succeeded"))
+        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
 
         assertEquals(SaslLifecycle.AUTH_FAILED, saslState.lifecycle)
     }
@@ -43,7 +43,7 @@ class Rpl905HandlerTests {
         capState.negotiate = setOf("cap1", "cap2")
         capState.accepted = setOf("cap1")
 
-        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth succeeded"))
+        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
 
         verify(sink, never()).write(any<IMessage>())
     }
@@ -53,7 +53,7 @@ class Rpl905HandlerTests {
         capState.negotiate = setOf("cap1", "cap2")
         capState.accepted = setOf("cap1", "cap2")
 
-        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth succeeded"))
+        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
 
         verify(sink).write(CapEndMessage())
     }

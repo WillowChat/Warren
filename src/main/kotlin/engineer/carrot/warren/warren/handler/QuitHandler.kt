@@ -14,7 +14,7 @@ class QuitHandler(val eventDispatcher: IWarrenEventDispatcher, val connectionSta
 
     override val messageType = QuitMessage::class.java
 
-    override fun handle(message: QuitMessage) {
+    override fun handle(message: QuitMessage, tags: Map<String, String?>) {
         val from = message.source?.nick
 
         if (from == null) {

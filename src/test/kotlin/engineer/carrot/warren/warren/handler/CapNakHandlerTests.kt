@@ -35,7 +35,7 @@ class CapNakHandlerTests {
     @Test fun test_handle_AddsNakedCapsToStateList() {
         capState.negotiate = setOf("cap1", "cap2", "cap3")
 
-        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")))
+        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), mapOf())
 
         assertEquals(setOf("cap1", "cap2"), capState.rejected)
     }
@@ -44,7 +44,7 @@ class CapNakHandlerTests {
         capState.lifecycle = CapLifecycle.NEGOTIATING
         capState.negotiate = setOf("cap1", "cap2")
 
-        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")))
+        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), mapOf())
 
         verify(sink).write(CapEndMessage())
     }
@@ -53,7 +53,7 @@ class CapNakHandlerTests {
         capState.lifecycle = CapLifecycle.NEGOTIATING
         capState.negotiate = setOf("cap1", "cap2", "cap3")
 
-        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")))
+        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), mapOf())
 
         verify(sink, never()).write(any<IMessage>())
     }
@@ -62,7 +62,7 @@ class CapNakHandlerTests {
         capState.lifecycle = CapLifecycle.NEGOTIATED
         capState.negotiate = setOf("cap1", "cap2")
 
-        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")))
+        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), mapOf())
 
         verify(sink, never()).write(any<IMessage>())
     }

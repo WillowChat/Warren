@@ -10,7 +10,7 @@ class NoticeHandler(val channelTypesState: ChannelTypesState) : IKaleHandler<Not
 
     override val messageType = NoticeMessage::class.java
 
-    override fun handle(message: NoticeMessage) {
+    override fun handle(message: NoticeMessage, tags: Map<String, String?>) {
         val source = message.source
         val target = message.target
         val messageContents = message.message

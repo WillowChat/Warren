@@ -33,7 +33,7 @@ class Rpl376HandlerTests {
     @Test fun test_handle_JoinsChannelsAfterGettingMOTD_ConnectingState() {
         connectionState.lifecycle = LifecycleState.CONNECTING
 
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"))
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
         verify(mockSink).write(JoinMessage(channels = listOf("#channel1")))
         verify(mockSink).write(JoinMessage(channels = listOf("#channel2"), keys = listOf("testkey")))
@@ -42,20 +42,20 @@ class Rpl376HandlerTests {
     @Test fun test_handle_JoinsChannelsAfterGettingMOTD_RegisteringState() {
         connectionState.lifecycle = LifecycleState.REGISTERING
 
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"))
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
         verify(mockSink).write(JoinMessage(channels = listOf("#channel1")))
         verify(mockSink).write(JoinMessage(channels = listOf("#channel2"), keys = listOf("testkey")))
     }
 
     @Test fun test_handle_UpdatesLifecycleStateToConnected() {
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"))
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
         assertEquals(LifecycleState.CONNECTED, connectionState.lifecycle)
     }
 
     @Test fun test_handle_FiresConnectedEvent() {
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"))
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
         verify(mockEventDispatcher).fire(ConnectionLifecycleEvent(lifecycle = LifecycleState.CONNECTED))
     }
@@ -63,7 +63,7 @@ class Rpl376HandlerTests {
     @Test fun test_handle_CapNegotiating_SetsToFailed() {
         connectionState.cap.lifecycle = CapLifecycle.NEGOTIATING
 
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"))
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
         assertEquals(CapLifecycle.FAILED, connectionState.cap.lifecycle)
     }

@@ -12,7 +12,7 @@ class Rpl474Handler(val channelsState: JoiningChannelsState, val caseMappingStat
 
     override val messageType = Rpl474Message::class.java
 
-    override fun handle(message: Rpl474Message) {
+    override fun handle(message: Rpl474Message, tags: Map<String, String?>) {
         val channel = channelsState[message.channel]
 
         if (channel == null) {

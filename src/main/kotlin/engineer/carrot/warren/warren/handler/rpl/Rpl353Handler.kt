@@ -13,7 +13,7 @@ class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesStat
 
     override val messageType = Rpl353Message::class.java
 
-    override fun handle(message: Rpl353Message) {
+    override fun handle(message: Rpl353Message, tags: Map<String, String?>) {
         val names = message.names
 
         val channel = channelsState[message.channel]

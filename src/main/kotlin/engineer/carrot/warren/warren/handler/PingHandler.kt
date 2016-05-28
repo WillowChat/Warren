@@ -11,7 +11,7 @@ class PingHandler(val sink: IMessageSink) : IKaleHandler<PingMessage> {
 
     override val messageType = PingMessage::class.java
 
-    override fun handle(message: PingMessage) {
+    override fun handle(message: PingMessage, tags: Map<String, String?>) {
         LOGGER.debug("handling ping with token ${message.token}")
         sink.write(PongMessage(token = message.token))
     }

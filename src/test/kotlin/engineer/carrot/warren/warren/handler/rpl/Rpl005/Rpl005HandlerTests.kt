@@ -34,19 +34,19 @@ class Rpl005HandlerTests {
     }
 
     @Test fun test_handle_UserPrefixes() {
-        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("PREFIX" to "(ovh)@+%")))
+        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("PREFIX" to "(ovh)@+%")), mapOf())
 
         verify(prefixHandler).handle("(ovh)@+%", userPrefixesState)
     }
 
     @Test fun test_handle_ChannelModes() {
-        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CHANMODES" to "eIb,k,l,imnpstSr")))
+        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CHANMODES" to "eIb,k,l,imnpstSr")), mapOf())
 
         verify(channelModesHandler).handle("eIb,k,l,imnpstSr", channelModesState)
     }
 
     @Test fun test_handle_CaseMapping() {
-        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CASEMAPPING" to "something")))
+        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CASEMAPPING" to "something")), mapOf())
 
         verify(caseMappingHandler).handle("something", caseMappingState)
     }

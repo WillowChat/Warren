@@ -28,19 +28,19 @@ class PartHandlerTests {
     @Test fun test_handle_SourceIsSelf_WellFormed_PartsCorrectChannel() {
         channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick", mappingState = caseMappingState))
 
-        handler.handle(PartMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")))
+        handler.handle(PartMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")), mapOf())
 
         assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsSelf_NotInChannel() {
-        handler.handle(PartMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")))
+        handler.handle(PartMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")), mapOf())
 
         assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsSelf_MissingSource_DoesNothing() {
-        handler.handle(PartMessage(channels = listOf("#channel")))
+        handler.handle(PartMessage(channels = listOf("#channel")), mapOf())
 
         assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
@@ -48,13 +48,13 @@ class PartHandlerTests {
     @Test fun test_handle_SourceIsOther_WellFormed() {
         channelsState.joined += ChannelState("#channel", users = generateUsers("test-nick", "someone-else", mappingState = caseMappingState))
 
-        handler.handle(PartMessage(source = Prefix(nick = "someone-else"), channels = listOf("#channel")))
+        handler.handle(PartMessage(source = Prefix(nick = "someone-else"), channels = listOf("#channel")), mapOf())
 
         assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsers("test-nick", mappingState = caseMappingState))), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_SourceIsOther_NotInChannel() {
-        handler.handle(PartMessage(source = Prefix(nick = "someone-else"), channels = listOf("#channel")))
+        handler.handle(PartMessage(source = Prefix(nick = "someone-else"), channels = listOf("#channel")), mapOf())
 
         assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }

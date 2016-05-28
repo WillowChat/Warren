@@ -16,7 +16,7 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
 
     override val messageType = CapAckMessage::class.java
 
-    override fun handle(message: CapAckMessage) {
+    override fun handle(message: CapAckMessage, tags: Map<String, String?>) {
         val caps = message.caps
         val lifecycle = capState.lifecycle
 

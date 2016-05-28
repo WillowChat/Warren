@@ -12,7 +12,7 @@ class PartHandler(val connectionState: ConnectionState, val channelsState: Joine
 
     override val messageType = PartMessage::class.java
 
-    override fun handle(message: PartMessage) {
+    override fun handle(message: PartMessage, tags: Map<String, String?>) {
         val channelNames = message.channels
         val source = message.source
 

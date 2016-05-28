@@ -10,7 +10,7 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
 
     override val messageType = PrivMsgMessage::class.java
 
-    override fun handle(message: PrivMsgMessage) {
+    override fun handle(message: PrivMsgMessage, tags: Map<String, String?>) {
         val source = message.source
         val target = message.target
         var messageContents = message.message

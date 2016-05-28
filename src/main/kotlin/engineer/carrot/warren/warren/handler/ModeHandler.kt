@@ -16,7 +16,7 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
 
     override val messageType = ModeMessage::class.java
 
-    override fun handle(message: ModeMessage) {
+    override fun handle(message: ModeMessage, tags: Map<String, String?>) {
         val target = message.target
 
         if (channelTypesState.types.any { char -> target.startsWith(char) }) {

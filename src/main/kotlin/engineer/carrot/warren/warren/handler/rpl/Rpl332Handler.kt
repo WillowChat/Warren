@@ -11,7 +11,7 @@ class Rpl332Handler(val channelsState: JoinedChannelsState, val caseMappingState
 
     override val messageType = Rpl332Message::class.java
 
-    override fun handle(message: Rpl332Message) {
+    override fun handle(message: Rpl332Message, tags: Map<String, String?>) {
         val channel = channelsState[message.channel]
         val topic = message.topic
 

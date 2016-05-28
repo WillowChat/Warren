@@ -14,7 +14,7 @@ class Rpl903Handler(val capState: CapState, val saslState: SaslState, val sink: 
 
     override val messageType = Rpl903Message::class.java
 
-    override fun handle(message: Rpl903Message) {
+    override fun handle(message: Rpl903Message, tags: Map<String, String?>) {
         LOGGER.debug("sasl auth successful for user: ${saslState.credentials?.account}")
 
         saslState.lifecycle = SaslLifecycle.AUTHED
