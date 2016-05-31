@@ -145,7 +145,7 @@ class MockKale : IKale {
         spyRegisterHandlers.add(handler)
     }
 
-    override fun <T : IMessage> serialise(message: T): IrcMessage? {
+    override fun serialise(message: Any): IrcMessage? {
         throw UnsupportedOperationException()
     }
 
