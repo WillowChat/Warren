@@ -30,7 +30,7 @@ events.onAnything {
 }
 
 val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, password, sasl = true),
-                            ChannelsConfiguration(mapOf(#botdev" to null)), EventConfiguration(events, fireIncomingLineEvent = true))
+                            ChannelsConfiguration(mapOf("#botdev" to null)), EventConfiguration(events, fireIncomingLineEvent = true))
 val connection = factory.create()
 
 events.on(ChannelMessageEvent::class) {
