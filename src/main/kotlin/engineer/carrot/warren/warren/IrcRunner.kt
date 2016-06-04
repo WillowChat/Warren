@@ -5,6 +5,7 @@ import engineer.carrot.warren.kale.IKaleParsingStateDelegate
 import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
+import engineer.carrot.warren.kale.irc.message.rfc1459.PingMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
@@ -111,6 +112,8 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
 
     private lateinit var state: IrcState
 
+    private val PONG_TIMER_MS: Long = 30 * 1000
+
     init {
         state = initialState
     }
@@ -141,7 +144,8 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         kale.register(NickHandler(state.connection, state.channels.joined))
         kale.register(NoticeHandler(state.parsing.channelTypes))
         kale.register(PartHandler(state.connection, state.channels.joined, state.parsing.caseMapping))
-        kale.register(PingHandler(sink))
+        kale.register(PingHandler(sink, state.connection))
+        kale.register(PongHandler(sink, state.connection))
         kale.register(PrivMsgHandler(eventDispatcher, state.parsing.channelTypes))
         kale.register(QuitHandler(eventDispatcher, state.connection, state.channels.joined))
         kale.register(TopicHandler(state.channels.joined, state.parsing.caseMapping))
@@ -166,6 +170,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
 
     private fun startEventQueue() {
         val lineThread = thread(start = false) {
+            LOGGER.debug("new line thread starting up")
             NewLineWarrenEventGenerator(eventQueue, kale, lineSource, fireIncomingLineEvent, eventDispatcher).run()
             LOGGER.warn("new line generator ended")
 
@@ -188,7 +193,32 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
             })
         }
 
+        val pingThread = thread(start = false) {
+            pingLoop@ while (!Thread.currentThread().isInterrupted) {
+                try {
+                    Thread.sleep(10 * 1000)
+                } catch(exception: InterruptedException) {
+                    LOGGER.info("ping thread interrupted - bailing out")
+                    break@pingLoop
+                }
+
+                eventQueue.add(event = object : IWarrenInternalEvent {
+                    override fun execute() {
+                        if (state.connection.lifecycle == LifecycleState.CONNECTED) {
+                            val currentTime = System.currentTimeMillis()
+
+                            val msSinceLastPing = currentTime - state.connection.lastPingOrPong
+                            if (msSinceLastPing > PONG_TIMER_MS) {
+                                sink.write(PingMessage(token = "$currentTime"))
+                            }
+                        }
+                    }
+                })
+            }
+        }
+
         lineThread.start()
+        pingThread.start()
 
         var shouldExit = false
 
@@ -211,11 +241,17 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         } while (!shouldExit)
 
         if (lineThread.isAlive) {
-            LOGGER.trace("line thread still alive - interrupting and waiting for 2 seconds")
+            LOGGER.trace("line thread still alive - interrupting and assuming it'll bail out")
             lineThread.interrupt()
-            lineThread.join(2000)
         } else {
             LOGGER.trace("line thread not active - not killing it")
+        }
+
+        if (pingThread.isAlive) {
+            LOGGER.trace("Ping thread still alive - interrupting and assuming it'll bail out")
+            pingThread.interrupt()
+        } else {
+            LOGGER.trace("ping thread not active - not killing it")
         }
 
         sink.tearDown()

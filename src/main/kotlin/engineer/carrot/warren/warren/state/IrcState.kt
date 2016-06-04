@@ -85,7 +85,7 @@ data class ChannelUserState(val nick: String, val modes: MutableSet<Char> = muta
 
 }
 
-data class ConnectionState(val server: String, val port: Int, var nickname: String, val username: String, var lifecycle: LifecycleState, val cap: CapState, val sasl: SaslState)
+data class ConnectionState(val server: String, val port: Int, var nickname: String, val username: String, var lifecycle: LifecycleState, val cap: CapState, val sasl: SaslState, var lastPingOrPong: Long = 0)
 
 enum class LifecycleState { CONNECTING, REGISTERING, CONNECTED, DISCONNECTED }
 
