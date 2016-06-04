@@ -67,7 +67,7 @@ class NewLineEvent(val line: String, val kale: IKale) : IWarrenInternalEvent {
 
 }
 
-class SendSomethingEvent(val message: IMessage, val sink: IMessageSink) : IWarrenInternalEvent {
+class SendSomethingEvent(val message: Any, val sink: IMessageSink) : IWarrenInternalEvent {
     override fun execute() {
         sink.write(message)
     }

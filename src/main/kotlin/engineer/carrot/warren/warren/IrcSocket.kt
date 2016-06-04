@@ -92,7 +92,7 @@ class IrcSocket(val server: String, val port: Int, val useTLS: Boolean, val kale
         return line
     }
 
-    override fun <T : IMessage> write(message: T) {
+    override fun write(message: Any) {
         val ircMessage = kale.serialise(message)
         if (ircMessage == null) {
             LOGGER.error("failed to serialise to irc message: $message")
