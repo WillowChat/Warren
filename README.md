@@ -24,14 +24,16 @@ The project includes a simple [example runner](https://github.com/CarrotCodes/Wa
 If you're interested in more complex usage, come talk to me on IRC: #carrot on [ImaginaryNet](http://imaginarynet.uk/)
 
 ```kotlin
-val eventDispatcher = WarrenEventDispatcher()
-eventDispatcher.onAnything {
+val events = WarrenEventDispatcher()
+events.onAnything {
     LOGGER.info("event: $it")
 }
 
-val connection = createRunner(server, port, (port != 6667), nickname, password, mapOf("#botdev" to null), eventDispatcher, fireIncomingLineEvent = true)
+val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, password, sasl = true),
+                            ChannelsConfiguration(mapOf(#botdev" to null)), EventConfiguration(events, fireIncomingLineEvent = true))
+val connection = factory.create()
 
-eventDispatcher.on(ChannelMessageEvent::class) {
+events.on(ChannelMessageEvent::class) {
     LOGGER.info("channel message: $it")
 
     if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
