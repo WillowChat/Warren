@@ -14,6 +14,8 @@ interface IWarrenInternalEvent {
 
 interface IWarrenInternalEventSink {
     fun add(event: IWarrenInternalEvent)
+
+    fun add(closure: () -> Unit)
 }
 
 interface IWarrenInternalEventSource {
@@ -29,6 +31,14 @@ class WarrenInternalEventQueue : IWarrenInternalEventQueue {
 
     override fun add(event: IWarrenInternalEvent) {
         queue.add(event)
+    }
+
+    override fun add(closure: () -> Unit) {
+        add(object : IWarrenInternalEvent {
+            override fun execute() {
+                closure()
+            }
+        })
     }
 
     override fun grab(): IWarrenInternalEvent? {

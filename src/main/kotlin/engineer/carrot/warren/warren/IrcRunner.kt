@@ -111,11 +111,9 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
             LOGGER.warn("uncaught exception in line generator, forcing a disconnect: $exception")
 
             eventQueue.clear()
-            eventQueue.add(event = object : IWarrenInternalEvent {
-                override fun execute() {
-                    state.connection.lifecycle = LifecycleState.DISCONNECTED
-                }
-            })
+            eventQueue.add {
+                state.connection.lifecycle = LifecycleState.DISCONNECTED
+            }
         }
 
         val pingThread = thread(start = false) {
@@ -127,18 +125,16 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
                     break@pingLoop
                 }
 
-                eventQueue.add(event = object : IWarrenInternalEvent {
-                    override fun execute() {
-                        if (state.connection.lifecycle == LifecycleState.CONNECTED) {
-                            val currentTime = System.currentTimeMillis()
+                eventQueue.add {
+                    if (state.connection.lifecycle == LifecycleState.CONNECTED) {
+                        val currentTime = System.currentTimeMillis()
 
-                            val msSinceLastPing = currentTime - state.connection.lastPingOrPong
-                            if (msSinceLastPing > PONG_TIMER_MS) {
-                                sink.write(PingMessage(token = "$currentTime"))
-                            }
+                        val msSinceLastPing = currentTime - state.connection.lastPingOrPong
+                        if (msSinceLastPing > PONG_TIMER_MS) {
+                            sink.write(PingMessage(token = "$currentTime"))
                         }
                     }
-                })
+                }
             }
         }
 
