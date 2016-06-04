@@ -8,14 +8,15 @@ Kotlin, unit tested, IRC v3.2 state management and observing. Made for personal 
 
 Though still in active development, it remains stable enough for Thump to use. Thump, Warren and Kale drive requirements between themselves.
 
-## Why is this better than other IRC frameworks?
+## Why should you use this framework?
 
 Warren and Kale have a few advantages over other IRC frameworks:
 
 * The responsibilities of parsing and state management are separated
 * Both parsing and state management are verified by hundreds of unit tests
 * Messages, and state handlers, are individually encapsulated
- * Dependencies are clear, and there are no enormous, unverifiable disaster zones
+
+Note that this project is still pretty new. Planned features are tracked in [Issues](https://github.com/CarrotCodes/Warren/issues).
 
 ## Example usage
 
