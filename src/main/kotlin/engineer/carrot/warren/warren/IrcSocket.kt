@@ -109,4 +109,11 @@ class IrcSocket(val server: String, val port: Int, val useTLS: Boolean, val kale
         sink.writeString(line + "\r\n", Charsets.UTF_8)
         sink.flush()
     }
+
+    override fun writeRaw(line: String) {
+        LOGGER.trace("<< RAW: $line")
+
+        sink.writeString(line + "\r\n", Charsets.UTF_8)
+        sink.flush()
+    }
 }

@@ -38,7 +38,7 @@ class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMess
                     } else {
                         LOGGER.debug("authing with nickserv - assuming success as replies aren't standardised (use SASL instead if you can)")
 
-                        sink.write(RawMessage("NICKSERV identify ${credentials.account} ${credentials.password}"))
+                        sink.writeRaw("NICKSERV identify ${credentials.account} ${credentials.password}")
                         connectionState.nickServ.lifecycle = AuthLifecycle.AUTHED
 
                         LOGGER.debug("waiting ${connectionState.nickServ.channelJoinWaitSeconds} seconds before joining channels")

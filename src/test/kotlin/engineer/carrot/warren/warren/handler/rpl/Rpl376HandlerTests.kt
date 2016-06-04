@@ -73,7 +73,7 @@ class Rpl376HandlerTests {
 
         handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
-        verify(mockSink).write(RawMessage("NICKSERV identify account password"))
+        verify(mockSink).writeRaw("NICKSERV identify account password")
     }
 
     @Test fun test_handle_ShouldNotIdentifyWithNickserv_SendsNoRawMessages() {
@@ -81,7 +81,7 @@ class Rpl376HandlerTests {
 
         handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
-        verify(mockSink, never()).write(any<Any>())
+        verify(mockSink, never()).writeRaw(any())
     }
 
     @Test fun test_handle_UpdatesLifecycleStateToConnected() {
