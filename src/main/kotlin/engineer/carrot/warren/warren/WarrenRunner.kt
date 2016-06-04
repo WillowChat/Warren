@@ -4,6 +4,10 @@ import engineer.carrot.warren.kale.Kale
 import engineer.carrot.warren.kale.irc.message.IrcMessageSerialiser
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import engineer.carrot.warren.warren.event.ChannelMessageEvent
+import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
+import engineer.carrot.warren.warren.event.WarrenEventDispatcher
+import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
 import engineer.carrot.warren.warren.state.*
 
 data class ServerConfiguration(val server: String, val port: Int = 6697, val useTLS: Boolean = true, val fingerprints: Set<String>? = null)

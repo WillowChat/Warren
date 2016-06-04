@@ -3,9 +3,9 @@ package engineer.carrot.warren.warren.handler.rpl
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl376Message
-import engineer.carrot.warren.warren.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.IMessageSink
-import engineer.carrot.warren.warren.IWarrenEventDispatcher
+import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
+import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.CapLifecycle
 import engineer.carrot.warren.warren.state.ConnectionState

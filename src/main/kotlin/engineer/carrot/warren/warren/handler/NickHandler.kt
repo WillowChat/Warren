@@ -5,7 +5,6 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.JoinedChannelsState
-import engineer.carrot.warren.warren.state.generateUser
 
 class NickHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState) : IKaleHandler<NickMessage> {
     private val LOGGER = loggerFor<NickHandler>()

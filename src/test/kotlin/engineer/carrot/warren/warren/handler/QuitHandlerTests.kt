@@ -7,9 +7,9 @@ import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.QuitMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.kale.irc.prefix.Prefix
-import engineer.carrot.warren.warren.ConnectionLifecycleEvent
-import engineer.carrot.warren.warren.IWarrenEvent
-import engineer.carrot.warren.warren.IWarrenEventDispatcher
+import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
+import engineer.carrot.warren.warren.event.IWarrenEvent
+import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before

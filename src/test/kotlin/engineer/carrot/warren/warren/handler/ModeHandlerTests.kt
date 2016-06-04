@@ -5,9 +5,9 @@ import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.ModeMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.kale.irc.prefix.Prefix
-import engineer.carrot.warren.warren.ChannelModeEvent
-import engineer.carrot.warren.warren.IWarrenEventDispatcher
-import engineer.carrot.warren.warren.UserModeEvent
+import engineer.carrot.warren.warren.event.ChannelModeEvent
+import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
+import engineer.carrot.warren.warren.event.UserModeEvent
 import engineer.carrot.warren.warren.state.*
 import org.junit.Before
 import org.junit.Test

@@ -10,6 +10,7 @@ import engineer.carrot.warren.kale.irc.message.IrcMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005Handler

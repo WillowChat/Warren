@@ -1,4 +1,4 @@
-package engineer.carrot.warren.warren
+package engineer.carrot.warren.warren.event
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.ModeMessage
 import engineer.carrot.warren.kale.irc.prefix.Prefix

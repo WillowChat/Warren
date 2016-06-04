@@ -8,6 +8,7 @@ import engineer.carrot.warren.kale.irc.CharacterCodes
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.*
+import engineer.carrot.warren.warren.event.*
 import engineer.carrot.warren.warren.state.ChannelTypesState
 import org.junit.Before
 import org.junit.Test
