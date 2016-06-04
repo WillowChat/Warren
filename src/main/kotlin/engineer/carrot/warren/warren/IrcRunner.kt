@@ -141,25 +141,25 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         lineThread.start()
         pingThread.start()
 
-        var shouldExit = false
-
-        do {
+        eventLoop@ while (true) {
             val event = eventQueue.grab()
+
             if (Thread.currentThread().isInterrupted || event == null) {
-                LOGGER.warn("got null event, bailing")
-                shouldExit = true
-            } else {
-                event.execute()
-
-                lastStateSnapshot = state.copy()
-
-                if (state.connection.lifecycle == LifecycleState.DISCONNECTED) {
-                    eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.DISCONNECTED))
-                    LOGGER.trace("we disconnected, bailing")
-                    shouldExit = true
-                }
+                LOGGER.warn("interrupted or null event, bailing")
+                break@eventLoop
             }
-        } while (!shouldExit)
+
+            event.execute()
+
+            lastStateSnapshot = state.copy()
+
+            if (state.connection.lifecycle == LifecycleState.DISCONNECTED) {
+                eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.DISCONNECTED))
+
+                LOGGER.trace("we disconnected, bailing")
+                break@eventLoop
+            }
+        }
 
         if (lineThread.isAlive) {
             LOGGER.trace("line thread still alive - interrupting and assuming it'll bail out")
