@@ -11,7 +11,9 @@ import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
 import engineer.carrot.warren.warren.state.*
 
 data class ServerConfiguration(val server: String, val port: Int = 6697, val useTLS: Boolean = true, val fingerprints: Set<String>? = null)
-data class UserConfiguration(val nickname: String, val password: String? = null, val sasl: Boolean = true)
+data class UserConfiguration(val nickname: String, val sasl: SaslConfiguration? = null, val nickserv: NickServConfiguration? = null)
+data class SaslConfiguration(val account: String, val password: String)
+data class NickServConfiguration(val account: String, val password: String, val channelJoinWaitSeconds: Int = 5)
 data class ChannelsConfiguration(val channels: Map<String, String?> = mapOf())
 data class EventConfiguration(val dispatcher: IWarrenEventDispatcher, val fireIncomingLineEvent: Boolean = false)
 
@@ -22,18 +24,24 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         val capLifecycleState = CapLifecycle.NEGOTIATING
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl"), server = mapOf(), accepted = setOf(), rejected = setOf())
 
-        var shouldAuth = false
-        var saslLifecycleState = SaslLifecycle.NO_AUTH
-        var saslCredentials: SaslCredentials? = null
+        val saslState = if (user.sasl != null) {
+            val credentials = AuthCredentials(account = user.sasl.account, password = user.sasl.password)
 
-        if (user.password != null && user.sasl) {
-            shouldAuth = true
-            saslLifecycleState = SaslLifecycle.AUTHING
-            saslCredentials = SaslCredentials(account = user.nickname, password = user.password)
+            SaslState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = credentials)
+        } else {
+            SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
         }
 
-        val saslState = SaslState(shouldAuth = shouldAuth, lifecycle = saslLifecycleState, credentials = saslCredentials)
-        val connectionState = ConnectionState(server = server.server, port = server.port, nickname = user.nickname, username = user.nickname, lifecycle = lifecycleState, cap = capState, sasl = saslState)
+        val nickServState = if (user.nickserv != null) {
+            val credentials = AuthCredentials(account = user.nickserv.account, password = user.nickserv.password)
+
+            NickServState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = credentials, channelJoinWaitSeconds = user.nickserv.channelJoinWaitSeconds)
+        } else {
+            NickServState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null, channelJoinWaitSeconds = 5)
+        }
+
+        val connectionState = ConnectionState(server = server.server, port = server.port, nickname = user.nickname, username = user.nickname,
+                                              lifecycle = lifecycleState, cap = capState, sasl = saslState, nickServ = nickServState)
 
         val kale = Kale().addDefaultMessages()
         val serialiser = IrcMessageSerialiser
@@ -67,14 +75,15 @@ object WarrenRunner {
         val port = args[1].toInt()
         val useTLS = (port != 6667)
         val nickname = args[2]
-        val password = args.getOrNull(3)
+        val password = args.getOrNull(3) ?: ""
 
         val events = WarrenEventDispatcher()
         events.onAnything {
             LOGGER.info("event: $it")
         }
 
-        val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, password, sasl = true),
+        val sasl = SaslConfiguration(account = nickname, password = password)
+        val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, sasl),
                                     ChannelsConfiguration(mapOf("#carrot" to null, "#botdev" to null)), EventConfiguration(events, fireIncomingLineEvent = true))
         val connection = factory.create()
 

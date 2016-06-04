@@ -5,8 +5,8 @@ import engineer.carrot.warren.kale.irc.message.ircv3.sasl.Rpl904Message
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
 import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.state.AuthLifecycle
 import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.SaslLifecycle
 import engineer.carrot.warren.warren.state.SaslState
 
 class Rpl904Handler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<Rpl904Message> {
@@ -17,7 +17,7 @@ class Rpl904Handler(val capState: CapState, val saslState: SaslState, val sink: 
     override fun handle(message: Rpl904Message, tags: Map<String, String?>) {
         LOGGER.warn("invalid mechanism, or sasl auth failed: ${message.contents}")
 
-        saslState.lifecycle = SaslLifecycle.AUTH_FAILED
+        saslState.lifecycle = AuthLifecycle.AUTH_FAILED
 
         if (RegistrationHelper.shouldEndCapNegotiation(saslState, capState)) {
             RegistrationHelper.endCapNegotiation(sink, capState)

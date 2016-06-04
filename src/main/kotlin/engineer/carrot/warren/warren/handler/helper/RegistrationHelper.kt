@@ -3,9 +3,9 @@ package engineer.carrot.warren.warren.handler.helper
 import engineer.carrot.warren.kale.irc.message.ircv3.CapEndMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.state.AuthLifecycle
 import engineer.carrot.warren.warren.state.CapLifecycle
 import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.SaslLifecycle
 import engineer.carrot.warren.warren.state.SaslState
 
 object RegistrationHelper {
@@ -16,7 +16,7 @@ object RegistrationHelper {
         LOGGER.trace("cap end checker: remaining caps to negotiate: $remainingCaps")
 
         if (remainingCaps.isEmpty()) {
-            if (saslState.lifecycle == SaslLifecycle.AUTHING) {
+            if (saslState.lifecycle == AuthLifecycle.AUTHING) {
                 LOGGER.debug("cap end checker: no more remaining caps, but we're still authenticating")
             } else {
                 LOGGER.debug("cap end checker: no more remaining caps, SASL not authing - good to end negotiation")

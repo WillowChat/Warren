@@ -1,11 +1,14 @@
 package engineer.carrot.warren.warren.handler.rpl
 
+import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl376Message
-import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
+import engineer.carrot.warren.kale.irc.message.utility.RawMessage
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals
@@ -22,8 +25,7 @@ class Rpl376HandlerTests {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATED
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
-        val saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
-        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState, sasl = saslState)
+        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", username = "test-nick", lifecycle = lifecycleState, cap = capState)
 
         mockSink = mock()
         mockEventDispatcher = mock()
@@ -46,6 +48,40 @@ class Rpl376HandlerTests {
 
         verify(mockSink).write(JoinMessage(channels = listOf("#channel1")))
         verify(mockSink).write(JoinMessage(channels = listOf("#channel2"), keys = listOf("testkey")))
+    }
+
+    @Test fun test_handle_ShouldIdentifyWithNickServ_NoCredentials_SetsAuthLifecycleToFailed() {
+        connectionState.nickServ = NickServState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = null, channelJoinWaitSeconds = 0)
+
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
+
+        assertEquals(AuthLifecycle.AUTH_FAILED, connectionState.nickServ.lifecycle)
+    }
+
+    @Test fun test_handle_ShouldIdentifyWithNickServ_WithCredentials_SetsAuthLifecycleAuthed() {
+        val credentials = AuthCredentials(account = "", password = "")
+        connectionState.nickServ = NickServState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = credentials, channelJoinWaitSeconds = 0)
+
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
+
+        assertEquals(AuthLifecycle.AUTHED, connectionState.nickServ.lifecycle)
+    }
+
+    @Test fun test_handle_ShouldIdentifyWithNickServ_WithCredentials_SendsNickservIdentify() {
+        val credentials = AuthCredentials(account = "account", password = "password")
+        connectionState.nickServ = NickServState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = credentials, channelJoinWaitSeconds = 0)
+
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
+
+        verify(mockSink).write(RawMessage("NICKSERV identify account password"))
+    }
+
+    @Test fun test_handle_ShouldNotIdentifyWithNickserv_SendsNoRawMessages() {
+        val handler = Rpl376Handler(mockEventDispatcher, mockSink, channelsToJoin = mapOf(), connectionState = connectionState)
+
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
+
+        verify(mockSink, never()).write(any<Any>())
     }
 
     @Test fun test_handle_UpdatesLifecycleStateToConnected() {

@@ -1,7 +1,10 @@
 package engineer.carrot.warren.warren.handler.rpl.Rpl005
 
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
-import engineer.carrot.warren.warren.state.*
+import engineer.carrot.warren.warren.state.CaseMappingState
+import engineer.carrot.warren.warren.state.ChannelUsersState
+import engineer.carrot.warren.warren.state.JoinedChannelsState
+import engineer.carrot.warren.warren.state.JoiningChannelsState
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

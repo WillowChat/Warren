@@ -3,10 +3,12 @@ package engineer.carrot.warren.warren.handler.rpl
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl376Message
+import engineer.carrot.warren.kale.irc.message.utility.RawMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.state.AuthLifecycle
 import engineer.carrot.warren.warren.state.CapLifecycle
 import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.LifecycleState
@@ -25,7 +27,31 @@ class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMess
 
         when (connectionState.lifecycle) {
             LifecycleState.CONNECTING, LifecycleState.REGISTERING -> {
-                LOGGER.debug("got end of MOTD, updating lifecycle to CONNECTED and joining channels")
+                LOGGER.debug("got end of MOTD")
+
+                if (connectionState.nickServ.shouldAuth) {
+                    val credentials = connectionState.nickServ.credentials
+                    if (credentials == null) {
+                        LOGGER.warn("asked to auth, but given no credentials, marking auth failed")
+
+                        connectionState.nickServ.lifecycle = AuthLifecycle.AUTH_FAILED
+                    } else {
+                        LOGGER.debug("authing with nickserv - assuming success as replies aren't standardised (use SASL instead if you can)")
+
+                        sink.write(RawMessage("NICKSERV identify ${credentials.account} ${credentials.password}"))
+                        connectionState.nickServ.lifecycle = AuthLifecycle.AUTHED
+
+                        LOGGER.debug("waiting ${connectionState.nickServ.channelJoinWaitSeconds} seconds before joining channels")
+                        try {
+                            Thread.sleep(connectionState.nickServ.channelJoinWaitSeconds * 1000L)
+                        } catch (exception: InterruptedException) {
+                            LOGGER.warn("interrupted whilst waiting to join channels - bailing out")
+                            return
+                        }
+                    }
+                }
+
+                LOGGER.debug("joining channels")
                 join(channelsToJoin, sink)
             }
 

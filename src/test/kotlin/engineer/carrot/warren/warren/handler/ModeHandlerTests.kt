@@ -9,9 +9,9 @@ import engineer.carrot.warren.warren.event.ChannelModeEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.UserModeEvent
 import engineer.carrot.warren.warren.state.*
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.assertEquals
 
 class ModeHandlerTests {
 

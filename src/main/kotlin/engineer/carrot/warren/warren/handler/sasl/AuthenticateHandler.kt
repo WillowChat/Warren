@@ -4,7 +4,7 @@ import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.ircv3.sasl.AuthenticateMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.loggerFor
-import engineer.carrot.warren.warren.state.SaslLifecycle
+import engineer.carrot.warren.warren.state.AuthLifecycle
 import engineer.carrot.warren.warren.state.SaslState
 import java.util.*
 
@@ -14,7 +14,7 @@ class AuthenticateHandler(val state: SaslState, val sink: IMessageSink) : IKaleH
     override val messageType = AuthenticateMessage::class.java
 
     override fun handle(message: AuthenticateMessage, tags: Map<String, String?>) {
-        if (state.lifecycle != SaslLifecycle.AUTHING) {
+        if (state.lifecycle != AuthLifecycle.AUTHING) {
             LOGGER.warn("got an auth challenge, but we don't think we're authenticating - ignoring: $message")
             return
         }

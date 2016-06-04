@@ -9,9 +9,9 @@ import engineer.carrot.warren.kale.irc.message.ircv3.CapEndMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapReqMessage
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.state.AuthLifecycle
 import engineer.carrot.warren.warren.state.CapLifecycle
 import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.SaslLifecycle
 import engineer.carrot.warren.warren.state.SaslState
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -27,7 +27,7 @@ class CapLsHandlerTests {
     @Before fun setUp() {
         val capLifecycleState = CapLifecycle.NEGOTIATING
         capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
-        saslState = SaslState(shouldAuth = false, lifecycle = SaslLifecycle.AUTH_FAILED, credentials = null)
+        saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.AUTH_FAILED, credentials = null)
         sink = mock()
 
         handler = CapLsHandler(capState, saslState, sink)

@@ -6,9 +6,9 @@ import engineer.carrot.warren.kale.irc.message.ircv3.sasl.AuthenticateMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
 import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.state.AuthLifecycle
 import engineer.carrot.warren.warren.state.CapLifecycle
 import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.SaslLifecycle
 import engineer.carrot.warren.warren.state.SaslState
 
 class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<CapAckMessage> {
@@ -27,7 +27,7 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
         if (caps.contains("sasl") && saslState.shouldAuth) {
             LOGGER.trace("server acked sasl - starting authentication for user: ${saslState.credentials?.account}")
 
-            saslState.lifecycle = SaslLifecycle.AUTHING
+            saslState.lifecycle = AuthLifecycle.AUTHING
 
             sink.write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
         }

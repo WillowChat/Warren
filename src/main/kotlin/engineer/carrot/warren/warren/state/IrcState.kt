@@ -85,7 +85,10 @@ data class ChannelUserState(val nick: String, val modes: MutableSet<Char> = muta
 
 }
 
-data class ConnectionState(val server: String, val port: Int, var nickname: String, val username: String, var lifecycle: LifecycleState, val cap: CapState, val sasl: SaslState, var lastPingOrPong: Long = 0)
+data class ConnectionState(val server: String, val port: Int, var nickname: String, val username: String, var lifecycle: LifecycleState, val cap: CapState,
+                           val sasl: SaslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null),
+                           var nickServ: NickServState = NickServState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null, channelJoinWaitSeconds = 5),
+                           var lastPingOrPong: Long = 0)
 
 enum class LifecycleState { CONNECTING, REGISTERING, CONNECTED, DISCONNECTED }
 
@@ -93,13 +96,15 @@ data class CapState(var lifecycle: CapLifecycle, var negotiate: Set<String>, var
 
 enum class CapLifecycle { NEGOTIATING, NEGOTIATED, FAILED }
 
-data class SaslState(var shouldAuth: Boolean, var lifecycle: SaslLifecycle, var credentials: SaslCredentials?)
+data class SaslState(var shouldAuth: Boolean, var lifecycle: AuthLifecycle, var credentials: AuthCredentials?)
 
-enum class SaslLifecycle { NO_AUTH, AUTHING, AUTHED, AUTH_FAILED }
+data class NickServState(var shouldAuth: Boolean, var lifecycle: AuthLifecycle, var credentials: AuthCredentials?, val channelJoinWaitSeconds: Int)
 
-data class SaslCredentials(val account: String, val password: String) {
+enum class AuthLifecycle { NO_AUTH, AUTHING, AUTHED, AUTH_FAILED }
+
+data class AuthCredentials(val account: String, val password: String) {
     override fun toString(): String {
-        return "SaslCredentials(account=$account, password=***)"
+        return "AuthCredentials(account=$account, password=***)"
     }
 }
 
