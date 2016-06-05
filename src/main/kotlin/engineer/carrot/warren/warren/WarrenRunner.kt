@@ -11,7 +11,7 @@ import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
 import engineer.carrot.warren.warren.state.*
 
 data class ServerConfiguration(val server: String, val port: Int = 6697, val useTLS: Boolean = true, val fingerprints: Set<String>? = null)
-data class UserConfiguration(val nickname: String, val sasl: SaslConfiguration? = null, val nickserv: NickServConfiguration? = null)
+data class UserConfiguration(val nickname: String, val sasl: SaslConfiguration? = null, val user: String = nickname, val nickserv: NickServConfiguration? = null)
 data class SaslConfiguration(val account: String, val password: String)
 data class NickServConfiguration(val account: String, val password: String, val channelJoinWaitSeconds: Int = 5)
 data class ChannelsConfiguration(val channels: Map<String, String?> = mapOf())
@@ -40,7 +40,7 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
             NickServState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null, channelJoinWaitSeconds = 5)
         }
 
-        val connectionState = ConnectionState(server = server.server, port = server.port, nickname = user.nickname, username = user.nickname,
+        val connectionState = ConnectionState(server = server.server, port = server.port, nickname = user.nickname, user = user.user,
                                               lifecycle = lifecycleState, cap = capState, sasl = saslState, nickServ = nickServState)
 
         val kale = Kale().addDefaultMessages()

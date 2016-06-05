@@ -87,7 +87,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
     private fun sendRegistrationMessages() {
         sink.write(CapLsMessage(caps = mapOf()))
         sink.write(NickMessage(nickname = state.connection.nickname))
-        sink.write(UserMessage(username = state.connection.username, mode = "8", realname = state.connection.username))
+        sink.write(UserMessage(username = state.connection.user, mode = "8", realname = state.connection.user))
 
         state.connection.lifecycle = LifecycleState.REGISTERING
         eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.REGISTERING))

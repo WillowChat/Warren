@@ -85,7 +85,7 @@ data class ChannelUserState(val nick: String, val modes: MutableSet<Char> = muta
 
 }
 
-data class ConnectionState(val server: String, val port: Int, var nickname: String, val username: String, var lifecycle: LifecycleState, val cap: CapState,
+data class ConnectionState(val server: String, val port: Int, var nickname: String, val user: String, var lifecycle: LifecycleState, val cap: CapState,
                            val sasl: SaslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null),
                            var nickServ: NickServState = NickServState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null, channelJoinWaitSeconds = 5),
                            var lastPingOrPong: Long = 0)
