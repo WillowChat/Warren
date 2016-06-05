@@ -30,7 +30,9 @@ events.onAnything {
     LOGGER.info("event: $it")
 }
 
-val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, password, sasl = true),
+val sasl = SaslConfiguration(account = nickname, password = password)
+
+val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, sasl = sasl),
                             ChannelsConfiguration(mapOf("#botdev" to null)), EventConfiguration(events, fireIncomingLineEvent = true))
 val connection = factory.create()
 
