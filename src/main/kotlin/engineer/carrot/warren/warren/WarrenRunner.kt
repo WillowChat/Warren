@@ -11,7 +11,7 @@ import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
 import engineer.carrot.warren.warren.state.*
 
 data class ServerConfiguration(val server: String, val port: Int = 6697, val useTLS: Boolean = true, val fingerprints: Set<String>? = null)
-data class UserConfiguration(val nickname: String, val sasl: SaslConfiguration? = null, val user: String = nickname, val nickserv: NickServConfiguration? = null)
+data class UserConfiguration(val nickname: String, val user: String = nickname, val sasl: SaslConfiguration? = null, val nickserv: NickServConfiguration? = null)
 data class SaslConfiguration(val account: String, val password: String)
 data class NickServConfiguration(val account: String, val password: String, val channelJoinWaitSeconds: Int = 5)
 data class ChannelsConfiguration(val channels: Map<String, String?> = mapOf())
@@ -75,15 +75,16 @@ object WarrenRunner {
         val port = args[1].toInt()
         val useTLS = (port != 6667)
         val nickname = args[2]
-        val password = args.getOrNull(3) ?: ""
+        val password = args.getOrNull(3)
 
         val events = WarrenEventDispatcher()
         events.onAnything {
             LOGGER.info("event: $it")
         }
 
-        val sasl = SaslConfiguration(account = nickname, password = password)
-        val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, sasl),
+        val sasl = if (password != null) { SaslConfiguration(account = nickname, password = password) } else { null }
+
+        val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, sasl = sasl),
                                     ChannelsConfiguration(mapOf("#carrot" to null, "#botdev" to null)), EventConfiguration(events, fireIncomingLineEvent = true))
         val connection = factory.create()
 
