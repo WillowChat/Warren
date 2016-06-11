@@ -46,7 +46,10 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
     override fun run() {
         state = initialState
 
-        sink.setUp()
+        if (!sink.setUp()) {
+            LOGGER.warn("couldn't set up sink - bailing out")
+            return
+        }
 
         kale.parsingStateDelegate = this
 

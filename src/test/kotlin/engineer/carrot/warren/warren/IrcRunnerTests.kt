@@ -2,6 +2,8 @@ package engineer.carrot.warren.warren
 
 import com.nhaarman.mockito_kotlin.inOrder
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.stub
+import com.nhaarman.mockito_kotlin.whenever
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.IKaleParsingStateDelegate
@@ -62,6 +64,8 @@ class IrcRunnerTests {
     }
 
     @Test fun test_run_RegistersHandlers() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
         runner.run()
 
         assertEquals(26, mockKale.spyRegisterHandlers.size)
@@ -94,6 +98,8 @@ class IrcRunnerTests {
     }
 
     @Test fun test_run_SendsRegistrationMessages() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
         runner.run()
 
         val inOrder = inOrder(mockSink)

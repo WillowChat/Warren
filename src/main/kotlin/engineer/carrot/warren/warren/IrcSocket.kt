@@ -31,7 +31,7 @@ class IrcSocket(val server: String, val port: Int, val useTLS: Boolean, val kale
 
             return socket
         } catch (exception: Exception) {
-            LOGGER.info("failed to connect using: $server:$port $exception")
+            LOGGER.error("failed to connect using: $server:$port $exception")
         }
 
         return null
