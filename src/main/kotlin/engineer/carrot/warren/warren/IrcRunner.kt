@@ -103,11 +103,9 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
             LOGGER.warn("new line generator ended")
 
             eventQueue.clear()
-            eventQueue.add(event = object : IWarrenInternalEvent {
-                override fun execute() {
-                    state.connection.lifecycle = LifecycleState.DISCONNECTED
-                }
-            })
+            eventQueue.add {
+                state.connection.lifecycle = LifecycleState.DISCONNECTED
+            }
         }
 
         lineThread.uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { thread, exception ->
