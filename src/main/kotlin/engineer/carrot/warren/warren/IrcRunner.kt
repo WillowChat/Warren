@@ -8,10 +8,7 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.PingMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
-import engineer.carrot.warren.warren.event.internal.IWarrenInternalEvent
-import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventSink
-import engineer.carrot.warren.warren.event.internal.NewLineWarrenEventGenerator
-import engineer.carrot.warren.warren.event.internal.WarrenInternalEventQueue
+import engineer.carrot.warren.warren.event.internal.*
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.*
@@ -32,7 +29,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
     private val LOGGER = loggerFor<IrcRunner>()
 
     @Volatile var lastStateSnapshot: IrcState? = null
-    private var eventQueue = WarrenInternalEventQueue()
+    private var eventQueue: IWarrenInternalEventQueue = WarrenInternalEventQueue()
     var eventSink: IWarrenInternalEventSink = eventQueue
 
     private lateinit var state: IrcState
@@ -97,47 +94,8 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
     }
 
     private fun startEventQueue() {
-        val lineThread = thread(start = false) {
-            LOGGER.debug("new line thread starting up")
-            NewLineWarrenEventGenerator(eventQueue, kale, lineSource, fireIncomingLineEvent, eventDispatcher).run()
-            LOGGER.warn("new line generator ended")
-
-            eventQueue.clear()
-            eventQueue.add {
-                state.connection.lifecycle = LifecycleState.DISCONNECTED
-            }
-        }
-
-        lineThread.uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { thread, exception ->
-            LOGGER.warn("uncaught exception in line generator, forcing a disconnect: $exception")
-
-            eventQueue.clear()
-            eventQueue.add {
-                state.connection.lifecycle = LifecycleState.DISCONNECTED
-            }
-        }
-
-        val pingThread = thread(start = false) {
-            pingLoop@ while (!Thread.currentThread().isInterrupted) {
-                try {
-                    Thread.sleep(10 * 1000)
-                } catch(exception: InterruptedException) {
-                    LOGGER.info("ping thread interrupted - bailing out")
-                    break@pingLoop
-                }
-
-                eventQueue.add {
-                    if (state.connection.lifecycle == LifecycleState.CONNECTED) {
-                        val currentTime = System.currentTimeMillis()
-
-                        val msSinceLastPing = currentTime - state.connection.lastPingOrPong
-                        if (msSinceLastPing > PONG_TIMER_MS) {
-                            sink.write(PingMessage(token = "$currentTime"))
-                        }
-                    }
-                }
-            }
-        }
+        val lineThread = createLineThread(eventQueue, state)
+        val pingThread = createPingThread(eventQueue, state, sink)
 
         lineThread.start()
         pingThread.start()
@@ -179,6 +137,54 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         sink.tearDown()
 
         LOGGER.info("ending")
+    }
+
+    private fun createLineThread(eventQueue: IWarrenInternalEventQueue, state: IrcState): Thread {
+        val lineThread = thread(start = false) {
+            LOGGER.debug("new line thread starting up")
+            NewLineWarrenEventGenerator(eventQueue, kale, lineSource, fireIncomingLineEvent, eventDispatcher).run()
+            LOGGER.warn("new line generator ended")
+
+            eventQueue.clear()
+            eventQueue.add {
+                state.connection.lifecycle = LifecycleState.DISCONNECTED
+            }
+        }
+
+        lineThread.uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { thread, exception ->
+            LOGGER.warn("uncaught exception in line generator, forcing a disconnect: $exception")
+
+            eventQueue.clear()
+            eventQueue.add {
+                state.connection.lifecycle = LifecycleState.DISCONNECTED
+            }
+        }
+
+        return lineThread
+    }
+
+    private fun createPingThread(eventQueue: IWarrenInternalEventQueue, state: IrcState, sink: IMessageSink): Thread {
+        return thread(start = false) {
+            pingLoop@ while (!Thread.currentThread().isInterrupted) {
+                try {
+                    Thread.sleep(10 * 1000)
+                } catch(exception: InterruptedException) {
+                    LOGGER.info("ping thread interrupted - bailing out")
+                    break@pingLoop
+                }
+
+                eventQueue.add {
+                    if (state.connection.lifecycle == LifecycleState.CONNECTED) {
+                        val currentTime = System.currentTimeMillis()
+
+                        val msSinceLastPing = currentTime - state.connection.lastPingOrPong
+                        if (msSinceLastPing > PONG_TIMER_MS) {
+                            sink.write(PingMessage(token = "$currentTime"))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // IKaleParsingStateDelegate
