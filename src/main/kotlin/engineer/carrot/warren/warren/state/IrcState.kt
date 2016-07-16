@@ -8,7 +8,7 @@ data class ChannelsState(val joining: JoiningChannelsState, val joined: JoinedCh
 
 interface INamed { val name: String }
 
-open class CaseInsensitiveNamedWrangler<NamedType : INamed>(var mappingState: CaseMappingState) {
+open class CaseInsensitiveNamedMap<NamedType : INamed>(var mappingState: CaseMappingState) {
     private val namedThings = mutableMapOf<String, NamedType>()
 
     operator fun get(key: String): NamedType? {
@@ -45,7 +45,7 @@ open class CaseInsensitiveNamedWrangler<NamedType : INamed>(var mappingState: Ca
         get() = namedThings
 
     override fun equals(other: Any?): Boolean {
-        if (other !is CaseInsensitiveNamedWrangler<*>) {
+        if (other !is CaseInsensitiveNamedMap<*>) {
             return false
         }
 
@@ -59,14 +59,14 @@ open class CaseInsensitiveNamedWrangler<NamedType : INamed>(var mappingState: Ca
     }
 
     override fun toString(): String{
-        return "CaseInsensitiveNamedWrangler(mappingState=$mappingState, namedThings=$namedThings)"
+        return "CaseInsensitiveNamedMap(mappingState=$mappingState, namedThings=$namedThings)"
     }
 
 }
 
-class JoinedChannelsState(mappingState: CaseMappingState): CaseInsensitiveNamedWrangler<ChannelState>(mappingState)
+class JoinedChannelsState(mappingState: CaseMappingState): CaseInsensitiveNamedMap<ChannelState>(mappingState)
 
-class JoiningChannelsState(mappingState: CaseMappingState): CaseInsensitiveNamedWrangler<JoiningChannelState>(mappingState)
+class JoiningChannelsState(mappingState: CaseMappingState): CaseInsensitiveNamedMap<JoiningChannelState>(mappingState)
 
 data class JoiningChannelState(override val name: String, val key: String? = null, var status: JoiningChannelLifecycle): INamed {
     override fun toString(): String {
@@ -82,7 +82,7 @@ enum class JoiningChannelLifecycle { JOINING, FAILED }
 
 data class ChannelState(override val name: String, val users: ChannelUsersState, var topic: String? = null) : INamed
 
-class ChannelUsersState(mappingState: CaseMappingState): CaseInsensitiveNamedWrangler<ChannelUserState>(mappingState)
+class ChannelUsersState(mappingState: CaseMappingState): CaseInsensitiveNamedMap<ChannelUserState>(mappingState)
 
 data class ChannelUserState(val nick: String, val modes: MutableSet<Char> = mutableSetOf()): INamed {
     override val name = nick
