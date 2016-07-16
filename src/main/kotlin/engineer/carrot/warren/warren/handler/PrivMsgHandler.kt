@@ -5,8 +5,9 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.warren.event.*
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ChannelTypesState
+import engineer.carrot.warren.warren.state.JoinedChannelsState
 
-class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesState: ChannelTypesState) : IKaleHandler<PrivMsgMessage> {
+class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsState: JoinedChannelsState, val channelTypesState: ChannelTypesState) : IKaleHandler<PrivMsgMessage> {
     private val LOGGER = loggerFor<PrivMsgHandler>()
 
     override val messageType = PrivMsgMessage::class.java
@@ -41,15 +42,21 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
         if (channelTypesState.types.any { char -> target.startsWith(char) }) {
             // Channel message
 
+            val channel = channelsState[target]
+            if (channel == null) {
+                LOGGER.warn("got a privmsg for a channel we don't think we're in, bailing: $message")
+                return
+            }
+
             when (ctcp) {
                 CtcpEnum.NONE -> {
-                    eventDispatcher.fire(ChannelMessageEvent(user = source, channel = target, message = messageContents))
+                    eventDispatcher.fire(ChannelMessageEvent(user = source, channel = channel, message = messageContents))
 
                     LOGGER.debug("$serverTime$target <${source.nick}> $messageContents")
                 }
 
                 CtcpEnum.ACTION -> {
-                    eventDispatcher.fire(ChannelActionEvent(user = source, channel = target, message = messageContents))
+                    eventDispatcher.fire(ChannelActionEvent(user = source, channel = channel, message = messageContents))
 
                     LOGGER.debug("$serverTime$target ${source.nick} * $messageContents")
                 }
@@ -71,6 +78,8 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTyp
 
                     LOGGER.debug("PM: $serverTime ${source.nick} * $messageContents")
                 }
+
+                else -> Unit
             }
         }
     }

@@ -22,15 +22,15 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
         if (channelTypesState.types.any { char -> target.startsWith(char) }) {
             // Channel mode
 
+            val channel = channelsState[target]
+            if (channel == null) {
+                LOGGER.warn("user mode changed for a channel we don't think we're in, bailing: $message")
+                return
+            }
+
             for (modifier in message.modifiers) {
                 if (userPrefixesState.prefixesToModes.values.contains(modifier.mode)) {
                     // User mode changed
-
-                    val channel = channelsState[target]
-                    if (channel == null) {
-                        LOGGER.warn("user mode changed for a channel we don't think we're in, bailing: $message")
-                        continue
-                    }
 
                     val nick = modifier.parameter
                     if (nick == null) {
@@ -57,7 +57,7 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
                     LOGGER.debug("user mode state changed: $user")
                 }
 
-                eventDispatcher.fire(ChannelModeEvent(user = message.source, channel = target, modifier = modifier))
+                eventDispatcher.fire(ChannelModeEvent(user = message.source, channel = channel, modifier = modifier))
             }
         } else {
             // User mode

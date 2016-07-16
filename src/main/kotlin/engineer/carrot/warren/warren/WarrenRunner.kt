@@ -92,7 +92,7 @@ object WarrenRunner {
             LOGGER.info("channel message: $it")
 
             if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
-                connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel, message = "🐰🎉"), connection.sink))
+                connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel.name, message = "🐰🎉"), connection.sink))
             }
         }
 

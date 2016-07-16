@@ -57,6 +57,11 @@ open class CaseInsensitiveNamedWrangler<NamedType : INamed>(var mappingState: Ca
         result = 31 * result + namedThings.hashCode()
         return result
     }
+
+    override fun toString(): String{
+        return "CaseInsensitiveNamedWrangler(mappingState=$mappingState, namedThings=$namedThings)"
+    }
+
 }
 
 class JoinedChannelsState(mappingState: CaseMappingState): CaseInsensitiveNamedWrangler<ChannelState>(mappingState)
@@ -80,9 +85,7 @@ data class ChannelState(override val name: String, val users: ChannelUsersState,
 class ChannelUsersState(mappingState: CaseMappingState): CaseInsensitiveNamedWrangler<ChannelUserState>(mappingState)
 
 data class ChannelUserState(val nick: String, val modes: MutableSet<Char> = mutableSetOf()): INamed {
-    override val name: String
-        get() = nick
-
+    override val name = nick
 }
 
 data class ConnectionState(val server: String, val port: Int, var nickname: String, val user: String, var lifecycle: LifecycleState, val cap: CapState,

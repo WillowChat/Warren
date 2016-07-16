@@ -1,11 +1,14 @@
 package engineer.carrot.warren.warren.handler
 
+import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.ModeMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.event.ChannelModeEvent
+import engineer.carrot.warren.warren.event.IWarrenEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.UserModeEvent
 import engineer.carrot.warren.warren.state.*
@@ -32,20 +35,32 @@ class ModeHandlerTests {
         val firstExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'x', parameter = "someone")
         val secondExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'y')
 
+        channelsState.joined += emptyChannel("#channel")
+
         handler.handle(ModeMessage(source = null, target = "#channel", modifiers = listOf(firstExpectedModifier, secondExpectedModifier)), mapOf())
 
-        verify(mockEventDispatcher).fire(ChannelModeEvent(user = null, channel = "#channel", modifier = firstExpectedModifier))
-        verify(mockEventDispatcher).fire(ChannelModeEvent(user = null, channel = "#channel", modifier = secondExpectedModifier))
+        verify(mockEventDispatcher).fire(ChannelModeEvent(user = null, channel = emptyChannel("#channel"), modifier = firstExpectedModifier))
+        verify(mockEventDispatcher).fire(ChannelModeEvent(user = null, channel = emptyChannel("#channel"), modifier = secondExpectedModifier))
     }
 
     @Test fun test_handle_ChannelModeChange_WithPrefix_FiresEvents() {
         val firstExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'x', parameter = "someone")
         val secondExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'y')
 
+        channelsState.joined += emptyChannel("#channel")
+
         handler.handle(ModeMessage(source = Prefix(nick = "admin"), target = "#channel", modifiers = listOf(firstExpectedModifier, secondExpectedModifier)), mapOf())
 
-        verify(mockEventDispatcher).fire(ChannelModeEvent(user = Prefix(nick = "admin"), channel = "#channel", modifier = firstExpectedModifier))
-        verify(mockEventDispatcher).fire(ChannelModeEvent(user = Prefix(nick = "admin"), channel = "#channel", modifier = secondExpectedModifier))
+        verify(mockEventDispatcher).fire(ChannelModeEvent(user = Prefix(nick = "admin"), channel = emptyChannel("#channel"), modifier = firstExpectedModifier))
+        verify(mockEventDispatcher).fire(ChannelModeEvent(user = Prefix(nick = "admin"), channel = emptyChannel("#channel"), modifier = secondExpectedModifier))
+    }
+
+    @Test fun test_handle_ChannelModeChange_ForChannelNotIn_DoesNothing() {
+        val dummyModifier = ModeMessage.ModeModifier(type = '+', mode = 'x', parameter = "someone")
+
+        handler.handle(ModeMessage(source = Prefix(nick = "admin"), target = "#notInChannel", modifiers = listOf(dummyModifier)), mapOf())
+
+        verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
     @Test fun test_handle_ChannelModeChange_UserPrefixAdded() {

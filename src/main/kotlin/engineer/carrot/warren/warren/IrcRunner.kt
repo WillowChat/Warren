@@ -71,7 +71,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         kale.register(PartHandler(state.connection, state.channels.joined, state.parsing.caseMapping))
         kale.register(PingHandler(sink, state.connection))
         kale.register(PongHandler(sink, state.connection))
-        kale.register(PrivMsgHandler(eventDispatcher, state.parsing.channelTypes))
+        kale.register(PrivMsgHandler(eventDispatcher, state.channels.joined, state.parsing.channelTypes))
         kale.register(QuitHandler(eventDispatcher, state.connection, state.channels.joined))
         kale.register(TopicHandler(state.channels.joined, state.parsing.caseMapping))
         kale.register(Rpl005Handler(state.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler, Rpl005CaseMappingHandler))

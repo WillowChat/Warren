@@ -1,5 +1,7 @@
 package engineer.carrot.warren.warren.state
 
+import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+
 fun generateUsers(vararg nicks: String, mappingState: CaseMappingState): ChannelUsersState {
     val users = ChannelUsersState(mappingState)
 
@@ -47,4 +49,8 @@ fun joiningChannelsStateWith(joining: Collection<JoiningChannelState>, mappingSt
     joiningChannels += joining
 
     return ChannelsState(joining = joiningChannels, joined = JoinedChannelsState(mappingState))
+}
+
+fun emptyChannel(name: String, mappingState: CaseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)): ChannelState {
+    return ChannelState(name = name, users = generateUsers(mappingState = mappingState))
 }
