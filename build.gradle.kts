@@ -52,8 +52,8 @@ dependencies {
     runtime("org.slf4j:slf4j-simple:1.7.21")
 
     testCompile("junit:junit:4.12")
-    testCompile("org.mockito:mockito-core:2.0.42-beta")
-    testCompile("com.nhaarman:mockito-kotlin:0.3.1")
+    testCompile("org.mockito:mockito-core:2.0.111-beta")
+    testCompile("com.nhaarman:mockito-kotlin:0.6.0")
 }
 
 test {

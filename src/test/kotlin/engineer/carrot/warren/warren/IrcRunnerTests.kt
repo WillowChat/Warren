@@ -2,7 +2,6 @@ package engineer.carrot.warren.warren
 
 import com.nhaarman.mockito_kotlin.inOrder
 import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.stub
 import com.nhaarman.mockito_kotlin.whenever
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.IKaleHandler
