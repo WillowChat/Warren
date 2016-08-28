@@ -28,7 +28,7 @@ data class ChannelState(override val name: String, val users: ChannelUsersState,
 
 class ChannelUsersState(mappingState: CaseMappingState): CaseInsensitiveNamedMap<ChannelUserState>(mappingState)
 
-data class ChannelUserState(val nick: String, val modes: MutableSet<Char> = mutableSetOf()): INamed {
+data class ChannelUserState(val nick: String, val account: String? = null, val modes: MutableSet<Char> = mutableSetOf()): INamed {
     override val name = nick
 }
 

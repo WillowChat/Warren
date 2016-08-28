@@ -52,7 +52,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
 
         registerHandlers()
         sendRegistrationMessages()
-        startEventQueue()
+        runEventLoop()
     }
 
     private fun registerHandlers() {
@@ -93,7 +93,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.REGISTERING))
     }
 
-    private fun startEventQueue() {
+    private fun runEventLoop() {
         val lineThread = createLineThread(eventQueue, state)
         val pingThread = createPingThread(eventQueue, state, sink)
 

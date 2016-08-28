@@ -28,7 +28,7 @@ fun generateUser(nick: String): ChannelUserState {
 }
 
 fun generateUser(nick: String, modes: Set<Char>): ChannelUserState {
-    return ChannelUserState(nick, modes.toMutableSet())
+    return ChannelUserState(nick, modes = modes.toMutableSet())
 }
 
 fun emptyChannelsState(mappingState: CaseMappingState): ChannelsState {
