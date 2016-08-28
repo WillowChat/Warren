@@ -6,6 +6,7 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 import java.io.File
@@ -45,7 +46,7 @@ repositories {
 dependencies {
     compile(kotlinModule("stdlib"))
     compile("org.slf4j:slf4j-api:1.7.21")
-    compile("engineer.carrot.warren.kale:Kale:1.1.0.94")
+    compile("engineer.carrot.warren.kale:Kale:1.1.0.96")
     compile("com.squareup.okio:okio:1.9.0")
 
     runtime("org.slf4j:slf4j-simple:1.7.21")
@@ -70,6 +71,14 @@ shadowJar().relocate("kotlin", "engineer.carrot.warren.warren.repack.kotlin")
 shadowJar().exclude("META-INF/*.DSA")
 shadowJar().exclude("META-INF/*.RSA")
 
+val sourcesTask = task<Jar>("sourcesJar") {
+    dependsOn("classes")
+
+    from(sourceSets("main").allSource)
+    classifier = "sources"
+}
+
+project.artifacts.add("archives", sourcesTask)
 project.artifacts.add("archives", project.tasks.getByName("shadowJar") as ShadowJar)
 
 if (project.hasProperty("DEPLOY_DIR")) {
@@ -81,6 +90,7 @@ if (project.hasProperty("DEPLOY_DIR")) {
                 from(components.getByName("java"))
 
                 artifact(shadowJar())
+                artifact(sourcesTask)
             }
         }
     }
@@ -92,3 +102,4 @@ fun Project.compileJava(setup: JavaCompile.() -> Unit) = (project.tasks.getByNam
 fun shadowJar() = (project.tasks.findByName("shadowJar") as ShadowJar)
 fun mavenDeploy(repositoryHandler: RepositoryHandler, configuration: MavenArtifactRepository.() -> Unit) =
         repositoryHandler.maven({ it.configuration() })
+fun sourceSets(name: String) = (project.property("sourceSets") as SourceSetContainer).getByName(name)
