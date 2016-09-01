@@ -50,19 +50,13 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
 
         kale.parsingStateDelegate = this
 
-        registerHandlers()
+        registerRFC1459Handlers()
+        registerIrcV3Handlers()
         sendRegistrationMessages()
         runEventLoop()
     }
 
-    private fun registerHandlers() {
-        kale.register(AuthenticateHandler(state.connection.sasl, sink))
-        kale.register(Rpl903Handler(state.connection.cap, state.connection.sasl, sink))
-        kale.register(Rpl904Handler(state.connection.cap, state.connection.sasl, sink))
-        kale.register(Rpl905Handler(state.connection.cap, state.connection.sasl, sink))
-        kale.register(CapLsHandler(state.connection.cap, state.connection.sasl, sink))
-        kale.register(CapAckHandler(state.connection.cap, state.connection.sasl, sink))
-        kale.register(CapNakHandler(state.connection.cap, state.connection.sasl, sink))
+    private fun registerRFC1459Handlers() {
         kale.register(JoinHandler(state.connection, state.channels.joining, state.channels.joined, state.parsing.caseMapping))
         kale.register(KickHandler(state.connection, state.channels.joined, state.parsing.caseMapping))
         kale.register(ModeHandler(eventDispatcher, state.parsing.channelTypes, state.channels.joined, state.parsing.userPrefixes, state.parsing.caseMapping))
@@ -82,6 +76,16 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
         kale.register(Rpl473Handler(state.channels.joining, state.parsing.caseMapping))
         kale.register(Rpl474Handler(state.channels.joining, state.parsing.caseMapping))
         kale.register(Rpl475Handler(state.channels.joining, state.parsing.caseMapping))
+    }
+
+    private fun registerIrcV3Handlers() {
+        kale.register(AuthenticateHandler(state.connection.sasl, sink))
+        kale.register(Rpl903Handler(state.connection.cap, state.connection.sasl, sink))
+        kale.register(Rpl904Handler(state.connection.cap, state.connection.sasl, sink))
+        kale.register(Rpl905Handler(state.connection.cap, state.connection.sasl, sink))
+        kale.register(CapLsHandler(state.connection.cap, state.connection.sasl, sink))
+        kale.register(CapAckHandler(state.connection.cap, state.connection.sasl, sink))
+        kale.register(CapNakHandler(state.connection.cap, state.connection.sasl, sink))
     }
 
     private fun sendRegistrationMessages() {
