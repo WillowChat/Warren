@@ -89,8 +89,6 @@ class SanityCheckIntegrationTests {
                 ":imaginary.bunnies.io 376 carrot-warren :End of /MOTD command."
         )
 
-        Executors.newSingleThreadExecutor()
-
         whenever(mockSink.setUp()).thenReturn(true)
 
         runner.run()
