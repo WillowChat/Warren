@@ -25,7 +25,6 @@ import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import org.mockito.MockitoAnnotations
 
 class IrcRunnerTests {
     lateinit var runner: IrcRunner
