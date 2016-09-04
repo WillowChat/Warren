@@ -24,13 +24,12 @@ interface IIrcRunner {
     fun run()
 }
 
-class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, val sink: IMessageSink, val lineSource: ILineSource, val initialState: IrcState, val fireIncomingLineEvent: Boolean) : IIrcRunner, IKaleParsingStateDelegate {
+class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, val initialState: IrcState) : IIrcRunner, IKaleParsingStateDelegate {
 
     private val LOGGER = loggerFor<IrcRunner>()
 
     @Volatile var lastStateSnapshot: IrcState? = null
-    private var eventQueue: IWarrenInternalEventQueue = WarrenInternalEventQueue()
-    var eventSink: IWarrenInternalEventSink = eventQueue
+    var eventSink: IWarrenInternalEventSink = internalEventQueue
 
     private lateinit var state: IrcState
 
@@ -98,14 +97,14 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
     }
 
     private fun runEventLoop() {
-        val lineThread = createLineThread(eventQueue, state)
-        val pingThread = createPingThread(eventQueue, state, sink)
+        val lineThread = createLineThread(internalEventQueue, state)
+        val pingThread = createPingThread(internalEventQueue, state, sink)
 
         lineThread.start()
         pingThread.start()
 
         eventLoop@ while (true) {
-            val event = eventQueue.grab()
+            val event = internalEventQueue.grab()
 
             if (Thread.currentThread().isInterrupted || event == null) {
                 LOGGER.warn("interrupted or null event, bailing")
@@ -146,7 +145,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, val kale: IKale, va
     private fun createLineThread(eventQueue: IWarrenInternalEventQueue, state: IrcState): Thread {
         val lineThread = thread(start = false) {
             LOGGER.debug("new line thread starting up")
-            NewLineWarrenEventGenerator(eventQueue, kale, lineSource, fireIncomingLineEvent, eventDispatcher).run()
+            newLineGenerator.run()
             LOGGER.warn("new line generator ended")
 
             eventQueue.clear()

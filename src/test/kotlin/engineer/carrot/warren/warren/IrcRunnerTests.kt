@@ -12,6 +12,8 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
+import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventGenerator
+import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventQueue
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005Handler
@@ -32,6 +34,8 @@ class IrcRunnerTests {
     lateinit var userPrefixesState: UserPrefixesState
 
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
+    lateinit var mockInternalEventQueue: IWarrenInternalEventQueue
+    lateinit var mockNewLineGenerator: IWarrenInternalEventGenerator
     lateinit var mockKale: MockKale
     lateinit var mockSink: IMessageSink
     lateinit var mockLineSource: ILineSource
@@ -52,12 +56,14 @@ class IrcRunnerTests {
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
         mockEventDispatcher = mock()
+        mockInternalEventQueue = mock()
+        mockNewLineGenerator = mock()
         mockKale = MockKale()
 
         mockSink = mock()
         mockLineSource = mock()
 
-        runner = IrcRunner(mockEventDispatcher, mockKale, mockSink, mockLineSource, initialState, false)
+        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState)
 
         MockitoAnnotations.initMocks(this)
     }

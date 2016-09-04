@@ -73,7 +73,7 @@ interface IWarrenInternalEventGenerator {
     fun run()
 }
 
-class NewLineWarrenEventGenerator(val queue: IWarrenInternalEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?) : IWarrenInternalEventGenerator {
+class NewLineWarrenEventGenerator(val queue: IWarrenInternalEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?): IWarrenInternalEventGenerator {
 
     private val LOGGER = loggerFor<NewLineWarrenEventGenerator>()
 

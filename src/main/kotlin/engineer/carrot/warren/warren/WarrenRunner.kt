@@ -7,7 +7,9 @@ import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.event.ChannelMessageEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.WarrenEventDispatcher
+import engineer.carrot.warren.warren.event.internal.NewLineWarrenEventGenerator
 import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
+import engineer.carrot.warren.warren.event.internal.WarrenInternalEventQueue
 import engineer.carrot.warren.warren.state.*
 
 data class ServerConfiguration(val server: String, val port: Int = 6697, val useTLS: Boolean = true, val fingerprints: Set<String>? = null)
@@ -63,7 +65,10 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
-        return IrcRunner(eventDispatcher = events.dispatcher, kale = kale, sink = socket, lineSource = socket, initialState = initialState, fireIncomingLineEvent = events.fireIncomingLineEvent)
+        val internalEventQueue = WarrenInternalEventQueue()
+        val newLineGenerator = NewLineWarrenEventGenerator(internalEventQueue, kale, lineSource = socket, fireIncomingLineEvent = events.fireIncomingLineEvent, warrenEventDispatcher = events.dispatcher)
+
+        return IrcRunner(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState)
     }
 }
 
