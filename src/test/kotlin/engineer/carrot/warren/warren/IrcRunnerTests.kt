@@ -27,6 +27,7 @@ import org.junit.Before
 import org.junit.Test
 
 class IrcRunnerTests {
+
     lateinit var runner: IrcRunner
     lateinit var connectionState: ConnectionState
     lateinit var channelModesState: ChannelModesState
@@ -62,7 +63,7 @@ class IrcRunnerTests {
         mockSink = mock()
         mockLineSource = mock()
 
-        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState)
+        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false)
     }
 
     @Test fun test_run_RegistersHandlers() {
@@ -154,6 +155,7 @@ class IrcRunnerTests {
 }
 
 class MockKale : IKale {
+
     var spyRegisterHandlers = mutableListOf<IKaleHandler<*>>()
 
     override fun <T : IMessage> register(handler: IKaleHandler<T>) {
@@ -169,4 +171,5 @@ class MockKale : IKale {
     }
 
     override var parsingStateDelegate: IKaleParsingStateDelegate? = null
+
 }

@@ -26,7 +26,7 @@ interface IIrcRunner {
     fun run()
 }
 
-class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, val initialState: IrcState) : IIrcRunner, IKaleParsingStateDelegate {
+class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, val initialState: IrcState, val startAsyncThreads: Boolean = true) : IIrcRunner, IKaleParsingStateDelegate {
 
     private val LOGGER = loggerFor<IrcRunner>()
 
@@ -101,8 +101,10 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
         val lineThread = createLineThread(internalEventQueue, state)
         val pingThread = createPingThread(internalEventQueue, state, sink)
 
-        lineThread.start()
-        pingThread.start()
+        if (startAsyncThreads) {
+            lineThread.start()
+            pingThread.start()
+        }
 
         eventLoop@ while (true) {
             val event = internalEventQueue.grab()
