@@ -64,8 +64,6 @@ class IrcRunnerTests {
         mockLineSource = mock()
 
         runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState)
-
-        MockitoAnnotations.initMocks(this)
     }
 
     @Test fun test_run_RegistersHandlers() {
