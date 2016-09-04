@@ -8,6 +8,7 @@ import engineer.carrot.warren.warren.state.ChannelTypesState
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 
 class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsState: JoinedChannelsState, val channelTypesState: ChannelTypesState) : IKaleHandler<PrivMsgMessage> {
+
     private val LOGGER = loggerFor<PrivMsgHandler>()
 
     override val messageType = PrivMsgMessage::class.java
@@ -83,4 +84,5 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsSt
             }
         }
     }
+
 }

@@ -8,6 +8,7 @@ import java.security.SecureRandom
 import javax.net.ssl.*
 
 class WrappedSSLSocketFactory(private val fingerprints: Set<String>?) {
+
     val LOGGER = loggerFor<WrappedSSLSocketFactory>()
 
     private fun createDangerZoneSocketFactory(): SSLSocketFactory {

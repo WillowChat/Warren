@@ -10,6 +10,7 @@ import engineer.carrot.warren.warren.state.JoinedChannelsState
 import engineer.carrot.warren.warren.state.LifecycleState
 
 class QuitHandler(val eventDispatcher: IWarrenEventDispatcher, val connectionState: ConnectionState, val channelsState: JoinedChannelsState) : IKaleHandler<QuitMessage> {
+
     private val LOGGER = loggerFor<QuitHandler>()
 
     override val messageType = QuitMessage::class.java
@@ -40,4 +41,5 @@ class QuitHandler(val eventDispatcher: IWarrenEventDispatcher, val connectionSta
 
         LOGGER.trace("someone quit, new states: $connectionState, $channelsState")
     }
+
 }

@@ -12,10 +12,13 @@ import java.net.Socket
 import java.util.concurrent.TimeUnit
 
 interface ILineSource {
+
     fun nextLine(): String?
+
 }
 
 class IrcSocket(val server: String, val port: Int, val useTLS: Boolean, val kale: IKale, val serialiser: IIrcMessageSerialiser, val fingerprints: Set<String>?) : IMessageSink, ILineSource {
+
     private val LOGGER = loggerFor<IrcSocket>()
 
     lateinit var socket: Socket
@@ -116,4 +119,5 @@ class IrcSocket(val server: String, val port: Int, val useTLS: Boolean, val kale
         sink.writeString(line + "\r\n", Charsets.UTF_8)
         sink.flush()
     }
+
 }

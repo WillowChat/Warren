@@ -6,6 +6,7 @@ import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.*
 
 class JoinHandler(val connectionState: ConnectionState, val joiningChannelsState: JoiningChannelsState, val joinedChannelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<JoinMessage> {
+
     private val LOGGER = loggerFor<JoinHandler>()
 
     override val messageType = JoinMessage::class.java

@@ -15,16 +15,14 @@ object Rpl005ChanTypesHandler : IRpl005ChanTypesHandler {
     override fun handle(rawValue: String, state: ChannelTypesState): Boolean {
         // CHANTYPES: &#
 
-        var value = rawValue
-
-        if (value.isNullOrEmpty()) {
+        if (rawValue.isNullOrEmpty()) {
             LOGGER.warn("CHANTYPES value null or empty, bailing")
             return false
         }
 
         val types = mutableSetOf<Char>()
 
-        for (char in value) {
+        for (char in rawValue) {
             types += char
         }
 

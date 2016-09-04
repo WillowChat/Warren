@@ -11,6 +11,7 @@ interface IRpl005ChanModesHandler {
 }
 
 object Rpl005ChanModesHandler : IRpl005ChanModesHandler {
+
     private val LOGGER = loggerFor<Rpl005ChanModesHandler>()
 
     override fun handle(rawValue: String, state: ChannelModesState): Boolean {

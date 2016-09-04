@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.state
 
 open class CaseInsensitiveNamedMap<NamedType : INamed>(var mappingState: CaseMappingState) {
+
     private val namedThings = mutableMapOf<String, NamedType>()
 
     val all: Map<String, NamedType>

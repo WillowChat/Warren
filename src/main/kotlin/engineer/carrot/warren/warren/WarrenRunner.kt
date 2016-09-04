@@ -19,8 +19,8 @@ data class NickServConfiguration(val account: String, val password: String, val 
 data class ChannelsConfiguration(val channels: Map<String, String?> = mapOf())
 data class EventConfiguration(val dispatcher: IWarrenEventDispatcher, val fireIncomingLineEvent: Boolean = false)
 
-class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration, val channels: ChannelsConfiguration,
-                    val events: EventConfiguration) {
+class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration, val channels: ChannelsConfiguration, val events: EventConfiguration) {
+
     fun create(): IrcRunner {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATING
@@ -57,8 +57,8 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState, caseMappingState)
 
         val joiningState = JoiningChannelsState(caseMappingState)
-        for (channel in channels.channels) {
-            joiningState += JoiningChannelState(channel.key, channel.value, status = JoiningChannelLifecycle.JOINING)
+        for ((name, key) in channels.channels) {
+            joiningState += JoiningChannelState(name, key, status = JoiningChannelLifecycle.JOINING)
         }
 
         val channelsState = ChannelsState(joining = joiningState, joined = JoinedChannelsState(caseMappingState))
@@ -70,9 +70,11 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
 
         return IrcRunner(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState)
     }
+
 }
 
 object WarrenRunner {
+
     private val LOGGER = loggerFor<WarrenRunner>()
 
     @JvmStatic fun main(args: Array<String>) {
@@ -103,4 +105,5 @@ object WarrenRunner {
 
         connection.run()
     }
+
 }

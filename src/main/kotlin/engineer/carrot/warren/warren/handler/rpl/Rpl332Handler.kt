@@ -7,6 +7,7 @@ import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 
 class Rpl332Handler(val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl332Message> {
+
     private val LOGGER = loggerFor<Rpl332Handler>()
 
     override val messageType = Rpl332Message::class.java
@@ -23,5 +24,6 @@ class Rpl332Handler(val channelsState: JoinedChannelsState, val caseMappingState
         LOGGER.debug("channel topic for ${channel.name}: $topic")
         channel.topic = topic
     }
+
 }
 

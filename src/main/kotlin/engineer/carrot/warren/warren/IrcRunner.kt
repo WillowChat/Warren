@@ -8,7 +8,9 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.PingMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
-import engineer.carrot.warren.warren.event.internal.*
+import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventGenerator
+import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventQueue
+import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventSink
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.*
@@ -28,11 +30,10 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
 
     private val LOGGER = loggerFor<IrcRunner>()
 
-    @Volatile var lastStateSnapshot: IrcState? = null
     var eventSink: IWarrenInternalEventSink = internalEventQueue
+    @Volatile var lastStateSnapshot: IrcState? = null
 
     private lateinit var state: IrcState
-
     private val PONG_TIMER_MS: Long = 30 * 1000
 
     init {

@@ -9,6 +9,7 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
 
 internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) : X509TrustManager {
+
     private val LOGGER = loggerFor<SHA256SignaturesX509TrustManager>()
 
     @Throws(CertificateException::class)
@@ -57,4 +58,5 @@ internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) :
     override fun getAcceptedIssuers(): Array<X509Certificate> {
         return emptyArray()
     }
+
 }

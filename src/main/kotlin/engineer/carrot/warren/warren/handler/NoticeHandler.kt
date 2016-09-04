@@ -6,6 +6,7 @@ import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ChannelTypesState
 
 class NoticeHandler(val channelTypesState: ChannelTypesState) : IKaleHandler<NoticeMessage> {
+
     private val LOGGER = loggerFor<NoticeHandler>()
 
     override val messageType = NoticeMessage::class.java
@@ -30,4 +31,5 @@ class NoticeHandler(val channelTypesState: ChannelTypesState) : IKaleHandler<Not
             LOGGER.info("NOTICE PM: <${source.nick}> $messageContents")
         }
     }
+
 }

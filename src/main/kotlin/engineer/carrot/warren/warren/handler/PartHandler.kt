@@ -8,6 +8,7 @@ import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 
 class PartHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<PartMessage> {
+
     private val LOGGER = loggerFor<PartHandler>()
 
     override val messageType = PartMessage::class.java

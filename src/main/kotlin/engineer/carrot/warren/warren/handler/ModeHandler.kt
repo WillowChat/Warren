@@ -12,6 +12,7 @@ import engineer.carrot.warren.warren.state.JoinedChannelsState
 import engineer.carrot.warren.warren.state.UserPrefixesState
 
 class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesState: ChannelTypesState, val channelsState: JoinedChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : IKaleHandler<ModeMessage> {
+
     private val LOGGER = loggerFor<ModeHandler>()
 
     override val messageType = ModeMessage::class.java
@@ -69,4 +70,5 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
             }
         }
     }
+
 }

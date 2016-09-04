@@ -7,6 +7,7 @@ import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ConnectionState
 
 class PongHandler(val sink: IMessageSink, val connectionState: ConnectionState) : IKaleHandler<PongMessage> {
+
     private val LOGGER = loggerFor<PongHandler>()
 
     override val messageType = PongMessage::class.java
@@ -16,4 +17,5 @@ class PongHandler(val sink: IMessageSink, val connectionState: ConnectionState) 
 
         connectionState.lastPingOrPong = System.currentTimeMillis()
     }
+
 }

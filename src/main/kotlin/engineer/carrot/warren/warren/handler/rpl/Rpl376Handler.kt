@@ -3,7 +3,6 @@ package engineer.carrot.warren.warren.handler.rpl
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl376Message
-import engineer.carrot.warren.kale.irc.message.utility.RawMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
@@ -14,6 +13,7 @@ import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.LifecycleState
 
 class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMessageSink, val channelsToJoin: Map<String, String?>, val connectionState: ConnectionState) : IKaleHandler<Rpl376Message> {
+
     private val LOGGER = loggerFor<Rpl376Handler>()
 
     override val messageType = Rpl376Message::class.java
@@ -71,5 +71,6 @@ class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMess
             }
         }
     }
+
 }
 

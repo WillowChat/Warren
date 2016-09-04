@@ -6,6 +6,7 @@ import java.security.cert.X509Certificate
 import javax.net.ssl.X509TrustManager
 
 internal class DangerZoneTrustAllX509TrustManager() : X509TrustManager {
+
     private val LOGGER = loggerFor<DangerZoneTrustAllX509TrustManager>()
 
     @Throws(CertificateException::class)
@@ -21,4 +22,5 @@ internal class DangerZoneTrustAllX509TrustManager() : X509TrustManager {
     override fun getAcceptedIssuers(): Array<X509Certificate> {
         return emptyArray()
     }
+
 }

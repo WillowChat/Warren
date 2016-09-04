@@ -10,6 +10,7 @@ import engineer.carrot.warren.warren.state.CapState
 import engineer.carrot.warren.warren.state.SaslState
 
 class Rpl905Handler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<Rpl905Message> {
+
     private val LOGGER = loggerFor<Rpl905Handler>()
 
     override val messageType = Rpl905Message::class.java
@@ -25,5 +26,6 @@ class Rpl905Handler(val capState: CapState, val saslState: SaslState, val sink: 
             LOGGER.debug("didn't think we should end the registration process, waiting")
         }
     }
+
 }
 

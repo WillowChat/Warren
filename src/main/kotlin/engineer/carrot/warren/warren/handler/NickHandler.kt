@@ -7,6 +7,7 @@ import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 
 class NickHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState) : IKaleHandler<NickMessage> {
+
     private val LOGGER = loggerFor<NickHandler>()
 
     override val messageType = NickMessage::class.java
@@ -36,4 +37,5 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Joine
 
         LOGGER.trace("someone changed nick - new states: $connectionState, $channelsState")
     }
+
 }

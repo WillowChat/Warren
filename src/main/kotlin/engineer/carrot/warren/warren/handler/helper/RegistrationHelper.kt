@@ -9,6 +9,7 @@ import engineer.carrot.warren.warren.state.CapState
 import engineer.carrot.warren.warren.state.SaslState
 
 object RegistrationHelper {
+
     private val LOGGER = loggerFor<RegistrationHelper>()
 
     fun shouldEndCapNegotiation(saslState: SaslState, capState: CapState): Boolean {
@@ -35,4 +36,5 @@ object RegistrationHelper {
 
         sink.write(CapEndMessage())
     }
+
 }

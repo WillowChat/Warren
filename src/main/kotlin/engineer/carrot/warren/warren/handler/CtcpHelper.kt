@@ -10,7 +10,7 @@ enum class CtcpEnum {
     companion object {
 
         fun from(rawMessage: String): CtcpEnum {
-            var message = if (rawMessage.startsWith(CharacterCodes.CTCP)) {
+            val message = if (rawMessage.startsWith(CharacterCodes.CTCP)) {
                 rawMessage.substring(1)
             } else {
                 return NONE
@@ -26,6 +26,7 @@ enum class CtcpEnum {
 }
 
 object CtcpHelper {
+
     val CTCP = Character.toString(CharacterCodes.CTCP)
 
     fun isMessageCTCP(message: String): Boolean = (message.startsWith(CTCP) && message.endsWith(CTCP))
@@ -48,4 +49,5 @@ object CtcpHelper {
 
         return message
     }
+
 }

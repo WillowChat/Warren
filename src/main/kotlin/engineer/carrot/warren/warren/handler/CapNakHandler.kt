@@ -10,6 +10,7 @@ import engineer.carrot.warren.warren.state.CapState
 import engineer.carrot.warren.warren.state.SaslState
 
 class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<CapNakMessage> {
+
     private val LOGGER = loggerFor<CapNakHandler>()
 
     override val messageType = CapNakMessage::class.java
@@ -39,5 +40,6 @@ class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: 
             else -> LOGGER.trace("server NAKed caps but we don't think we're negotiating")
         }
     }
+
 }
 

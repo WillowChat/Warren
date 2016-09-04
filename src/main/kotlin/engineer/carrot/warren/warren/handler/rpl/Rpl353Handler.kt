@@ -9,6 +9,7 @@ import engineer.carrot.warren.warren.state.UserPrefixesState
 import engineer.carrot.warren.warren.state.generateUser
 
 class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl353Message> {
+
     private val LOGGER = loggerFor<Rpl353Handler>()
 
     override val messageType = Rpl353Message::class.java
@@ -60,4 +61,5 @@ class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesStat
 
         return Pair(prefixes, nick)
     }
+
 }

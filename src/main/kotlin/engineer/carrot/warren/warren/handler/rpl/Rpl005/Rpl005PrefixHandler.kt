@@ -11,6 +11,7 @@ interface IRpl005PrefixHandler {
 }
 
 object Rpl005PrefixHandler : IRpl005PrefixHandler {
+
     private val LOGGER = loggerFor<Rpl005PrefixHandler>()
 
     override fun handle(rawValue: String, state: UserPrefixesState): Boolean {

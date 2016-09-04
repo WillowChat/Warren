@@ -6,6 +6,7 @@ import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.ParsingState
 
 class Rpl005Handler(val state: ParsingState, val prefixHandler: IRpl005PrefixHandler, val channelModesHandler: IRpl005ChanModesHandler, val channelTypesHandler: IRpl005ChanTypesHandler, val caseMappingHandler: IRpl005CaseMappingHandler) : IKaleHandler<Rpl005Message> {
+
     private val LOGGER = loggerFor<Rpl005Handler>()
 
     override val messageType = Rpl005Message::class.java
@@ -26,4 +27,5 @@ class Rpl005Handler(val state: ParsingState, val prefixHandler: IRpl005PrefixHan
             }
         }
     }
+
 }

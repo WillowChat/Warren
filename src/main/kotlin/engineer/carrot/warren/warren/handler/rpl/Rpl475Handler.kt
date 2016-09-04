@@ -8,6 +8,7 @@ import engineer.carrot.warren.warren.state.JoiningChannelLifecycle
 import engineer.carrot.warren.warren.state.JoiningChannelsState
 
 class Rpl475Handler(val channelsState: JoiningChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl475Message> {
+
     private val LOGGER = loggerFor<Rpl475Handler>()
 
     override val messageType = Rpl475Message::class.java
@@ -26,5 +27,6 @@ class Rpl475Handler(val channelsState: JoiningChannelsState, val caseMappingStat
 
         LOGGER.trace("new channels state: $channelsState")
     }
+
 }
 

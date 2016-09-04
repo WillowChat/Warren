@@ -8,6 +8,7 @@ import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 
 class KickHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<KickMessage> {
+
     private val LOGGER = loggerFor<KickHandler>()
 
     override val messageType = KickMessage::class.java
@@ -35,4 +36,5 @@ class KickHandler(val connectionState: ConnectionState, val channelsState: Joine
 
         LOGGER.trace("kicks happened - new channels state: $channelsState")
     }
+
 }

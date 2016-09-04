@@ -11,6 +11,7 @@ import engineer.carrot.warren.warren.state.CapState
 import engineer.carrot.warren.warren.state.SaslState
 
 class CapLsHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<CapLsMessage> {
+
     private val LOGGER = loggerFor<CapLsHandler>()
 
     override val messageType = CapLsMessage::class.java
@@ -48,5 +49,6 @@ class CapLsHandler(val capState: CapState, val saslState: SaslState, val sink: I
             else -> LOGGER.trace("server told us about caps but we don't think we're negotiating")
         }
     }
+
 }
 

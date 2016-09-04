@@ -7,6 +7,7 @@ import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 
 class TopicHandler(val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<TopicMessage> {
+
     private val LOGGER = loggerFor<TopicHandler>()
 
     override val messageType = TopicMessage::class.java
@@ -23,5 +24,6 @@ class TopicHandler(val channelsState: JoinedChannelsState, val caseMappingState:
         LOGGER.debug("channel topic for ${channel.name}: $topic")
         channel.topic = topic
     }
+
 }
 

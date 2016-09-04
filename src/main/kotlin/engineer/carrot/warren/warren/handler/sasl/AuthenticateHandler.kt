@@ -9,6 +9,7 @@ import engineer.carrot.warren.warren.state.SaslState
 import java.util.*
 
 class AuthenticateHandler(val state: SaslState, val sink: IMessageSink) : IKaleHandler<AuthenticateMessage> {
+
     private val LOGGER = loggerFor<AuthenticateHandler>()
 
     override val messageType = AuthenticateMessage::class.java
@@ -31,4 +32,5 @@ class AuthenticateHandler(val state: SaslState, val sink: IMessageSink) : IKaleH
         LOGGER.debug("replied to sasl auth request for ${credentials.account}")
         sink.write(AuthenticateMessage(payload = saslString, isEmpty = false))
     }
+
 }
