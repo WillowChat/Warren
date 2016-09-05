@@ -23,7 +23,10 @@ import engineer.carrot.warren.warren.state.LifecycleState
 import kotlin.concurrent.thread
 
 interface IIrcRunner {
+
     fun run()
+    val state: IrcState?
+    
 }
 
 class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, val initialState: IrcState, val startAsyncThreads: Boolean = true) : IIrcRunner, IKaleParsingStateDelegate {
@@ -31,7 +34,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
     private val LOGGER = loggerFor<IrcRunner>()
 
     var eventSink: IWarrenInternalEventSink = internalEventQueue
-    @Volatile var state: IrcState? = null
+    override @Volatile var state: IrcState? = null
 
     private lateinit var internalState: IrcState
     private val PONG_TIMER_MS: Long = 30 * 1000
