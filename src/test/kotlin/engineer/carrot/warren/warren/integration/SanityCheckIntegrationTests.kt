@@ -93,8 +93,8 @@ class SanityCheckIntegrationTests {
 
         runner.run()
 
-        assertEquals(LifecycleState.CONNECTED, runner.lastStateSnapshot!!.connection.lifecycle)
-        assertEquals(setOf("multi-prefix"), runner.lastStateSnapshot!!.connection.cap.accepted)
+        assertEquals(LifecycleState.CONNECTED, runner.state!!.connection.lifecycle)
+        assertEquals(setOf("multi-prefix"), runner.state!!.connection.cap.accepted)
     }
 
 }
