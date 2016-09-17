@@ -85,10 +85,10 @@ project.artifacts.add("archives", shadowJarTask())
 
 if (project.hasProperty("DEPLOY_DIR")) {
     configure<PublishingExtension> {
-        mavenDeploy(this.repositories) { setUrl("file://${project.property("DEPLOY_DIR")}") }
+        this.repositories.maven({ setUrl("file://${project.property("DEPLOY_DIR")}") })
 
         publications {
-            it.create<MavenPublication>("mavenJava") {
+            create<MavenPublication>("mavenJava") {
                 from(components.getByName("java"))
 
                 artifact(shadowJarTask())
@@ -103,6 +103,4 @@ fun shadowJar(setup: ShadowJar.() -> Unit) = shadowJarTask().setup()
 fun Project.test(setup: Test.() -> Unit) = (project.tasks.getByName("test") as Test).setup()
 fun Project.compileJava(setup: JavaCompile.() -> Unit) = (project.tasks.getByName("compileJava") as JavaCompile).setup()
 fun shadowJarTask() = (project.tasks.findByName("shadowJar") as ShadowJar)
-fun mavenDeploy(repositoryHandler: RepositoryHandler, configuration: MavenArtifactRepository.() -> Unit) =
-        repositoryHandler.maven({ it.configuration() })
 fun sourceSets(name: String) = (project.property("sourceSets") as SourceSetContainer).getByName(name)
