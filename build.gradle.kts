@@ -46,7 +46,7 @@ repositories {
 dependencies {
     compile(kotlinModule("stdlib"))
     compile("org.slf4j:slf4j-api:1.7.21")
-    compile("engineer.carrot.warren.kale:Kale:1.1.0.104")
+    compile("engineer.carrot.warren.kale:Kale:1.1.0.105")
     compile("com.squareup.okio:okio:1.9.0")
 
     runtime("org.slf4j:slf4j-simple:1.7.21")
