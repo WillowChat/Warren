@@ -11,41 +11,43 @@ import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventGenerator
 import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventQueue
 import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventSink
+import engineer.carrot.warren.warren.extension.cap.CapManager
+import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.*
-import engineer.carrot.warren.warren.handler.sasl.AuthenticateHandler
-import engineer.carrot.warren.warren.handler.sasl.Rpl903Handler
-import engineer.carrot.warren.warren.handler.sasl.Rpl904Handler
-import engineer.carrot.warren.warren.handler.sasl.Rpl905Handler
+import engineer.carrot.warren.warren.state.IStateCapturing
 import engineer.carrot.warren.warren.state.IrcState
 import engineer.carrot.warren.warren.state.LifecycleState
 import kotlin.concurrent.thread
 
-interface IIrcRunner {
+interface IIrcRunner : IStateCapturing<IrcState> {
 
     fun run()
-    val state: IrcState?
-    
+
 }
 
-class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, val initialState: IrcState, val startAsyncThreads: Boolean = true) : IIrcRunner, IKaleParsingStateDelegate {
+class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, val startAsyncThreads: Boolean = true, private val initialCapState: CapState, private val initialSaslState: SaslState) : IIrcRunner, IKaleParsingStateDelegate {
 
     private val LOGGER = loggerFor<IrcRunner>()
 
     var eventSink: IWarrenInternalEventSink = internalEventQueue
-    override @Volatile var state: IrcState? = null
 
-    private lateinit var internalState: IrcState
+    private var internalState = initialState
+    @Volatile override var state: IrcState = initialState.copy()
+
     private val PONG_TIMER_MS: Long = 30 * 1000
 
-    init {
-        internalState = initialState
+    val caps = CapManager(initialCapState, kale, internalState.channels, initialSaslState, sink, internalState.parsing.caseMapping)
+
+    override fun captureStateSnapshot() {
+        state = internalState.copy()
+
+        caps.captureStateSnapshot()
     }
 
     override fun run() {
-        internalState = initialState
-
         if (!sink.setUp()) {
             LOGGER.warn("couldn't set up sink - bailing out")
             return
@@ -54,7 +56,8 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
         kale.parsingStateDelegate = this
 
         registerRFC1459Handlers()
-        registerIrcV3Handlers()
+        caps.setUp()
+
         sendRegistrationMessages()
         runEventLoop()
     }
@@ -74,25 +77,15 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
         kale.register(Rpl005Handler(internalState.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler, Rpl005CaseMappingHandler))
         kale.register(Rpl332Handler(internalState.channels.joined, internalState.parsing.caseMapping))
         kale.register(Rpl353Handler(internalState.channels.joined, internalState.parsing.userPrefixes, internalState.parsing.caseMapping))
-        kale.register(Rpl376Handler(eventDispatcher, sink, internalState.channels.joining.all.mapValues { entry -> entry.value.key }, internalState.connection))
+        kale.register(Rpl376Handler(eventDispatcher, sink, internalState.channels.joining.all.mapValues { entry -> entry.value.key }, internalState.connection, caps.internalState))
         kale.register(Rpl471Handler(internalState.channels.joining, internalState.parsing.caseMapping))
         kale.register(Rpl473Handler(internalState.channels.joining, internalState.parsing.caseMapping))
         kale.register(Rpl474Handler(internalState.channels.joining, internalState.parsing.caseMapping))
         kale.register(Rpl475Handler(internalState.channels.joining, internalState.parsing.caseMapping))
     }
 
-    private fun registerIrcV3Handlers() {
-        kale.register(AuthenticateHandler(internalState.connection.sasl, sink))
-        kale.register(Rpl903Handler(internalState.connection.cap, internalState.connection.sasl, sink))
-        kale.register(Rpl904Handler(internalState.connection.cap, internalState.connection.sasl, sink))
-        kale.register(Rpl905Handler(internalState.connection.cap, internalState.connection.sasl, sink))
-        kale.register(CapLsHandler(internalState.connection.cap, internalState.connection.sasl, sink))
-        kale.register(CapAckHandler(internalState.connection.cap, internalState.connection.sasl, sink))
-        kale.register(CapNakHandler(internalState.connection.cap, internalState.connection.sasl, sink))
-    }
-
     private fun sendRegistrationMessages() {
-        sink.write(CapLsMessage(caps = mapOf()))
+        sink.write(CapLsMessage(caps = mapOf())) // FIXME: Cap Extension should do this as part of registration
         sink.write(NickMessage(nickname = internalState.connection.nickname))
         sink.write(UserMessage(username = internalState.connection.user, mode = "8", realname = internalState.connection.user))
 
@@ -119,7 +112,9 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
 
             event.execute()
 
-            state = internalState.copy()
+            synchronized(state) {
+                captureStateSnapshot()
+            }
 
             if (internalState.connection.lifecycle == LifecycleState.DISCONNECTED) {
                 eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.DISCONNECTED))

@@ -4,14 +4,15 @@ import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.ircv3.CapAckMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.sasl.AuthenticateMessage
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.extension.cap.CapLifecycle
+import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.cap.ICapManager
+import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.AuthLifecycle
-import engineer.carrot.warren.warren.state.CapLifecycle
-import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.SaslState
 
-class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<CapAckMessage> {
+class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapAckMessage> {
 
     private val LOGGER = loggerFor<CapAckHandler>()
 
@@ -24,6 +25,7 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
         LOGGER.trace("server ACKed following caps: $caps")
 
         capState.accepted += caps
+        caps.forEach { capManager.capEnabled(it) }
 
         if (caps.contains("sasl") && saslState.shouldAuth) {
             LOGGER.trace("server acked sasl - starting authentication for user: ${saslState.credentials?.account}")

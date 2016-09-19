@@ -14,13 +14,16 @@ import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventGenerator
 import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventQueue
+import engineer.carrot.warren.warren.extension.cap.CapLifecycle
+import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005Handler
-import engineer.carrot.warren.warren.handler.sasl.AuthenticateHandler
-import engineer.carrot.warren.warren.handler.sasl.Rpl903Handler
-import engineer.carrot.warren.warren.handler.sasl.Rpl904Handler
-import engineer.carrot.warren.warren.handler.sasl.Rpl905Handler
+import engineer.carrot.warren.warren.extension.sasl.AuthenticateHandler
+import engineer.carrot.warren.warren.extension.sasl.Rpl903Handler
+import engineer.carrot.warren.warren.extension.sasl.Rpl904Handler
+import engineer.carrot.warren.warren.extension.sasl.Rpl905Handler
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.*
 import org.junit.Before
@@ -44,7 +47,7 @@ class IrcRunnerTests {
         val lifecycleState = LifecycleState.DISCONNECTED
         val capLifecycleState = CapLifecycle.NEGOTIATED
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
-        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState, cap = capState)
+        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState)
 
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
@@ -63,22 +66,22 @@ class IrcRunnerTests {
         mockSink = mock()
         mockLineSource = mock()
 
-        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false)
+        val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
+
+        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState)
     }
 
-    @Test fun test_run_RegistersHandlers() {
+    @Test fun test_run_RegistersBaseHandlers() {
         whenever(mockSink.setUp()).thenReturn(true)
 
         runner.run()
 
-        assertEquals(26, mockKale.spyRegisterHandlers.size)
-        assertTrue(arrayContainsHandlerOfType<AuthenticateHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl903Handler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl904Handler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl905Handler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<CapLsHandler>(mockKale.spyRegisterHandlers))
+        assertEquals(22, mockKale.spyRegisterHandlers.size)
+
+        assertTrue(arrayContainsHandlerOfType<CapLsHandler>(mockKale.spyRegisterHandlers)) // FIXME: move to other test
         assertTrue(arrayContainsHandlerOfType<CapAckHandler>(mockKale.spyRegisterHandlers))
         assertTrue(arrayContainsHandlerOfType<CapNakHandler>(mockKale.spyRegisterHandlers))
+
         assertTrue(arrayContainsHandlerOfType<JoinHandler>(mockKale.spyRegisterHandlers))
         assertTrue(arrayContainsHandlerOfType<KickHandler>(mockKale.spyRegisterHandlers))
         assertTrue(arrayContainsHandlerOfType<ModeHandler>(mockKale.spyRegisterHandlers))
@@ -160,6 +163,14 @@ class MockKale : IKale {
 
     override fun <T : IMessage> register(handler: IKaleHandler<T>) {
         spyRegisterHandlers.add(handler)
+    }
+
+    override fun <T : IMessage> unregister(handler: IKaleHandler<T>) {
+        throw UnsupportedOperationException()
+    }
+
+    override fun <M : IMessage> handlerFor(messageClass: Class<M>): IKaleHandler<M> {
+        throw UnsupportedOperationException()
     }
 
     override fun serialise(message: Any): IrcMessage? {

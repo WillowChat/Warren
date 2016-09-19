@@ -1,4 +1,4 @@
-package engineer.carrot.warren.warren.handler.sasl
+package engineer.carrot.warren.warren.extension.sasl
 
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
@@ -7,9 +7,10 @@ import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.sasl.AuthenticateMessage
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.extension.sasl.AuthenticateHandler
+import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.state.AuthCredentials
 import engineer.carrot.warren.warren.state.AuthLifecycle
-import engineer.carrot.warren.warren.state.SaslState
 import org.junit.Before
 import org.junit.Test
 

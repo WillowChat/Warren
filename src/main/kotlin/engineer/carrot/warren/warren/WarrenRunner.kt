@@ -10,6 +10,10 @@ import engineer.carrot.warren.warren.event.WarrenEventDispatcher
 import engineer.carrot.warren.warren.event.internal.NewLineWarrenEventGenerator
 import engineer.carrot.warren.warren.event.internal.SendSomethingEvent
 import engineer.carrot.warren.warren.event.internal.WarrenInternalEventQueue
+import engineer.carrot.warren.warren.extension.cap.CapKeys
+import engineer.carrot.warren.warren.extension.cap.CapLifecycle
+import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.state.*
 
 data class ServerConfiguration(val server: String, val port: Int = 6697, val useTLS: Boolean = true, val fingerprints: Set<String>? = null)
@@ -23,8 +27,9 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
 
     fun create(): IrcRunner {
         val lifecycleState = LifecycleState.CONNECTING
+
         val capLifecycleState = CapLifecycle.NEGOTIATING
-        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf("multi-prefix", "sasl"), server = mapOf(), accepted = setOf(), rejected = setOf())
+        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(CapKeys.MULTI_PREFIX.key, CapKeys.SASL.key, CapKeys.ACCOUNT_NOTIFY.key, CapKeys.AWAY_NOTIFY.key, CapKeys.EXTENDED_JOIN.key), server = mapOf(), accepted = setOf(), rejected = setOf())
 
         val saslState = if (user.sasl != null) {
             val credentials = AuthCredentials(account = user.sasl.account, password = user.sasl.password)
@@ -43,7 +48,7 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         }
 
         val connectionState = ConnectionState(server = server.server, port = server.port, nickname = user.nickname, user = user.user,
-                                              lifecycle = lifecycleState, cap = capState, sasl = saslState, nickServ = nickServState)
+                lifecycle = lifecycleState, nickServ = nickServState)
 
         val kale = Kale().addDefaultMessages()
         val serialiser = IrcMessageSerialiser
@@ -68,7 +73,7 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         val internalEventQueue = WarrenInternalEventQueue()
         val newLineGenerator = NewLineWarrenEventGenerator(internalEventQueue, kale, lineSource = socket, fireIncomingLineEvent = events.fireIncomingLineEvent, warrenEventDispatcher = events.dispatcher)
 
-        return IrcRunner(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState)
+        return IrcRunner(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState, initialCapState = capState, initialSaslState = saslState)
     }
 
 }
@@ -89,10 +94,14 @@ object WarrenRunner {
             LOGGER.info("event: $it")
         }
 
-        val sasl = if (password != null) { SaslConfiguration(account = nickname, password = password) } else { null }
+        val sasl = if (password != null) {
+            SaslConfiguration(account = nickname, password = password)
+        } else {
+            null
+        }
 
         val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, sasl = sasl),
-                                    ChannelsConfiguration(mapOf("#carrot" to null, "#botdev" to null)), EventConfiguration(events, fireIncomingLineEvent = true))
+                ChannelsConfiguration(mapOf("#carrot" to null, "#botdev" to null)), EventConfiguration(events, fireIncomingLineEvent = true))
         val connection = factory.create()
 
         events.on(ChannelMessageEvent::class) {

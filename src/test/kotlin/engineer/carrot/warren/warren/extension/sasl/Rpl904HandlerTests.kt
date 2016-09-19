@@ -1,4 +1,4 @@
-package engineer.carrot.warren.warren.handler.sasl
+package engineer.carrot.warren.warren.extension.sasl
 
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
@@ -6,19 +6,20 @@ import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapEndMessage
-import engineer.carrot.warren.kale.irc.message.ircv3.sasl.Rpl903Message
+import engineer.carrot.warren.kale.irc.message.ircv3.sasl.Rpl904Message
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.extension.cap.CapLifecycle
+import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.sasl.Rpl904Handler
+import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.state.AuthLifecycle
-import engineer.carrot.warren.warren.state.CapLifecycle
-import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.SaslState
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
-class Rpl903HandlerTests {
+class Rpl904HandlerTests {
 
-    lateinit var handler: Rpl903Handler
+    lateinit var handler: Rpl904Handler
     lateinit var capState: CapState
     lateinit var saslState: SaslState
     lateinit var sink: IMessageSink
@@ -29,13 +30,13 @@ class Rpl903HandlerTests {
         saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.AUTHING, credentials = null)
         sink = mock()
 
-        handler = Rpl903Handler(capState, saslState, sink)
+        handler = Rpl904Handler(capState, saslState, sink)
     }
 
-    @Test fun test_handle_LifecycleSetToAuthed() {
-        handler.handle(Rpl903Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
+    @Test fun test_handle_LifecycleSetToAuthFailed() {
+        handler.handle(Rpl904Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
 
-        assertEquals(AuthLifecycle.AUTHED, saslState.lifecycle)
+        assertEquals(AuthLifecycle.AUTH_FAILED, saslState.lifecycle)
     }
 
     @Test fun test_handle_RemainingCaps_DoesNotEndNegotiation() {
@@ -43,7 +44,7 @@ class Rpl903HandlerTests {
         capState.negotiate = setOf("cap1", "cap2")
         capState.accepted = setOf("cap1")
 
-        handler.handle(Rpl903Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
+        handler.handle(Rpl904Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
 
         verify(sink, never()).write(any<IMessage>())
     }
@@ -53,7 +54,7 @@ class Rpl903HandlerTests {
         capState.negotiate = setOf("cap1", "cap2")
         capState.accepted = setOf("cap1", "cap2")
 
-        handler.handle(Rpl903Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
+        handler.handle(Rpl904Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
 
         verify(sink).write(CapEndMessage())
     }

@@ -3,13 +3,14 @@ package engineer.carrot.warren.warren.handler
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.ircv3.CapNakMessage
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.extension.cap.CapLifecycle
+import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.cap.ICapManager
+import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
 import engineer.carrot.warren.warren.loggerFor
-import engineer.carrot.warren.warren.state.CapLifecycle
-import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.SaslState
 
-class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<CapNakMessage> {
+class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapNakMessage> {
 
     private val LOGGER = loggerFor<CapNakHandler>()
 
@@ -22,6 +23,7 @@ class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: 
         LOGGER.trace("server NAKed following caps: $caps")
 
         capState.rejected += caps
+        caps.forEach { capManager.capDisabled(it) }
 
         when (lifecycle) {
             CapLifecycle.NEGOTIATING -> {

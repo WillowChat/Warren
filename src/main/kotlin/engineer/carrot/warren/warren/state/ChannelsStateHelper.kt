@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.state
 
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 
-fun generateUsers(vararg nicks: String, mappingState: CaseMappingState): ChannelUsersState {
+fun generateUsers(vararg nicks: String, mappingState: CaseMappingState = CaseMappingState(CaseMapping.RFC1459)): ChannelUsersState {
     val users = ChannelUsersState(mappingState)
 
     for (nick in nicks) {
@@ -22,13 +22,26 @@ fun generateUsersWithModes(vararg nicks: Pair<String, Set<Char>>, mappingState: 
     return users
 }
 
-
 fun generateUser(nick: String): ChannelUserState {
     return ChannelUserState(nick)
 }
 
 fun generateUser(nick: String, modes: Set<Char>): ChannelUserState {
     return ChannelUserState(nick, modes = modes.toMutableSet())
+}
+
+fun generateUser(nick: String, account: String? = null, awayMessage: String? = null): ChannelUserState {
+    return ChannelUserState(nick, account = account, awayMessage = awayMessage)
+}
+
+fun generateChannelUsersState(vararg users: ChannelUserState, mappingState: CaseMappingState = CaseMappingState(CaseMapping.RFC1459)): ChannelUsersState {
+    val channelUsers = ChannelUsersState(mappingState)
+
+    for (user in users) {
+        channelUsers += user
+    }
+
+    return channelUsers
 }
 
 fun emptyChannelsState(mappingState: CaseMappingState): ChannelsState {

@@ -1,13 +1,12 @@
-package engineer.carrot.warren.warren.handler.sasl
+package engineer.carrot.warren.warren.extension.sasl
 
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.ircv3.sasl.Rpl905Message
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.AuthLifecycle
-import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.SaslState
 
 class Rpl905Handler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<Rpl905Message> {
 

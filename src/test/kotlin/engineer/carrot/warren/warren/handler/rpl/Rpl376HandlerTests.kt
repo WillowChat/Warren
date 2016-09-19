@@ -6,10 +6,11 @@ import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rpl.Rpl376Message
-import engineer.carrot.warren.kale.irc.message.utility.RawMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
+import engineer.carrot.warren.warren.extension.cap.CapLifecycle
+import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -19,17 +20,18 @@ class Rpl376HandlerTests {
     lateinit var handler: Rpl376Handler
     lateinit var mockSink: IMessageSink
     lateinit var connectionState: ConnectionState
+    lateinit var capState: CapState
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATED
-        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
-        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState, cap = capState)
+        capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
+        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState)
 
         mockSink = mock()
         mockEventDispatcher = mock()
-        handler = Rpl376Handler(mockEventDispatcher, mockSink, channelsToJoin = mapOf("#channel1" to null, "#channel2" to "testkey"), connectionState = connectionState)
+        handler = Rpl376Handler(mockEventDispatcher, mockSink, channelsToJoin = mapOf("#channel1" to null, "#channel2" to "testkey"), connectionState = connectionState, capState = capState)
     }
 
     @Test fun test_handle_JoinsChannelsAfterGettingMOTD_ConnectingState() {
@@ -77,7 +79,7 @@ class Rpl376HandlerTests {
     }
 
     @Test fun test_handle_ShouldNotIdentifyWithNickserv_SendsNoRawMessages() {
-        val handler = Rpl376Handler(mockEventDispatcher, mockSink, channelsToJoin = mapOf(), connectionState = connectionState)
+        val handler = Rpl376Handler(mockEventDispatcher, mockSink, channelsToJoin = mapOf(), connectionState = connectionState, capState = capState)
 
         handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
@@ -97,10 +99,10 @@ class Rpl376HandlerTests {
     }
 
     @Test fun test_handle_CapNegotiating_SetsToFailed() {
-        connectionState.cap.lifecycle = CapLifecycle.NEGOTIATING
+        capState.lifecycle = CapLifecycle.NEGOTIATING
 
         handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
-        assertEquals(CapLifecycle.FAILED, connectionState.cap.lifecycle)
+        assertEquals(CapLifecycle.FAILED, capState.lifecycle)
     }
 }

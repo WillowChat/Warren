@@ -6,13 +6,14 @@ import engineer.carrot.warren.kale.irc.message.rpl.Rpl376Message
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
+import engineer.carrot.warren.warren.extension.cap.CapLifecycle
+import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.AuthLifecycle
-import engineer.carrot.warren.warren.state.CapLifecycle
 import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.LifecycleState
 
-class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMessageSink, val channelsToJoin: Map<String, String?>, val connectionState: ConnectionState) : IKaleHandler<Rpl376Message> {
+class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMessageSink, val channelsToJoin: Map<String, String?>, val connectionState: ConnectionState, val capState: CapState) : IKaleHandler<Rpl376Message> {
 
     private val LOGGER = loggerFor<Rpl376Handler>()
 
@@ -20,9 +21,9 @@ class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMess
 
     override fun handle(message: Rpl376Message, tags: Map<String, String?>) {
 
-        if (connectionState.cap.lifecycle == CapLifecycle.NEGOTIATING) {
+        if (capState.lifecycle == CapLifecycle.NEGOTIATING) {
             LOGGER.warn("got MOTD end before CAP end, assuming CAP negotiation failed")
-            connectionState.cap.lifecycle = CapLifecycle.FAILED
+            capState.lifecycle = CapLifecycle.FAILED
         }
 
         when (connectionState.lifecycle) {

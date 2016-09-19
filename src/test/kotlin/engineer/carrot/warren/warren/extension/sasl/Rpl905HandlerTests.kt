@@ -1,4 +1,4 @@
-package engineer.carrot.warren.warren.handler.sasl
+package engineer.carrot.warren.warren.extension.sasl
 
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
@@ -8,10 +8,11 @@ import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.CapEndMessage
 import engineer.carrot.warren.kale.irc.message.ircv3.sasl.Rpl905Message
 import engineer.carrot.warren.warren.IMessageSink
+import engineer.carrot.warren.warren.extension.cap.CapLifecycle
+import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.sasl.Rpl905Handler
+import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.state.AuthLifecycle
-import engineer.carrot.warren.warren.state.CapLifecycle
-import engineer.carrot.warren.warren.state.CapState
-import engineer.carrot.warren.warren.state.SaslState
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

@@ -10,12 +10,14 @@ import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.IrcRunner
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.internal.*
+import engineer.carrot.warren.warren.extension.cap.CapLifecycle
+import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.state.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*
 import java.util.*
-import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 
 class SanityCheckIntegrationTests {
@@ -37,7 +39,7 @@ class SanityCheckIntegrationTests {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATED
         val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
-        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState, cap = capState)
+        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState)
 
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
@@ -57,7 +59,9 @@ class SanityCheckIntegrationTests {
         mockSink = mock()
         mockLineSource = mock()
 
-        runner = IrcRunner(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, startAsyncThreads = false)
+        val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
+
+        runner = IrcRunner(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState)
     }
 
     @Test fun test_run_ImaginaryNet_RegistrationAndMOTD_ResultsInConnectedLifecycle_WithCorrectCAPs() {
@@ -94,7 +98,7 @@ class SanityCheckIntegrationTests {
         runner.run()
 
         assertEquals(LifecycleState.CONNECTED, runner.state!!.connection.lifecycle)
-        assertEquals(setOf("multi-prefix"), runner.state!!.connection.cap.accepted)
+        assertEquals(setOf("multi-prefix"), runner.caps.state.accepted)
     }
 
 }

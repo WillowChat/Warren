@@ -5,8 +5,6 @@ import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.rfc1459.PingMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.PongMessage
 import engineer.carrot.warren.warren.IMessageSink
-import engineer.carrot.warren.warren.state.CapLifecycle
-import engineer.carrot.warren.warren.state.CapState
 import engineer.carrot.warren.warren.state.ConnectionState
 import engineer.carrot.warren.warren.state.LifecycleState
 import org.junit.Assert.assertTrue
@@ -22,9 +20,8 @@ class PingHandlerTests {
     @Before fun setUp() {
         mockSink = mock()
         val lifecycleState = LifecycleState.DISCONNECTED
-        val capLifecycleState = CapLifecycle.NEGOTIATED
-        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
-        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState, cap = capState)
+
+        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState)
         handler = PingHandler(mockSink, connectionState)
     }
 

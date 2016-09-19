@@ -33,6 +33,10 @@ open class CaseInsensitiveNamedMap<NamedType : INamed>(var mappingState: CaseMap
         }
     }
 
+    operator fun set(key: String, thing: NamedType) {
+        namedThings.put(key, thing)
+    }
+
     operator fun minusAssign(key: String) {
         remove(key)
     }
@@ -45,13 +49,13 @@ open class CaseInsensitiveNamedMap<NamedType : INamed>(var mappingState: CaseMap
         return namedThings == other.namedThings && mappingState == other.mappingState
     }
 
-    override fun hashCode(): Int{
+    override fun hashCode(): Int {
         var result = mappingState.hashCode()
         result = 31 * result + namedThings.hashCode()
         return result
     }
 
-    override fun toString(): String{
+    override fun toString(): String {
         return "CaseInsensitiveNamedMap(mappingState=$mappingState, namedThings=$namedThings)"
     }
 

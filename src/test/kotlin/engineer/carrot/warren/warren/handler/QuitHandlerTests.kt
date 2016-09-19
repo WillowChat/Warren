@@ -25,9 +25,8 @@ class QuitHandlerTests {
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.CONNECTED
-        val capLifecycleState = CapLifecycle.NEGOTIATED
-        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
-        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState, cap = capState)
+
+        connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState)
         channelsState = emptyChannelsState(caseMappingState)
         mockEventDispatcher = mock()
         handler = QuitHandler(mockEventDispatcher, connectionState, channelsState.joined)

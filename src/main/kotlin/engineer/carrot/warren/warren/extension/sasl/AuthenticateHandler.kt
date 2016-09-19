@@ -1,11 +1,10 @@
-package engineer.carrot.warren.warren.handler.sasl
+package engineer.carrot.warren.warren.extension.sasl
 
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.ircv3.sasl.AuthenticateMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.AuthLifecycle
-import engineer.carrot.warren.warren.state.SaslState
 import java.util.*
 
 class AuthenticateHandler(val state: SaslState, val sink: IMessageSink) : IKaleHandler<AuthenticateMessage> {

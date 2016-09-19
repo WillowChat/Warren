@@ -7,7 +7,7 @@ import engineer.carrot.warren.warren.state.LifecycleState
 import engineer.carrot.warren.warren.state.emptyChannel
 import kotlin.reflect.KClass
 
-interface IWarrenEvent { }
+interface IWarrenEvent {}
 
 data class ChannelMessageEvent(val user: Prefix, val channel: ChannelState, val message: String) : IWarrenEvent
 data class ChannelActionEvent(val user: Prefix, val channel: ChannelState, val message: String) : IWarrenEvent
