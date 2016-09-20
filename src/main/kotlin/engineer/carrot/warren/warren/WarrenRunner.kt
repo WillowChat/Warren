@@ -107,7 +107,7 @@ object WarrenRunner {
         events.on(ChannelMessageEvent::class) {
             LOGGER.info("channel message: $it")
 
-            if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
+            if (it.user.prefix.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
                 connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel.name, message = "🐰🎉"), connection.sink))
             }
         }
