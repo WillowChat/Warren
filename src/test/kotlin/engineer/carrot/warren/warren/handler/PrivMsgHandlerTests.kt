@@ -9,10 +9,7 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.event.*
-import engineer.carrot.warren.warren.state.CaseMappingState
-import engineer.carrot.warren.warren.state.ChannelTypesState
-import engineer.carrot.warren.warren.state.JoinedChannelsState
-import engineer.carrot.warren.warren.state.emptyChannel
+import engineer.carrot.warren.warren.state.*
 import org.junit.Before
 import org.junit.Test
 
@@ -31,11 +28,14 @@ class PrivMsgHandlerTests {
     }
 
     @Test fun test_handle_ChannelMessage_FiresEvent() {
-        joinedChannelsState += emptyChannel("&channel")
+        val channel = emptyChannel("&channel")
+        channel.users += generateUser("someone")
+
+        joinedChannelsState += channel
 
         handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "a test message"), mapOf())
 
-        verify(mockEventDispatcher).fire(ChannelMessageEvent(user = Prefix(nick = "someone"), channel = emptyChannel("&channel"), message = "a test message"))
+        verify(mockEventDispatcher).fire(ChannelMessageEvent(user = generateUser("someone"), channel = channel, message = "a test message"))
     }
 
     @Test fun test_handle_ChannelMessage_NotInChannel_DoesNothing() {
@@ -57,11 +57,14 @@ class PrivMsgHandlerTests {
     }
 
     @Test fun test_handle_ChannelMessage_Action_FiresEvent() {
-        joinedChannelsState += emptyChannel("&channel")
+        val channel = emptyChannel("&channel")
+        channel.users += generateUser("someone")
+
+        joinedChannelsState += channel
 
         handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "${CharacterCodes.CTCP}ACTION an action${CharacterCodes.CTCP}"), mapOf())
 
-        verify(mockEventDispatcher).fire(ChannelActionEvent(user = Prefix(nick = "someone"), channel = emptyChannel("&channel"), message = "an action"))
+        verify(mockEventDispatcher).fire(ChannelActionEvent(user = generateUser("someone"), channel = channel, message = "an action"))
     }
 
     @Test fun test_handle_PrivateMessage_Action_FiresEvent() {

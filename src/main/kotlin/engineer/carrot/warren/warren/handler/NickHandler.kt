@@ -13,7 +13,7 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Joine
     override val messageType = NickMessage::class.java
 
     override fun handle(message: NickMessage, tags: Map<String, String?>) {
-        val from = message.source?.nick
+        val from = message.source
         val to = message.nickname
 
         if (from == null) {
@@ -21,17 +21,17 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Joine
             return
         }
 
-        if (from == connectionState.nickname) {
+        if (from.nick == connectionState.nickname) {
             // We were forcibly renamed by the server
 
-            connectionState.nickname = from
+            connectionState.nickname = from.nick
         }
 
         for ((name, channel) in channelsState.all) {
-            val user = channel.users[from]
+            val user = channel.users[from.nick]
             if (user != null) {
-                channel.users -= from
-                channel.users += user.copy(nick = to)
+                channel.users -= from.nick
+                channel.users += user.copy(prefix = from.copy(nick = to))
             }
         }
 

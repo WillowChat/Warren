@@ -49,15 +49,21 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsSt
                 return
             }
 
+            val user = channel.users[source.nick]
+            if (user == null) {
+                LOGGER.warn("got a privmsg for a user we don't think's in the channel, bailing: $message")
+                return
+            }
+
             when (ctcp) {
                 CtcpEnum.NONE -> {
-                    eventDispatcher.fire(ChannelMessageEvent(user = source, channel = channel, message = messageContents))
+                    eventDispatcher.fire(ChannelMessageEvent(user = user, channel = channel, message = messageContents))
 
                     LOGGER.debug("$serverTime$target <${source.nick}> $messageContents")
                 }
 
                 CtcpEnum.ACTION -> {
-                    eventDispatcher.fire(ChannelActionEvent(user = source, channel = channel, message = messageContents))
+                    eventDispatcher.fire(ChannelActionEvent(user = user, channel = channel, message = messageContents))
 
                     LOGGER.debug("$serverTime$target ${source.nick} * $messageContents")
                 }

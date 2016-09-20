@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren.state
 
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import engineer.carrot.warren.kale.irc.prefix.Prefix
 
 data class IrcState(val connection: ConnectionState, val parsing: ParsingState, val channels: ChannelsState)
 
@@ -30,8 +31,8 @@ data class ChannelState(override val name: String, val users: ChannelUsersState,
 
 class ChannelUsersState(mappingState: CaseMappingState) : CaseInsensitiveNamedMap<ChannelUserState>(mappingState)
 
-data class ChannelUserState(val nick: String, val account: String? = null, val awayMessage: String? = null, val modes: MutableSet<Char> = mutableSetOf()) : INamed {
-    override val name = nick
+data class ChannelUserState(val prefix: Prefix, val account: String? = null, val awayMessage: String? = null, val modes: MutableSet<Char> = mutableSetOf()) : INamed {
+    override val name = prefix.nick
 }
 
 data class ConnectionState(val server: String, val port: Int, var nickname: String, val user: String, var lifecycle: LifecycleState,

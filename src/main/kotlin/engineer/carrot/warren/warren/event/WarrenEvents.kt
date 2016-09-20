@@ -2,15 +2,13 @@ package engineer.carrot.warren.warren.event
 
 import engineer.carrot.warren.kale.irc.message.rfc1459.ModeMessage
 import engineer.carrot.warren.kale.irc.prefix.Prefix
-import engineer.carrot.warren.warren.state.ChannelState
-import engineer.carrot.warren.warren.state.LifecycleState
-import engineer.carrot.warren.warren.state.emptyChannel
+import engineer.carrot.warren.warren.state.*
 import kotlin.reflect.KClass
 
 interface IWarrenEvent {}
 
-data class ChannelMessageEvent(val user: Prefix, val channel: ChannelState, val message: String) : IWarrenEvent
-data class ChannelActionEvent(val user: Prefix, val channel: ChannelState, val message: String) : IWarrenEvent
+data class ChannelMessageEvent(val user: ChannelUserState, val channel: ChannelState, val message: String) : IWarrenEvent
+data class ChannelActionEvent(val user: ChannelUserState, val channel: ChannelState, val message: String) : IWarrenEvent
 data class ChannelModeEvent(val user: Prefix?, val channel: ChannelState, val modifier: ModeMessage.ModeModifier) : IWarrenEvent
 data class UserModeEvent(val user: String, val modifier: ModeMessage.ModeModifier) : IWarrenEvent
 data class PrivateMessageEvent(val user: Prefix, val message: String) : IWarrenEvent
@@ -104,7 +102,7 @@ class WarrenEventDispatcher : IWarrenEventDispatcher {
                 println("private message listener 2: $it")
             }
 
-            eventDispatcher.fire(ChannelMessageEvent(user = Prefix(nick = "someone"), channel = emptyChannel("#channel"), message = "something"))
+            eventDispatcher.fire(ChannelMessageEvent(user = generateUser("someone"), channel = emptyChannel("#channel"), message = "something"))
             eventDispatcher.fire(PrivateMessageEvent(user = Prefix(nick = "someone"), message = "something"))
             eventDispatcher.fire(ConnectionLifecycleEvent(lifecycle = LifecycleState.CONNECTED))
         }

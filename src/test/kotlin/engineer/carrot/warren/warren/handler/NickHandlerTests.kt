@@ -40,7 +40,7 @@ class NickHandlerTests {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick", "someone-else", mappingState = caseMappingState))
         channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
 
-        handler.handle(NickMessage(source = Prefix(nick = "test-nick", host = "somewhere"), nickname = "test-new-nick"), mapOf())
+        handler.handle(NickMessage(source = Prefix(nick = "test-nick"), nickname = "test-new-nick"), mapOf())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("test-new-nick", "someone-else", mappingState = caseMappingState))
         val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
@@ -52,7 +52,7 @@ class NickHandlerTests {
     @Test fun test_handle_UserChangesCaseInName_RetainsModes() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersWithModes(("me" to setOf('o', 'v')), mappingState = caseMappingState))
 
-        handler.handle(NickMessage(source = Prefix(nick = "me", host = "somewhere"), nickname = "me-new"), mapOf())
+        handler.handle(NickMessage(source = Prefix(nick = "me"), nickname = "me-new"), mapOf())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersWithModes(("me-new" to setOf('o', 'v')), mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
@@ -64,7 +64,7 @@ class NickHandlerTests {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", mappingState = caseMappingState))
         channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
 
-        handler.handle(NickMessage(source = Prefix(nick = "someone-else", host = "somewhere"), nickname = "someone-else-2"), mapOf())
+        handler.handle(NickMessage(source = Prefix(nick = "someone-else"), nickname = "someone-else-2"), mapOf())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone", "someone-else-2", mappingState = caseMappingState))
         val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else-2", mappingState = caseMappingState))
