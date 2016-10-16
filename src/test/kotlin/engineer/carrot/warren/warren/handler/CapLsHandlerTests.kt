@@ -5,9 +5,9 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.IMessage
-import engineer.carrot.warren.kale.irc.message.ircv3.CapEndMessage
-import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
-import engineer.carrot.warren.kale.irc.message.ircv3.CapReqMessage
+import engineer.carrot.warren.kale.irc.message.extension.cap.CapEndMessage
+import engineer.carrot.warren.kale.irc.message.extension.cap.CapLsMessage
+import engineer.carrot.warren.kale.irc.message.extension.cap.CapReqMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState

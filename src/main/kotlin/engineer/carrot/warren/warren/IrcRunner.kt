@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren
 
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.IKaleParsingStateDelegate
-import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
+import engineer.carrot.warren.kale.irc.message.extension.cap.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.PingMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage

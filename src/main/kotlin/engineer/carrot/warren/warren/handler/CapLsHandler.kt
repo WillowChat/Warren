@@ -1,8 +1,8 @@
 package engineer.carrot.warren.warren.handler
 
 import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.ircv3.CapLsMessage
-import engineer.carrot.warren.kale.irc.message.ircv3.CapReqMessage
+import engineer.carrot.warren.kale.irc.message.extension.cap.CapLsMessage
+import engineer.carrot.warren.kale.irc.message.extension.cap.CapReqMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState

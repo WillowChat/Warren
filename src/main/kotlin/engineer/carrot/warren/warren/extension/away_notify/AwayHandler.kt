@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.extension.away_notify
 
 import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.ircv3.AwayMessage
+import engineer.carrot.warren.kale.irc.message.extension.away_notify.AwayMessage
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 

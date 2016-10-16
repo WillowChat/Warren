@@ -1,7 +1,6 @@
 package engineer.carrot.warren.warren.extension.away_notify
 
-import engineer.carrot.warren.kale.irc.message.ircv3.AccountMessage
-import engineer.carrot.warren.kale.irc.message.ircv3.AwayMessage
+import engineer.carrot.warren.kale.irc.message.extension.away_notify.AwayMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.state.*

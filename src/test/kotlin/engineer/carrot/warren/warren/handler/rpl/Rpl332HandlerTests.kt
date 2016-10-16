@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren.handler.rpl
 
-import engineer.carrot.warren.kale.irc.message.rpl.Rpl332Message
+import engineer.carrot.warren.kale.irc.message.rfc1459.rpl.Rpl332Message
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals

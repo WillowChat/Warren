@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.handler.rpl.Rpl005
 
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
-import engineer.carrot.warren.kale.irc.message.rpl.Rpl005Message
+import engineer.carrot.warren.kale.irc.message.rfc1459.rpl.Rpl005Message
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.state.*
 import org.junit.Before

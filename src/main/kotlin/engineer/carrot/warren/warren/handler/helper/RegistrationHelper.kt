@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren.handler.helper
 
-import engineer.carrot.warren.kale.irc.message.ircv3.CapEndMessage
+import engineer.carrot.warren.kale.irc.message.extension.cap.CapEndMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState

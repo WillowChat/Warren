@@ -9,24 +9,32 @@ import engineer.carrot.warren.warren.loggerFor
 import java.util.concurrent.LinkedBlockingQueue
 
 interface IWarrenInternalEvent {
+
     fun execute()
+
 }
 
 interface IWarrenInternalEventSink {
-    fun add(event: IWarrenInternalEvent)
 
+    fun add(event: IWarrenInternalEvent)
     fun add(closure: () -> Unit)
+
 }
 
 interface IWarrenInternalEventSource {
+
     fun grab(): IWarrenInternalEvent?
+
 }
 
 interface IWarrenInternalEventQueue : IWarrenInternalEventSource, IWarrenInternalEventSink {
+
     fun clear()
+
 }
 
 class WarrenInternalEventQueue : IWarrenInternalEventQueue {
+
     private val queue = LinkedBlockingQueue<IWarrenInternalEvent>(100)
 
     override fun add(event: IWarrenInternalEvent) {
@@ -56,6 +64,7 @@ class WarrenInternalEventQueue : IWarrenInternalEventQueue {
 }
 
 class NewLineEvent(val line: String, val kale: IKale) : IWarrenInternalEvent {
+
     override fun execute() {
         kale.process(line)
     }
@@ -63,6 +72,7 @@ class NewLineEvent(val line: String, val kale: IKale) : IWarrenInternalEvent {
 }
 
 class SendSomethingEvent(val message: Any, val sink: IMessageSink) : IWarrenInternalEvent {
+
     override fun execute() {
         sink.write(message)
     }
@@ -70,7 +80,9 @@ class SendSomethingEvent(val message: Any, val sink: IMessageSink) : IWarrenInte
 }
 
 interface IWarrenInternalEventGenerator {
+
     fun run()
+
 }
 
 class NewLineWarrenEventGenerator(val queue: IWarrenInternalEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?) : IWarrenInternalEventGenerator {

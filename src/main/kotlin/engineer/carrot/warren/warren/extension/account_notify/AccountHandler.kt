@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.extension.account_notify
 
 import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.ircv3.AccountMessage
+import engineer.carrot.warren.kale.irc.message.extension.account_notify.AccountMessage
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 

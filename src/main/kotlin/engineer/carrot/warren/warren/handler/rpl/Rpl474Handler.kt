@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.handler.rpl
 
 import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.rpl.Rpl474Message
+import engineer.carrot.warren.kale.irc.message.rfc1459.rpl.Rpl474Message
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.JoiningChannelLifecycle

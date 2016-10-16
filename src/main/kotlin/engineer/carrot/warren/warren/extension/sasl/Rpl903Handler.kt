@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.extension.sasl
 
 import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.ircv3.sasl.Rpl903Message
+import engineer.carrot.warren.kale.irc.message.extension.sasl.Rpl903Message
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
