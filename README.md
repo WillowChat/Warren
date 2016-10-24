@@ -39,8 +39,8 @@ val connection = factory.create()
 events.on(ChannelMessageEvent::class) {
     LOGGER.info("channel message: $it")
 
-    if (it.user.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
-        connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel, message = "🐰🎉"), connection.sink))
+    if (it.user.prefix.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
+        connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel.name, message = "🐰🎉"), connection.sink))
     }
 }
 
