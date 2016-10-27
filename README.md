@@ -8,15 +8,15 @@ Kotlin, unit tested, IRC v3.2 state management and observing. Made for personal 
 
 Though still in active development, it remains stable enough for Thump to use. Thump, Warren and Kale drive requirements between themselves.
 
-## Why should you use this framework?
+## Why another IRC framework?
 
-Warren and Kale have a few advantages over other IRC frameworks:
+Warren and Kale have a few interesting features:
 
 * The responsibilities of parsing and state management are separated
 * Both parsing and state management are verified by hundreds of unit tests
 * Messages, and state handlers, are individually encapsulated
 
-Note that this project is still pretty new. Planned features are tracked in [Issues](https://github.com/CarrotCodes/Warren/issues).
+Planned releases (and their features) are tracked in [Projects](https://github.com/CarrotCodes/Warren/projects).
 
 ## Example usage
 
@@ -49,10 +49,8 @@ connection.run()
 
 ## TODO
 
-* [RFC 1459](https://tools.ietf.org/html/rfc1459) - done
 * [IRC v3](http://ircv3.net/irc/)
- * 3.1 base done
- * Goal is full 3.1 and 3.2 compliance by default
+ * Goal is to support almost all IRCv3 extensions by default - progress is tracked on the libraries section of the IRCv3 site: http://ircv3.net/software/libraries.html
 
 ## Code License
 The source code of this project is licensed under the terms of the ISC license, listed in the [LICENSE](LICENSE.md) file. A concise summary of the ISC license is available at [choosealicense.org](http://choosealicense.com/licenses/isc/).
