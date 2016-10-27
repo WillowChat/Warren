@@ -43,14 +43,14 @@ repositories {
 dependencies {
     compile(kotlinModule("stdlib"))
     compile("org.slf4j:slf4j-api:1.7.21")
-    compile("engineer.carrot.warren.kale:Kale:1.1.0.107")
-    compile("com.squareup.okio:okio:1.9.0")
+    compile("engineer.carrot.warren.kale:Kale:1.2.0.116")
+    compile("com.squareup.okio:okio:1.11.0")
 
     runtime("org.slf4j:slf4j-simple:1.7.21")
 
     testCompile("junit:junit:4.12")
-    testCompile("org.mockito:mockito-core:2.0.111-beta")
-    testCompile("com.nhaarman:mockito-kotlin:0.6.0")
+    testCompile("org.mockito:mockito-core:2.2.9")
+    testCompile("com.nhaarman:mockito-kotlin:0.10.0")
 }
 
 test {
