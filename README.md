@@ -1,12 +1,10 @@
 # Warren
 
-Kotlin, unit tested, IRC v3.2 state management and observing. Made for personal use, and open sourced. Intended to provide the tools needed to make IRC related software, like bridges and bots.
+Kotlin (JVM targeted), unit tested, IRC v3.2 state management and observing. Made for personal use, and open sourced. Intended to provide the tools needed to make IRC related software, like bridges and bots.
 
 [Kale](https://github.com/CarrotCodes/Kale) is the parsing and serialising counterpart.
 
 [Thump](https://github.com/CarrotCodes/Thump) is the primary upstream project - a bridge that lets people chat between Minecraft and IRC whilst they play.
-
-Though still in active development, it remains stable enough for Thump to use. Thump, Warren and Kale drive requirements between themselves.
 
 ## Why another IRC framework?
 
@@ -56,8 +54,8 @@ connection.run()
 The source code of this project is licensed under the terms of the ISC license, listed in the [LICENSE](LICENSE.md) file. A concise summary of the ISC license is available at [choosealicense.org](http://choosealicense.com/licenses/isc/).
 
 ## Building
-This project uses Gradle and IntelliJ IDEA for pretty easy setup and building.
+This project uses Gradle for pretty easy setup and building.
 
 Basic usage:
-* **Setup**: `./gradlew clean idea`
+* **Setup**: `./gradlew clean`
 * **Building**: `./gradlew clean build` - this will also produce a fat Jar with shaded dependencies included
