@@ -7,6 +7,8 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
+import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 val warrenVersion by project
 
@@ -27,6 +29,22 @@ apply {
     plugin("com.github.johnrengelman.shadow")
     plugin("maven")
     plugin("maven-publish")
+    plugin("jacoco")
+}
+
+jacoco {
+    toolVersion = "0.7.7.201606060606"
+}
+
+val jacocoTestReport = project.tasks.getByName("jacocoTestReport")
+
+jacocoTestReport.doFirst {
+    (jacocoTestReport as JacocoReport).classDirectories = fileTree("build/classes/main").apply {
+        // Exclude well known data classes that should contain no logic
+        exclude("**/*Event.*")
+        exclude("**/*State.*")
+        exclude("**/*Configuration.*")
+    }
 }
 
 compileJava {
@@ -96,6 +114,7 @@ if (project.hasProperty("DEPLOY_DIR")) {
 }
 
 fun Project.jar(setup: Jar.() -> Unit) = (project.tasks.getByName("jar") as Jar).setup()
+fun jacoco(setup: JacocoPluginExtension.() -> Unit) = the<JacocoPluginExtension>().setup()
 fun shadowJar(setup: ShadowJar.() -> Unit) = shadowJarTask().setup()
 fun Project.test(setup: Test.() -> Unit) = (project.tasks.getByName("test") as Test).setup()
 fun Project.compileJava(setup: JavaCompile.() -> Unit) = (project.tasks.getByName("compileJava") as JavaCompile).setup()
