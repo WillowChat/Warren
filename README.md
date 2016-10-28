@@ -6,6 +6,8 @@ Kotlin (JVM targeted), unit tested, IRC v3.2 state management and observing. Mad
 
 [Thump](https://github.com/CarrotCodes/Thump) is the primary upstream project - a bridge that lets people chat between Minecraft and IRC whilst they play.
 
+[![codecov](https://codecov.io/gh/CarrotCodes/Warren/branch/develop/graph/badge.svg)](https://codecov.io/gh/CarrotCodes/Warren)
+
 ## Why another IRC framework?
 
 Warren and Kale have a few interesting features:
