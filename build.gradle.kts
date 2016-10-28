@@ -45,6 +45,9 @@ jacocoTestReport.doFirst {
         exclude("**/*State.*")
         exclude("**/*Configuration.*")
     }
+
+    jacocoTestReport.reports.xml.isEnabled = true
+    jacocoTestReport.reports.html.isEnabled = true
 }
 
 compileJava {
