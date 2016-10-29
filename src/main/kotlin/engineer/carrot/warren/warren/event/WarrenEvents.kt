@@ -5,7 +5,7 @@ import engineer.carrot.warren.kale.irc.prefix.Prefix
 import engineer.carrot.warren.warren.state.*
 import kotlin.reflect.KClass
 
-interface IWarrenEvent {}
+interface IWarrenEvent
 
 data class ChannelMessageEvent(val user: ChannelUserState, val channel: ChannelState, val message: String) : IWarrenEvent
 data class ChannelActionEvent(val user: ChannelUserState, val channel: ChannelState, val message: String) : IWarrenEvent
@@ -16,7 +16,7 @@ data class PrivateActionEvent(val user: Prefix, val message: String) : IWarrenEv
 data class ConnectionLifecycleEvent(val lifecycle: LifecycleState) : IWarrenEvent
 data class RawIncomingLineEvent(val line: String) : IWarrenEvent
 
-interface IEventListener<T> {
+interface IEventListener<in T> {
     fun on(event: T)
 }
 
@@ -90,7 +90,7 @@ class WarrenEventDispatcher : IWarrenEventDispatcher {
         @JvmStatic fun main(args: Array<String>) {
             val eventDispatcher = WarrenEventDispatcher()
 
-            eventDispatcher.onAnything() {
+            eventDispatcher.onAnything {
                 println("anything listener: $it")
             }
 

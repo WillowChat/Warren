@@ -27,7 +27,7 @@ enum class CtcpEnum {
 
 object CtcpHelper {
 
-    val CTCP = Character.toString(CharacterCodes.CTCP)
+    val CTCP: String = Character.toString(CharacterCodes.CTCP)
 
     fun isMessageCTCP(message: String): Boolean = (message.startsWith(CTCP) && message.endsWith(CTCP))
 

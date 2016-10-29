@@ -28,7 +28,7 @@ interface IIrcRunner : IStateCapturing<IrcState> {
 
 }
 
-class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, val startAsyncThreads: Boolean = true, private val initialCapState: CapState, private val initialSaslState: SaslState) : IIrcRunner, IKaleParsingStateDelegate {
+class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, val startAsyncThreads: Boolean = true, initialCapState: CapState, initialSaslState: SaslState) : IIrcRunner, IKaleParsingStateDelegate {
 
     private val LOGGER = loggerFor<IrcRunner>()
 

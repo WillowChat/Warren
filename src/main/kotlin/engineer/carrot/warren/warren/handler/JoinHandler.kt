@@ -47,7 +47,7 @@ class JoinHandler(val connectionState: ConnectionState, val joiningChannelsState
                 if (channelState != null) {
                     channelState.users += generateUser(nick)
 
-                    LOGGER.trace("new channel state: ${channelState}")
+                    LOGGER.trace("new channel state: $channelState")
                 } else {
                     LOGGER.warn("we were given a JOIN for a channel we aren't in - not doing anything with it: $channelName")
                 }

@@ -48,7 +48,7 @@ class PartHandler(val connectionState: ConnectionState, val channelsState: Joine
                 if (channelState != null) {
                     channelState.users.remove(nick)
 
-                    LOGGER.trace("new channel state: ${channelState}")
+                    LOGGER.trace("new channel state: $channelState")
                 } else {
                     LOGGER.trace("we were given a PART for a user who we don't think is in the channel - not doing anything with it: $channelName")
                 }

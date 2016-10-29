@@ -46,13 +46,9 @@ object Rpl005ChanModesHandler : IRpl005ChanModesHandler {
     }
 
     private fun parseModes(typeValues: String): Set<Char> {
-        val parsedModes = mutableSetOf<Char>()
-
-        for (i in 0..typeValues.length - 1) {
-            val c = typeValues[i]
-
-            parsedModes.add(c)
-        }
+        val parsedModes = (0..typeValues.length - 1)
+                .map { typeValues[it] }
+                .toSet()
 
         return parsedModes
     }

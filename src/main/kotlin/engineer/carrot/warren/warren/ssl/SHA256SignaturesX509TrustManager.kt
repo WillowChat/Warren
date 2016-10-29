@@ -19,7 +19,7 @@ internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) :
 
     @Throws(CertificateException::class)
     override fun checkServerTrusted(x509Certificates: Array<X509Certificate>, s: String) {
-        var sha256Digest = try {
+        val sha256Digest = try {
             MessageDigest.getInstance("SHA-256")
         } catch (e: NoSuchAlgorithmException) {
             LOGGER.error("Couldn't get SHA256 instance: {}", e)
@@ -37,7 +37,7 @@ internal class SHA256SignaturesX509TrustManager(val fingerprints: Set<String>) :
 
             sha256Digest.update(certificate.encoded)
 
-            val sha256DigestString = String.format("%064x", BigInteger(1, sha256Digest.digest()));
+            val sha256DigestString = String.format("%064x", BigInteger(1, sha256Digest.digest()))
             if (this.fingerprints.contains(sha256DigestString)) {
                 LOGGER.warn(" {} IS trusted", sha256DigestString)
                 trustedCertificates.add(sha256DigestString)

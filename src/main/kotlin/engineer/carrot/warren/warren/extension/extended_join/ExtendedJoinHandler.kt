@@ -29,7 +29,7 @@ class ExtendedJoinHandler(val joinHandler: IKaleHandler<JoinMessage>, val channe
                 }
             }
 
-            LOGGER.trace("extended JOIN, new channel state: ${channelState}")
+            LOGGER.trace("extended JOIN, new channel state: $channelState")
         } else {
             LOGGER.warn("we were given an extended JOIN for a channel we aren't in - not doing anything with it: $channelName")
         }

@@ -27,17 +27,14 @@ class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesStat
             val (prefixes, nick) = trimPrefixes(name)
 
             if (nick.isEmpty()) {
-                LOGGER.warn("nick was empty after trimming: ${name}")
+                LOGGER.warn("nick was empty after trimming: $name")
                 continue
             }
 
             var modes = setOf<Char>()
-            for (prefix in prefixes) {
-                val mode = userPrefixesState.prefixesToModes[prefix]
-                if (mode != null) {
-                    modes += mode
-                }
-            }
+            prefixes.asSequence()
+                    .mapNotNull { userPrefixesState.prefixesToModes[it] }
+                    .forEach { modes += it }
 
             channel.users += generateUser(nick, modes)
         }
