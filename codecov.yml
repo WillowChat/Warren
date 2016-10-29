@@ -1,6 +1,6 @@
 coverage:
 # Remember to change values in build.gradle.kts too
   ignore:
-  - **/*Event.*
-  - **/*State.*
-  - **/*Configuration.*
+  - **/*Event.kt
+  - **/*State.kt
+  - **/*Configuration.kt
