@@ -4,6 +4,10 @@ pipeline {
     agent any
 
     post {
+        always {
+            junit allowEmptyResults: true, testResults: 'build/test-results/**/*.xml'
+        }
+
         success {
             ircSendSuccess()
         }
@@ -44,7 +48,6 @@ pipeline {
         stage('Archive') {
             steps {
                 archive includes: 'build/libs/*.jar'
-                junit 'build/test-results/**/*.xml'
             }
         }
 
