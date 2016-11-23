@@ -8,7 +8,6 @@ import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.extension.cap.ICapManager
 import engineer.carrot.warren.warren.extension.sasl.SaslState
-import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.AuthLifecycle
 
@@ -39,11 +38,7 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
             CapLifecycle.NEGOTIATING -> {
                 LOGGER.trace("server ACKed some caps, checked if it's the last reply")
 
-                if (RegistrationHelper.shouldEndCapNegotiation(saslState, capState)) {
-                    RegistrationHelper.endCapNegotiation(sink, capState)
-                } else {
-                    LOGGER.trace("didn't think we should end the registration process, waiting")
-                }
+                capManager.onRegistrationStateChanged()
             }
 
             else -> LOGGER.trace("server ACKed caps but we don't think we're negotiating")

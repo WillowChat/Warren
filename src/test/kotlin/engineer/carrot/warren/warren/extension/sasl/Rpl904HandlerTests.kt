@@ -10,6 +10,7 @@ import engineer.carrot.warren.kale.irc.message.extension.sasl.Rpl904Message
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.cap.ICapManager
 import engineer.carrot.warren.warren.state.AuthLifecycle
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -20,15 +21,17 @@ class Rpl904HandlerTests {
     lateinit var handler: Rpl904Handler
     lateinit var capState: CapState
     lateinit var saslState: SaslState
-    lateinit var sink: IMessageSink
+    lateinit var mockSink: IMessageSink
+    lateinit var mockCapManager: ICapManager
 
     @Before fun setUp() {
         val capLifecycleState = CapLifecycle.NEGOTIATING
         capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
         saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.AUTHING, credentials = null)
-        sink = mock()
+        mockSink = mock()
+        mockCapManager = mock()
 
-        handler = Rpl904Handler(capState, saslState, sink)
+        handler = Rpl904Handler(mockCapManager, saslState, mockSink)
     }
 
     @Test fun test_handle_LifecycleSetToAuthFailed() {
@@ -44,7 +47,7 @@ class Rpl904HandlerTests {
 
         handler.handle(Rpl904Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
 
-        verify(sink, never()).write(any<IMessage>())
+        verify(mockSink, never()).write(any<IMessage>())
     }
 
     @Test fun test_handle_NoRemainingCaps_EndsNegotiation() {
@@ -54,7 +57,7 @@ class Rpl904HandlerTests {
 
         handler.handle(Rpl904Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
 
-        verify(sink).write(CapEndMessage())
+        verify(mockSink).write(CapEndMessage())
     }
 
 }

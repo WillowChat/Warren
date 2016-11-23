@@ -11,6 +11,7 @@ import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.registration.IRegistrationExtension
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -22,6 +23,8 @@ class Rpl376HandlerTests {
     lateinit var connectionState: ConnectionState
     lateinit var capState: CapState
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
+    lateinit var mockRFC1459RegistrationExtension: IRegistrationExtension
+    lateinit var mockCapRegistrationExtension: IRegistrationExtension
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.CONNECTING
@@ -31,78 +34,32 @@ class Rpl376HandlerTests {
 
         mockSink = mock()
         mockEventDispatcher = mock()
-        handler = Rpl376Handler(mockEventDispatcher, mockSink, channelsToJoin = mapOf("#channel1" to null, "#channel2" to "testkey"), connectionState = connectionState, capState = capState)
+        mockRFC1459RegistrationExtension = mock()
+        mockCapRegistrationExtension = mock()
+
+        handler = Rpl376Handler(mockSink, capState, mockRFC1459RegistrationExtension, mockCapRegistrationExtension)
     }
 
-    @Test fun test_handle_JoinsChannelsAfterGettingMOTD_ConnectingState() {
-        connectionState.lifecycle = LifecycleState.CONNECTING
-
+    @Test fun test_handle_TellsRFC1459RegistrationExtension_Succeeded() {
         handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
-        verify(mockSink).write(JoinMessage(channels = listOf("#channel1")))
-        verify(mockSink).write(JoinMessage(channels = listOf("#channel2"), keys = listOf("testkey")))
+        verify(mockRFC1459RegistrationExtension).onRegistrationSucceeded()
     }
 
-    @Test fun test_handle_JoinsChannelsAfterGettingMOTD_RegisteringState() {
-        connectionState.lifecycle = LifecycleState.REGISTERING
-
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
-
-        verify(mockSink).write(JoinMessage(channels = listOf("#channel1")))
-        verify(mockSink).write(JoinMessage(channels = listOf("#channel2"), keys = listOf("testkey")))
-    }
-
-    @Test fun test_handle_ShouldIdentifyWithNickServ_NoCredentials_SetsAuthLifecycleToFailed() {
-        connectionState.nickServ = NickServState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = null, channelJoinWaitSeconds = 0)
-
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
-
-        assertEquals(AuthLifecycle.AUTH_FAILED, connectionState.nickServ.lifecycle)
-    }
-
-    @Test fun test_handle_ShouldIdentifyWithNickServ_WithCredentials_SetsAuthLifecycleAuthed() {
-        val credentials = AuthCredentials(account = "", password = "")
-        connectionState.nickServ = NickServState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = credentials, channelJoinWaitSeconds = 0)
-
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
-
-        assertEquals(AuthLifecycle.AUTHED, connectionState.nickServ.lifecycle)
-    }
-
-    @Test fun test_handle_ShouldIdentifyWithNickServ_WithCredentials_SendsNickservIdentify() {
-        val credentials = AuthCredentials(account = "account", password = "password")
-        connectionState.nickServ = NickServState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = credentials, channelJoinWaitSeconds = 0)
-
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
-
-        verify(mockSink).writeRaw("NICKSERV identify account password")
-    }
-
-    @Test fun test_handle_ShouldNotIdentifyWithNickserv_SendsNoRawMessages() {
-        val handler = Rpl376Handler(mockEventDispatcher, mockSink, channelsToJoin = mapOf(), connectionState = connectionState, capState = capState)
-
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
-
-        verify(mockSink, never()).writeRaw(any())
-    }
-
-    @Test fun test_handle_UpdatesLifecycleStateToConnected() {
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
-
-        assertEquals(LifecycleState.CONNECTED, connectionState.lifecycle)
-    }
-
-    @Test fun test_handle_FiresConnectedEvent() {
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
-
-        verify(mockEventDispatcher).fire(ConnectionLifecycleEvent(lifecycle = LifecycleState.CONNECTED))
-    }
-
-    @Test fun test_handle_CapNegotiating_SetsToFailed() {
+    @Test fun test_handle_CapLifecycleIsNegotiating_TellsCapRegistrationExtension_Failure() {
         capState.lifecycle = CapLifecycle.NEGOTIATING
 
         handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
 
-        assertEquals(CapLifecycle.FAILED, capState.lifecycle)
+        verify(mockCapRegistrationExtension).onRegistrationFailed()
     }
+
+    @Test fun test_handle_CapLifecycleIsNegotiated_DoesNotNotifyCapRegistrationExtension() {
+        capState.lifecycle = CapLifecycle.NEGOTIATED
+
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
+
+        verify(mockCapRegistrationExtension, never()).onRegistrationFailed()
+    }
+
 }

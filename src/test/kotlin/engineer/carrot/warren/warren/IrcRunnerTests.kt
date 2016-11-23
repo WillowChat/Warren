@@ -2,6 +2,7 @@ package engineer.carrot.warren.warren
 
 import com.nhaarman.mockito_kotlin.inOrder
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.IKaleHandler
@@ -24,6 +25,7 @@ import engineer.carrot.warren.warren.extension.sasl.AuthenticateHandler
 import engineer.carrot.warren.warren.extension.sasl.Rpl903Handler
 import engineer.carrot.warren.warren.extension.sasl.Rpl904Handler
 import engineer.carrot.warren.warren.extension.sasl.Rpl905Handler
+import engineer.carrot.warren.warren.registration.IRegistrationManager
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.*
 import org.junit.Before
@@ -42,6 +44,7 @@ class IrcRunnerTests {
     lateinit var mockKale: MockKale
     lateinit var mockSink: IMessageSink
     lateinit var mockLineSource: ILineSource
+    lateinit var mockRegistrationManager: IRegistrationManager
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.DISCONNECTED
@@ -66,9 +69,11 @@ class IrcRunnerTests {
         mockSink = mock()
         mockLineSource = mock()
 
+        mockRegistrationManager = mock()
+
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState)
+        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = mockRegistrationManager)
     }
 
     @Test fun test_run_RegistersBaseHandlers() {
@@ -109,14 +114,12 @@ class IrcRunnerTests {
         }
     }
 
-    @Test fun test_run_SendsRegistrationMessages() {
+    @Test fun test_run_startsRegistration() {
         whenever(mockSink.setUp()).thenReturn(true)
 
         runner.run()
 
-        val inOrder = inOrder(mockSink)
-        inOrder.verify(mockSink).write(NickMessage(nickname = connectionState.nickname))
-        inOrder.verify(mockSink).write(UserMessage(username = connectionState.nickname, mode = "8", realname = connectionState.nickname))
+        verify(mockRegistrationManager).startRegistration()
     }
 
     @Test fun test_modeTakesAParameter_TypeDAlwaysFalse() {

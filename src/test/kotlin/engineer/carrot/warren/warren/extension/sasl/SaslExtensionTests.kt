@@ -7,6 +7,7 @@ import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.cap.ICapManager
 import engineer.carrot.warren.warren.state.AuthLifecycle
 import org.junit.Before
 import org.junit.Test
@@ -17,15 +18,18 @@ class SaslExtensionTests {
     private lateinit var mockKale: IKale
     private lateinit var capState: CapState
     private lateinit var mockSink: IMessageSink
+    private lateinit var mockCapManager: ICapManager
+
 
     @Before fun setUp() {
         mockKale = mock()
         mockSink = mock()
+        mockCapManager = mock()
 
         val capLifecycleState = CapLifecycle.NEGOTIATED
         capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
 
-        sut = SaslExtension(SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null), mockKale, capState, mockSink)
+        sut = SaslExtension(SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null), mockKale, mockCapManager, mockSink)
     }
 
     @Test fun test_setUp_RegistersCorrectHandlers() {

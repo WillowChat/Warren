@@ -6,11 +6,11 @@ import engineer.carrot.warren.kale.irc.message.extension.cap.CapReqMessage
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.cap.ICapManager
 import engineer.carrot.warren.warren.extension.sasl.SaslState
-import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
 import engineer.carrot.warren.warren.loggerFor
 
-class CapLsHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<CapLsMessage> {
+class CapLsHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapLsMessage> {
 
     private val LOGGER = loggerFor<CapLsHandler>()
 
@@ -32,11 +32,9 @@ class CapLsHandler(val capState: CapState, val saslState: SaslState, val sink: I
 
                     capState.rejected += implicitlyRejectedCaps
 
-                    if (RegistrationHelper.shouldEndCapNegotiation(saslState, capState)) {
-                        LOGGER.trace("server gave us caps and ended with a non-multiline ls, not in the middle of SASL auth, implicitly rejecting: $implicitlyRejectedCaps, nothing left so ending negotiation")
+                    capManager.onRegistrationStateChanged()
 
-                        RegistrationHelper.endCapNegotiation(sink, capState)
-                    } else if (!requestCaps.isEmpty()) {
+                    if (!requestCaps.isEmpty()) {
                         LOGGER.trace("server gave us caps and ended with a non-multiline ls, requesting: $requestCaps, implicitly rejecting: $implicitlyRejectedCaps")
 
                         sink.write(CapReqMessage(caps = requestCaps.distinct()))

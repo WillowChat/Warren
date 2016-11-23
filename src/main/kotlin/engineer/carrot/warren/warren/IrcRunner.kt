@@ -2,10 +2,7 @@ package engineer.carrot.warren.warren
 
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.IKaleParsingStateDelegate
-import engineer.carrot.warren.kale.irc.message.extension.cap.CapLsMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.PingMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
+import engineer.carrot.warren.kale.irc.message.rfc1459.*
 import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventGenerator
@@ -17,6 +14,8 @@ import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.*
+import engineer.carrot.warren.warren.registration.*
+import engineer.carrot.warren.warren.state.AuthLifecycle
 import engineer.carrot.warren.warren.state.IStateCapturing
 import engineer.carrot.warren.warren.state.IrcState
 import engineer.carrot.warren.warren.state.LifecycleState
@@ -28,7 +27,7 @@ interface IIrcRunner : IStateCapturing<IrcState> {
 
 }
 
-class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, val startAsyncThreads: Boolean = true, initialCapState: CapState, initialSaslState: SaslState) : IIrcRunner, IKaleParsingStateDelegate {
+class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, val startAsyncThreads: Boolean = true, initialCapState: CapState, initialSaslState: SaslState, private val registrationManager: IRegistrationManager) : IIrcRunner, IKaleParsingStateDelegate, IRegistrationListener {
 
     private val LOGGER = loggerFor<IrcRunner>()
 
@@ -40,6 +39,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
     private val PONG_TIMER_MS: Long = 30 * 1000
 
     val caps = CapManager(initialCapState, kale, internalState.channels, initialSaslState, sink, internalState.parsing.caseMapping)
+    lateinit var rfc1459RegistrationExtension: IRegistrationExtension
 
     override fun captureStateSnapshot() {
         state = internalState.copy()
@@ -55,10 +55,19 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
 
         kale.parsingStateDelegate = this
 
+        rfc1459RegistrationExtension = RFC1459RegistrationExtension(sink = sink, nickname = internalState.connection.nickname, username = internalState.connection.user, password = internalState.connection.password)
+
         registerRFC1459Handlers()
         caps.setUp()
 
-        sendRegistrationMessages()
+        registrationManager.register(caps)
+        registrationManager.register(rfc1459RegistrationExtension)
+
+        internalState.connection.lifecycle = LifecycleState.REGISTERING
+        eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.REGISTERING))
+
+        registrationManager.startRegistration()
+
         runEventLoop()
     }
 
@@ -77,20 +86,65 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
         kale.register(Rpl005Handler(internalState.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler, Rpl005CaseMappingHandler))
         kale.register(Rpl332Handler(internalState.channels.joined, internalState.parsing.caseMapping))
         kale.register(Rpl353Handler(internalState.channels.joined, internalState.parsing.userPrefixes, internalState.parsing.caseMapping))
-        kale.register(Rpl376Handler(eventDispatcher, sink, internalState.channels.joining.all.mapValues { entry -> entry.value.key }, internalState.connection, caps.internalState))
+        kale.register(Rpl376Handler(sink, caps.internalState, rfc1459RegistrationExtension, caps))
         kale.register(Rpl471Handler(internalState.channels.joining, internalState.parsing.caseMapping))
         kale.register(Rpl473Handler(internalState.channels.joining, internalState.parsing.caseMapping))
         kale.register(Rpl474Handler(internalState.channels.joining, internalState.parsing.caseMapping))
         kale.register(Rpl475Handler(internalState.channels.joining, internalState.parsing.caseMapping))
     }
 
-    private fun sendRegistrationMessages() {
-        sink.write(CapLsMessage(caps = mapOf())) // FIXME: Cap Extension should do this as part of registration
-        sink.write(NickMessage(nickname = internalState.connection.nickname))
-        sink.write(UserMessage(username = internalState.connection.user, mode = "8", realname = internalState.connection.user))
+    override fun onRegistrationEnded() {
+        LOGGER.info("registration ended")
 
-        internalState.connection.lifecycle = LifecycleState.REGISTERING
-        eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.REGISTERING))
+        when (internalState.connection.lifecycle) {
+            LifecycleState.CONNECTING, LifecycleState.REGISTERING -> {
+                if (internalState.connection.nickServ.shouldAuth) {
+                    val credentials = internalState.connection.nickServ.credentials
+                    if (credentials == null) {
+                        LOGGER.warn("asked to auth, but given no credentials, marking auth failed")
+
+                        internalState.connection.nickServ.lifecycle = AuthLifecycle.AUTH_FAILED
+                    } else {
+                        LOGGER.debug("authing with nickserv - assuming success as replies aren't standardised (use SASL instead if you can)")
+
+                        sink.writeRaw("NICKSERV identify ${credentials.account} ${credentials.password}")
+                        internalState.connection.nickServ.lifecycle = AuthLifecycle.AUTHED
+
+                        LOGGER.debug("waiting ${internalState.connection.nickServ.channelJoinWaitSeconds} seconds before joining channels")
+                        try {
+                            Thread.sleep(internalState.connection.nickServ.channelJoinWaitSeconds * 1000L)
+                        } catch (exception: InterruptedException) {
+                            LOGGER.warn("interrupted whilst waiting to join channels - bailing out")
+                            return
+                        }
+                    }
+                }
+            }
+
+            else -> LOGGER.warn("Registration ended, but we didn't think we were connecting - not authing")
+        }
+
+        val channelsToJoin = internalState.channels.joining.all.mapValues { entry -> entry.value.key }
+        LOGGER.debug("joining channels: $channelsToJoin")
+
+        join(channelsToJoin, sink)
+
+        internalState.connection.lifecycle = LifecycleState.CONNECTED
+        eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.CONNECTED))
+    }
+
+    private fun join(channelsWithKeys: Map<String, String?>, sink: IMessageSink) {
+        for ((channel, key) in channelsWithKeys) {
+            if (key != null) {
+                sink.write(JoinMessage(channels = listOf(channel), keys = listOf(key)))
+            } else {
+                sink.write(JoinMessage(channels = listOf(channel)))
+            }
+        }
+    }
+
+    override fun onRegistrationFailed() {
+        LOGGER.info("registration failed")
     }
 
     private fun runEventLoop() {
