@@ -19,7 +19,7 @@ buildscript {
     }
 
     dependencies {
-        classpath(kotlinModule("gradle-plugin"))
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.1-M02")
         classpath("com.github.jengelman.gradle.plugins:shadow:1.2.3")
     }
 }
