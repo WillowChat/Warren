@@ -8,7 +8,7 @@ Kotlin (JVM targeted), unit tested, IRC v3.2 state management and observing. Mad
 
 [![codecov](https://codecov.io/gh/CarrotCodes/Warren/branch/develop/graph/badge.svg)](https://codecov.io/gh/CarrotCodes/Warren)
 
-## Why another IRC framework?
+## Features
 
 Warren and Kale have a few interesting features:
 
