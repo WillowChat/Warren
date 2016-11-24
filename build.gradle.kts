@@ -12,6 +12,8 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 
 val warrenVersion by project
 
+val projectTitle = "Warren"
+
 buildscript {
     repositories {
         gradleScriptKotlin()
@@ -112,6 +114,8 @@ if (project.hasProperty("DEPLOY_DIR")) {
 
                 artifact(shadowJarTask())
                 artifact(sourcesTask)
+
+                artifactId = projectTitle
             }
         }
     }
