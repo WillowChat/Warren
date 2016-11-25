@@ -52,10 +52,6 @@ pipeline {
         }
 
         stage('Deploy') {
-            when {
-                env.BRANCH == "develop"
-            }
-
             steps {
                 sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PDEPLOY_DIR=/var/www/maven.hopper.bunnies.io --no-daemon"
             }
