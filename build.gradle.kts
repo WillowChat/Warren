@@ -84,7 +84,8 @@ test {
 
 val buildNumberAddition = if(project.hasProperty("BUILD_NUMBER")) { ".${project.property("BUILD_NUMBER")}" } else { "" }
 val branchAddition = if(project.hasProperty("BRANCH")) {
-    "-${project.property("BRANCH")}".replace("[^\\w.-]", "_")
+    val safeBranchName = project.property("BRANCH").toString().filter { Character.isJavaIdentifierPart(it) }
+    "-$safeBranchName"
 } else {
     ""
 }
