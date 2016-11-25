@@ -53,7 +53,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PDEPLOY_DIR=/var/www/maven.hopper.bunnies.io --no-daemon"
+                sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" -PDEPLOY_DIR=/var/www/maven.hopper.bunnies.io --no-daemon"
             }
         }
     }
