@@ -85,9 +85,9 @@ test {
 val buildNumberAddition = if(project.hasProperty("BUILD_NUMBER")) { ".${project.property("BUILD_NUMBER")}" } else { "" }
 val branchAddition = if(project.hasProperty("BRANCH")) { "-${project.property("BRANCH")}" } else { "" }
 
-version = "$warrenVersion$buildNumberAddition"
+version = "$warrenVersion$buildNumberAddition$branchAddition"
 group = "engineer.carrot.warren.warren"
-project.setProperty("archivesBaseName", "$projectTitle$branchAddition")
+project.setProperty("archivesBaseName", projectTitle)
 
 shadowJar {
     mergeServiceFiles()
