@@ -23,16 +23,16 @@ class CapAckHandlerTests {
     lateinit var state: CapState
     lateinit var saslState: SaslState
     lateinit var sink: IMessageSink
-    lateinit var capManager: ICapManager
+    lateinit var mockCapManager: ICapManager
 
     @Before fun setUp() {
         val capLifecycleState = CapLifecycle.NEGOTIATING
         state = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
         saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.AUTH_FAILED, credentials = null)
         sink = mock()
-        capManager = mock()
+        mockCapManager = mock()
 
-        handler = CapAckHandler(state, saslState, sink, capManager)
+        handler = CapAckHandler(state, saslState, sink, mockCapManager)
     }
 
     @Test fun test_handle_AddsAckedCapsToStateList() {
@@ -43,31 +43,12 @@ class CapAckHandlerTests {
         assertEquals(setOf("cap1", "cap2"), state.accepted)
     }
 
-    @Test fun test_handle_Negotiating_NoRemainingCaps_SendsCapEnd() {
+    @Test fun test_handle_Negotiating_TellsCapManagerRegistrationStateChanged() {
         state.lifecycle = CapLifecycle.NEGOTIATING
-        state.negotiate = setOf("cap1", "cap2")
 
-        handler.handle(CapAckMessage(caps = listOf("cap1", "cap2")), mapOf())
+        handler.handle(CapAckMessage(caps = listOf("cap 1", "cap 2")), mapOf())
 
-        verify(sink).write(CapEndMessage())
-    }
-
-    @Test fun test_handle_Negotiating_RemainingCaps_DoesNotSendCapEnd() {
-        state.lifecycle = CapLifecycle.NEGOTIATING
-        state.negotiate = setOf("cap1", "cap2", "cap3")
-
-        handler.handle(CapAckMessage(caps = listOf("cap1", "cap2")), mapOf())
-
-        verify(sink, never()).write(any<IMessage>())
-    }
-
-    @Test fun test_handle_NotNegotiating_NoRemainingCaps_DoesNotSendCapEnd() {
-        state.lifecycle = CapLifecycle.NEGOTIATED
-        state.negotiate = setOf("cap1", "cap2")
-
-        handler.handle(CapAckMessage(caps = listOf("cap1", "cap2")), mapOf())
-
-        verify(sink, never()).write(any<IMessage>())
+        verify(mockCapManager).onRegistrationStateChanged()
     }
 
 }

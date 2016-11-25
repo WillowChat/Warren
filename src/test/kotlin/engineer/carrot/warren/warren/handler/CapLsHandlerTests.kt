@@ -5,9 +5,11 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.IMessage
+import engineer.carrot.warren.kale.irc.message.extension.cap.CapAckMessage
 import engineer.carrot.warren.kale.irc.message.extension.cap.CapEndMessage
 import engineer.carrot.warren.kale.irc.message.extension.cap.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.extension.cap.CapReqMessage
+import engineer.carrot.warren.kale.irc.message.extension.sasl.Rpl903Message
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
@@ -53,22 +55,12 @@ class CapLsHandlerTests {
         assertEquals(setOf("cap3", "cap4"), capState.rejected)
     }
 
-    @Test fun test_handle_Negotiating_ImplicitlyRejectsMissingCaps_NoneLeft_SendsCapEnd() {
+    @Test fun test_handle_Negotiating_TellsCapManagerRegistrationStateChanged() {
         capState.lifecycle = CapLifecycle.NEGOTIATING
-        capState.negotiate = setOf("cap1", "cap2")
-
-        handler.handle(CapLsMessage(caps = mapOf()), mapOf())
-
-        verify(mockSink).write(CapEndMessage())
-    }
-
-    @Test fun test_handle_Negotiating_ImplicitlyRejectsMissingCaps_SomeLeft_DoesNotSendCapEnd() {
-        capState.lifecycle = CapLifecycle.NEGOTIATING
-        capState.negotiate = setOf("cap1", "cap2", "cap3")
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), mapOf())
 
-        verify(mockSink, never()).write(CapEndMessage())
+        verify(mockCapManager).onRegistrationStateChanged()
     }
 
     @Test fun test_handle_Negotiating_SendsCapReqForSupportedCaps() {
