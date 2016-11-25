@@ -83,7 +83,11 @@ test {
 
 
 val buildNumberAddition = if(project.hasProperty("BUILD_NUMBER")) { ".${project.property("BUILD_NUMBER")}" } else { "" }
-val branchAddition = if(project.hasProperty("BRANCH")) { "-${project.property("BRANCH")}" } else { "" }
+val branchAddition = if(project.hasProperty("BRANCH")) {
+    "-${project.property("BRANCH")}".replace("[^\\w.-]", "_")
+} else {
+    ""
+}
 
 version = "$warrenVersion$buildNumberAddition$branchAddition"
 group = "engineer.carrot.warren.warren"
