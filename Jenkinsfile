@@ -29,7 +29,13 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh "./gradlew clean build -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
+                sh "./gradlew clean build -x test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh "./gradlew test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
             }
         }
 
