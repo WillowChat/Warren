@@ -8,6 +8,9 @@ interface IRegistrationManager {
     fun register(extension: IRegistrationExtension)
     fun startRegistration()
 
+    fun onExtensionSuccess(extension: IRegistrationExtension)
+    fun onExtensionFailure(extension: IRegistrationExtension)
+
 }
 
 interface IRegistrationListener {
@@ -33,39 +36,43 @@ class RegistrationManager : IRegistrationManager {
 
     override fun startRegistration() {
         // TODO: Add a registration timeout
+        // TODO: Assert there's more than one extension?
 
-        extensions. forEach { (key, value) ->
-            key.listener = object : IRegistrationExtensionListener {
-                override fun onSuccess() {
-                    extensions[key] = RegistrationExtensionLifecycle.SUCCEEDED
-                    onExtensionStateChanged()
-                }
+        extensions.forEach { extension, _ ->
+            extensions[extension] = RegistrationExtensionLifecycle.STARTED
 
-                override fun onFailure() {
-                    extensions[key] = RegistrationExtensionLifecycle.FAILED
-                    onExtensionStateChanged()
-                }
-            }
-
-            extensions[key] = RegistrationExtensionLifecycle.STARTED
-            key.startRegistration()
+            extension.startRegistration()
         }
     }
 
-    private fun onExtensionStateChanged() {
-        val failedExtensions = extensions.mapNotNull { (extension, lifecycle) ->
-            when (lifecycle) {
-                RegistrationExtensionLifecycle.FAILED -> extension
-                else -> null
-            }
+    override fun onExtensionSuccess(extension: IRegistrationExtension) {
+        if (!extensions.containsKey(extension)) {
+            LOGGER.warn("tried to notify of extension success, but we aren't tracking it: $extension")
+            return
         }
 
-        val succeededExtensions = extensions.mapNotNull { (extension, lifecycle) ->
-            when (lifecycle) {
-                RegistrationExtensionLifecycle.SUCCEEDED -> extension
-                else -> null
-            }
+        extensions[extension] = RegistrationExtensionLifecycle.SUCCEEDED
+        onExtensionStateChanged()
+    }
+
+    override fun onExtensionFailure(extension: IRegistrationExtension) {
+        if (!extensions.containsKey(extension)) {
+            LOGGER.warn("tried to notify of extension failure, but we aren't tracking it: $extension")
+            return
         }
+
+        extensions[extension] = RegistrationExtensionLifecycle.FAILED
+        onExtensionStateChanged()
+    }
+
+    private fun onExtensionStateChanged() {
+        val failedExtensions = extensions.filter { (_, lifecycle) ->
+            lifecycle == RegistrationExtensionLifecycle.FAILED
+        }.keys
+
+        val succeededExtensions = extensions.filter { (_, lifecycle) ->
+            lifecycle == RegistrationExtensionLifecycle.SUCCEEDED
+        }.keys
 
         if (failedExtensions.isNotEmpty()) {
             LOGGER.error("Some registration extensions failed: $failedExtensions")

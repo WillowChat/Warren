@@ -77,7 +77,7 @@ dependencies {
 
     testCompile("junit:junit:4.12")
     testCompile("org.mockito:mockito-core:2.2.9")
-    testCompile("com.nhaarman:mockito-kotlin:0.10.0")
+    testCompile("com.nhaarman:mockito-kotlin:0.12.2")
 }
 
 test {

@@ -14,7 +14,7 @@ import engineer.carrot.warren.warren.handler.CapLsHandler
 import engineer.carrot.warren.warren.handler.CapNakHandler
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.registration.IRegistrationExtension
-import engineer.carrot.warren.warren.registration.IRegistrationExtensionListener
+import engineer.carrot.warren.warren.registration.IRegistrationManager
 import engineer.carrot.warren.warren.state.AuthLifecycle
 import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.ChannelsState
@@ -40,7 +40,7 @@ enum class CapKeys(val key: String) {
     MULTI_PREFIX("multi-prefix"),
 }
 
-class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, private val sink: IMessageSink, caseMappingState: CaseMappingState) : ICapManager, ICapExtension, IRegistrationExtension {
+class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager) : ICapManager, ICapExtension, IRegistrationExtension {
 
     private val LOGGER = loggerFor<CapManager>()
 
@@ -60,8 +60,6 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
             CapKeys.EXTENDED_JOIN.key to ExtendedJoinExtension(kale, channelsState, caseMappingState)
     )
 
-    override var listener: IRegistrationExtensionListener? = null
-
     override fun captureStateSnapshot() {
         state = internalState.copy()
 
@@ -79,7 +77,7 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
     override fun onRegistrationStateChanged() {
         if (shouldEndCapNegotiation(sasl.internalState, internalState)) {
             endCapNegotiation()
-            listener?.onSuccess()
+            registrationManager.onExtensionSuccess(this)
         }
     }
 
@@ -129,11 +127,11 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
     }
 
     override fun onRegistrationSucceeded() {
-        listener?.onSuccess()
+        registrationManager.onExtensionSuccess(this)
     }
 
     override fun onRegistrationFailed() {
-        listener?.onFailure()
+        registrationManager.onExtensionFailure(this)
     }
 
 }

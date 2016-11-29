@@ -5,9 +5,7 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.PassMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
 import engineer.carrot.warren.warren.IMessageSink
 
-class RFC1459RegistrationExtension(private val sink: IMessageSink, private val nickname: String, private val username: String, private val password: String? = null): IRegistrationExtension {
-
-    override var listener: IRegistrationExtensionListener? = null
+class RFC1459RegistrationExtension(private val sink: IMessageSink, private val nickname: String, private val username: String, private val password: String? = null, private val registrationManager: IRegistrationManager): IRegistrationExtension {
 
     override fun startRegistration() {
         if (password != null) {
@@ -19,11 +17,11 @@ class RFC1459RegistrationExtension(private val sink: IMessageSink, private val n
     }
 
     override fun onRegistrationSucceeded() {
-        listener?.onSuccess()
+        registrationManager.onExtensionSuccess(this)
     }
 
     override fun onRegistrationFailed() {
-        listener?.onFailure()
+        registrationManager.onExtensionFailure(this)
     }
 
 }

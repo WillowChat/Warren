@@ -2,7 +2,8 @@ package engineer.carrot.warren.warren
 
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.IKaleParsingStateDelegate
-import engineer.carrot.warren.kale.irc.message.rfc1459.*
+import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
+import engineer.carrot.warren.kale.irc.message.rfc1459.PingMessage
 import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventGenerator
@@ -14,7 +15,10 @@ import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.*
-import engineer.carrot.warren.warren.registration.*
+import engineer.carrot.warren.warren.registration.IRegistrationExtension
+import engineer.carrot.warren.warren.registration.IRegistrationListener
+import engineer.carrot.warren.warren.registration.IRegistrationManager
+import engineer.carrot.warren.warren.registration.RFC1459RegistrationExtension
 import engineer.carrot.warren.warren.state.AuthLifecycle
 import engineer.carrot.warren.warren.state.IStateCapturing
 import engineer.carrot.warren.warren.state.IrcState
@@ -38,7 +42,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
 
     private val PONG_TIMER_MS: Long = 30 * 1000
 
-    val caps = CapManager(initialCapState, kale, internalState.channels, initialSaslState, sink, internalState.parsing.caseMapping)
+    val caps = CapManager(initialCapState, kale, internalState.channels, initialSaslState, sink, internalState.parsing.caseMapping, registrationManager)
     lateinit var rfc1459RegistrationExtension: IRegistrationExtension
 
     override fun captureStateSnapshot() {
@@ -55,7 +59,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
 
         kale.parsingStateDelegate = this
 
-        rfc1459RegistrationExtension = RFC1459RegistrationExtension(sink = sink, nickname = internalState.connection.nickname, username = internalState.connection.user, password = internalState.connection.password)
+        rfc1459RegistrationExtension = RFC1459RegistrationExtension(sink = sink, nickname = internalState.connection.nickname, username = internalState.connection.user, password = internalState.connection.password, registrationManager = registrationManager)
 
         registerRFC1459Handlers()
         caps.setUp()
