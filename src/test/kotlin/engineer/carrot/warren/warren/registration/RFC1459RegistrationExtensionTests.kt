@@ -42,7 +42,10 @@ class RFC1459RegistrationExtensionTests {
 
         sut.startRegistration()
 
-        verify(mockSink).write(PassMessage(password = "something"))
+        inOrder(mockSink) {
+            verify(mockSink).write(PassMessage(password = "something"))
+            verify(mockSink).write(any<NickMessage>())
+        }
     }
 
     @Test fun test_startRegistration_WritesNickAndUser_InOrder() {
