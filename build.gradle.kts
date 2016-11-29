@@ -11,17 +11,20 @@ import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
 val warrenVersion by project
+val kotlinVersion by project
 
 val projectTitle = "Warren"
 
 buildscript {
+    val buildscriptKotlinVersion = "1.1-M03"
+
     repositories {
         gradleScriptKotlin()
         jcenter()
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.1-M02")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$buildscriptKotlinVersion")
         classpath("com.github.jengelman.gradle.plugins:shadow:1.2.3")
     }
 }
@@ -65,7 +68,7 @@ repositories {
 }
 
 dependencies {
-    compile(kotlinModule("stdlib"))
+    compile(kotlinModule("stdlib", kotlinVersion as String))
     compile("org.slf4j:slf4j-api:1.7.21")
     compile("engineer.carrot.warren.kale:Kale:1.2.0.2")
     compile("com.squareup.okio:okio:1.11.0")
