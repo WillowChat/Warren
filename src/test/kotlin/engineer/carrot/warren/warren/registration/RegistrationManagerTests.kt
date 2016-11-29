@@ -71,6 +71,30 @@ class RegistrationManagerTests {
         verify(mockListener, never()).onRegistrationFailed()
     }
 
+    @Test fun test_onExtensionSuccess_UntrackedExtension_DoesNothing() {
+        val extensionOne = MockRegistrationExtension(sut)
+        val extensionTwo = MockRegistrationExtension(sut)
+
+        sut.register(extensionOne)
+        // Extension two deliberately not registered
+
+        sut.onExtensionSuccess(extensionTwo)
+
+        verify(mockListener, never()).onRegistrationEnded()
+    }
+
+    @Test fun test_onExtensionFailure_UntrackedExtension_DoesNothing() {
+        val extensionOne = MockRegistrationExtension(sut)
+        val extensionTwo = MockRegistrationExtension(sut)
+
+        sut.register(extensionOne)
+        // Extension two deliberately not registered
+
+        sut.onExtensionFailure(extensionTwo)
+
+        verify(mockListener, never()).onRegistrationFailed()
+    }
+
     private class MockRegistrationExtension(val registrationManager: IRegistrationManager) : IRegistrationExtension {
         override fun startRegistration() {
             // NO-OP
