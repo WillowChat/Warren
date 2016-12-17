@@ -11,15 +11,20 @@ import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
 val warrenVersion by project
+val kotlinVersion by project
+
+val projectTitle = "Warren"
 
 buildscript {
+    val buildscriptKotlinVersion = "1.1-M03"
+
     repositories {
         gradleScriptKotlin()
         jcenter()
     }
 
     dependencies {
-        classpath(kotlinModule("gradle-plugin"))
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$buildscriptKotlinVersion")
         classpath("com.github.jengelman.gradle.plugins:shadow:1.2.3")
     }
 }
@@ -63,16 +68,16 @@ repositories {
 }
 
 dependencies {
-    compile(kotlinModule("stdlib"))
+    compile(kotlinModule("stdlib", kotlinVersion as String))
     compile("org.slf4j:slf4j-api:1.7.21")
-    compile("engineer.carrot.warren.kale:Kale:1.2.0.116")
+    compile("engineer.carrot.warren.kale:Kale:1.2.0.2")
     compile("com.squareup.okio:okio:1.11.0")
 
     runtime("org.slf4j:slf4j-simple:1.7.21")
 
     testCompile("junit:junit:4.12")
     testCompile("org.mockito:mockito-core:2.2.9")
-    testCompile("com.nhaarman:mockito-kotlin:0.10.0")
+    testCompile("com.nhaarman:mockito-kotlin:0.12.2")
 }
 
 test {
@@ -81,9 +86,19 @@ test {
 
 
 val buildNumberAddition = if(project.hasProperty("BUILD_NUMBER")) { ".${project.property("BUILD_NUMBER")}" } else { "" }
+val branchAddition = if(project.hasProperty("BRANCH")) {
+    val safeBranchName = project.property("BRANCH")
+            .toString()
+            .map { if(Character.isJavaIdentifierPart(it)) it else '_' }
+            .joinToString(separator = "")
+    "-$safeBranchName"
+} else {
+    ""
+}
 
-version = "$warrenVersion$buildNumberAddition"
+version = "$warrenVersion$buildNumberAddition$branchAddition"
 group = "engineer.carrot.warren.warren"
+project.setProperty("archivesBaseName", projectTitle)
 
 shadowJar {
     mergeServiceFiles()
@@ -112,6 +127,8 @@ if (project.hasProperty("DEPLOY_DIR")) {
 
                 artifact(shadowJarTask())
                 artifact(sourcesTask)
+
+                artifactId = projectTitle
             }
         }
     }
