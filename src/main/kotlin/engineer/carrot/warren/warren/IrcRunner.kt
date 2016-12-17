@@ -100,32 +100,25 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
     override fun onRegistrationEnded() {
         LOGGER.info("registration ended")
 
+        if (internalState.connection.lifecycle == LifecycleState.CONNECTED) {
+            LOGGER.warn("already connected - not ending registration again")
+            return
+        }
+
         when (internalState.connection.lifecycle) {
-            LifecycleState.CONNECTING, LifecycleState.REGISTERING -> {
-                if (internalState.connection.nickServ.shouldAuth) {
-                    val credentials = internalState.connection.nickServ.credentials
-                    if (credentials == null) {
-                        LOGGER.warn("asked to auth, but given no credentials, marking auth failed")
-
-                        internalState.connection.nickServ.lifecycle = AuthLifecycle.AUTH_FAILED
-                    } else {
-                        LOGGER.debug("authing with nickserv - assuming success as replies aren't standardised (use SASL instead if you can)")
-
-                        sink.writeRaw("NICKSERV identify ${credentials.account} ${credentials.password}")
-                        internalState.connection.nickServ.lifecycle = AuthLifecycle.AUTHED
-
-                        LOGGER.debug("waiting ${internalState.connection.nickServ.channelJoinWaitSeconds} seconds before joining channels")
-                        try {
-                            Thread.sleep(internalState.connection.nickServ.channelJoinWaitSeconds * 1000L)
-                        } catch (exception: InterruptedException) {
-                            LOGGER.warn("interrupted whilst waiting to join channels - bailing out")
-                            return
-                        }
-                    }
-                }
-            }
-
+            LifecycleState.CONNECTING, LifecycleState.REGISTERING -> nickservAuthIfRequested()
             else -> LOGGER.warn("Registration ended, but we didn't think we were connecting - not authing")
+        }
+
+        if (internalState.connection.nickServ.shouldAuth && internalState.connection.nickServ.lifecycle == AuthLifecycle.AUTHED) {
+            LOGGER.debug("waiting ${internalState.connection.nickServ.channelJoinWaitSeconds} seconds before joining channels")
+            try {
+                // TODO: Replace with testable sleep
+                Thread.sleep(internalState.connection.nickServ.channelJoinWaitSeconds * 1000L)
+            } catch (exception: InterruptedException) {
+                LOGGER.warn("interrupted whilst waiting to join channels - bailing out")
+                return
+            }
         }
 
         val channelsToJoin = internalState.channels.joining.all.mapValues { entry -> entry.value.key }
@@ -135,6 +128,24 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
 
         internalState.connection.lifecycle = LifecycleState.CONNECTED
         eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.CONNECTED))
+    }
+
+    private fun nickservAuthIfRequested() {
+        if (!internalState.connection.nickServ.shouldAuth) {
+            return
+        }
+
+        val credentials = internalState.connection.nickServ.credentials
+        if (credentials == null) {
+            LOGGER.warn("asked to auth, but given no credentials, marking auth failed")
+
+            internalState.connection.nickServ.lifecycle = AuthLifecycle.AUTH_FAILED
+        } else {
+            LOGGER.debug("authing with nickserv - assuming success as replies aren't standardised (use SASL instead if you can)")
+
+            sink.writeRaw("NICKSERV identify ${credentials.account} ${credentials.password}")
+            internalState.connection.nickServ.lifecycle = AuthLifecycle.AUTHED
+        }
     }
 
     private fun join(channelsWithKeys: Map<String, String?>, sink: IMessageSink) {
@@ -213,7 +224,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
             }
         }
 
-        lineThread.uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { thread, exception ->
+        lineThread.uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, exception ->
             LOGGER.warn("uncaught exception in line generator, forcing a disconnect: $exception")
 
             eventQueue.clear()

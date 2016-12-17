@@ -158,6 +158,37 @@ class IrcRunnerTests {
         assertFalse(runner.modeTakesAParameter(isAdding = false, token = 'z'))
     }
 
+    // IRegistrationListener
+
+    @Test fun test_onRegistrationEnded_Connecting_NickservAuthOn_WithCredentials_SendsIdentifyMessage() {
+        connectionState.lifecycle = LifecycleState.CONNECTING
+        connectionState.nickServ.shouldAuth = true
+        connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
+
+        // FIXME: Causes thread sleep
+        runner.onRegistrationEnded()
+
+        verify(mockSink).writeRaw("NICKSERV identify test-user test-password")
+    }
+
+    @Test fun test_onRegistrationEnded_Registering_NickservAuthOn_WithCredentials_SendsIdentifyMessage() {
+        connectionState.lifecycle = LifecycleState.REGISTERING
+        connectionState.nickServ.shouldAuth = true
+        connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
+
+        // FIXME: Causes thread sleep
+        runner.onRegistrationEnded()
+
+        verify(mockSink).writeRaw("NICKSERV identify test-user test-password")
+    }
+
+
+    // when CONNECTING or REGISTERING, and nickserv auth is on, and creds, write NICKSERV identify and AUTHED
+    // ^ but no creds, AUTH_FAILED
+
+    // always uses internalstate.channels.joining to join channels (with and without keys)
+    // always sets connection.lifecycle to CONNECTED
+    // always fires ConnectedLifecycleEvent
 }
 
 class MockKale : IKale {
