@@ -91,7 +91,11 @@ val branchAddition = if(project.hasProperty("BRANCH")) {
             .toString()
             .map { if(Character.isJavaIdentifierPart(it)) it else '_' }
             .joinToString(separator = "")
-    "-$safeBranchName"
+
+    when (safeBranchName) {
+        "develop" -> ""
+        else -> "-$safeBranchName"
+    }
 } else {
     ""
 }
