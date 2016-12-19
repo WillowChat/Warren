@@ -2,13 +2,11 @@ package engineer.carrot.warren.warren.extension.sasl
 
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.extension.sasl.Rpl904Message
-import engineer.carrot.warren.warren.IMessageSink
-import engineer.carrot.warren.warren.extension.cap.CapState
-import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
+import engineer.carrot.warren.warren.extension.cap.ICapManager
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.AuthLifecycle
 
-class Rpl904Handler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink) : IKaleHandler<Rpl904Message> {
+class Rpl904Handler(val capManager: ICapManager, val saslState: SaslState) : IKaleHandler<Rpl904Message> {
 
     private val LOGGER = loggerFor<Rpl904Handler>()
 
@@ -19,11 +17,7 @@ class Rpl904Handler(val capState: CapState, val saslState: SaslState, val sink: 
 
         saslState.lifecycle = AuthLifecycle.AUTH_FAILED
 
-        if (RegistrationHelper.shouldEndCapNegotiation(saslState, capState)) {
-            RegistrationHelper.endCapNegotiation(sink, capState)
-        } else {
-            LOGGER.debug("didn't think we should end the registration process, waiting")
-        }
+        capManager.onRegistrationStateChanged()
     }
 
 }

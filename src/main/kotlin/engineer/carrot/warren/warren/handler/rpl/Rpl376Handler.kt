@@ -1,19 +1,14 @@
 package engineer.carrot.warren.warren.handler.rpl
 
 import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.rpl.Rpl376Message
 import engineer.carrot.warren.warren.IMessageSink
-import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
-import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.loggerFor
-import engineer.carrot.warren.warren.state.AuthLifecycle
-import engineer.carrot.warren.warren.state.ConnectionState
-import engineer.carrot.warren.warren.state.LifecycleState
+import engineer.carrot.warren.warren.registration.IRegistrationExtension
 
-class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMessageSink, val channelsToJoin: Map<String, String?>, val connectionState: ConnectionState, val capState: CapState) : IKaleHandler<Rpl376Message> {
+class Rpl376Handler(val sink: IMessageSink, val capState: CapState, val rfc1459RegistrationExtension: IRegistrationExtension, val capRegistrationExtension: IRegistrationExtension) : IKaleHandler<Rpl376Message> {
 
     private val LOGGER = loggerFor<Rpl376Handler>()
 
@@ -24,53 +19,11 @@ class Rpl376Handler(val eventDispatcher: IWarrenEventDispatcher, val sink: IMess
         if (capState.lifecycle == CapLifecycle.NEGOTIATING) {
             LOGGER.warn("got MOTD end before CAP end, assuming CAP negotiation failed")
             capState.lifecycle = CapLifecycle.FAILED
+
+            capRegistrationExtension.onRegistrationFailed()
         }
 
-        when (connectionState.lifecycle) {
-            LifecycleState.CONNECTING, LifecycleState.REGISTERING -> {
-                LOGGER.debug("got end of MOTD")
-
-                if (connectionState.nickServ.shouldAuth) {
-                    val credentials = connectionState.nickServ.credentials
-                    if (credentials == null) {
-                        LOGGER.warn("asked to auth, but given no credentials, marking auth failed")
-
-                        connectionState.nickServ.lifecycle = AuthLifecycle.AUTH_FAILED
-                    } else {
-                        LOGGER.debug("authing with nickserv - assuming success as replies aren't standardised (use SASL instead if you can)")
-
-                        sink.writeRaw("NICKSERV identify ${credentials.account} ${credentials.password}")
-                        connectionState.nickServ.lifecycle = AuthLifecycle.AUTHED
-
-                        LOGGER.debug("waiting ${connectionState.nickServ.channelJoinWaitSeconds} seconds before joining channels")
-                        try {
-                            Thread.sleep(connectionState.nickServ.channelJoinWaitSeconds * 1000L)
-                        } catch (exception: InterruptedException) {
-                            LOGGER.warn("interrupted whilst waiting to join channels - bailing out")
-                            return
-                        }
-                    }
-                }
-
-                LOGGER.debug("joining channels")
-                join(channelsToJoin, sink)
-            }
-
-            else -> LOGGER.warn("got end of MOTD but we don't think we're connecting")
-        }
-
-        connectionState.lifecycle = LifecycleState.CONNECTED
-        eventDispatcher.fire(ConnectionLifecycleEvent(LifecycleState.CONNECTED))
-    }
-
-    private fun join(channelsWithKeys: Map<String, String?>, sink: IMessageSink) {
-        for ((channel, key) in channelsWithKeys) {
-            if (key != null) {
-                sink.write(JoinMessage(channels = listOf(channel), keys = listOf(key)))
-            } else {
-                sink.write(JoinMessage(channels = listOf(channel)))
-            }
-        }
+        rfc1459RegistrationExtension.onRegistrationSucceeded()
     }
 
 }

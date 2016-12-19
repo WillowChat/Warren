@@ -5,6 +5,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.IMessage
+import engineer.carrot.warren.kale.irc.message.extension.cap.CapAckMessage
 import engineer.carrot.warren.kale.irc.message.extension.cap.CapEndMessage
 import engineer.carrot.warren.kale.irc.message.extension.cap.CapNakMessage
 import engineer.carrot.warren.warren.IMessageSink
@@ -23,16 +24,16 @@ class CapNakHandlerTests {
     lateinit var capState: CapState
     lateinit var saslState: SaslState
     lateinit var sink: IMessageSink
-    lateinit var capManager: ICapManager
+    lateinit var mockCapManager: ICapManager
 
     @Before fun setUp() {
         val capLifecycleState = CapLifecycle.NEGOTIATING
         capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
         saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.AUTH_FAILED, credentials = null)
         sink = mock()
-        capManager = mock()
+        mockCapManager = mock()
 
-        handler = CapNakHandler(capState, saslState, sink, capManager)
+        handler = CapNakHandler(capState, saslState, sink, mockCapManager)
     }
 
     @Test fun test_handle_AddsNakedCapsToStateList() {
@@ -43,31 +44,12 @@ class CapNakHandlerTests {
         assertEquals(setOf("cap1", "cap2"), capState.rejected)
     }
 
-    @Test fun test_handle_Negotiating_NoRemainingCaps_SendsCapEnd() {
+    @Test fun test_handle_Negotiating_TellsCapManagerRegistrationStateChanged() {
         capState.lifecycle = CapLifecycle.NEGOTIATING
-        capState.negotiate = setOf("cap1", "cap2")
 
         handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), mapOf())
 
-        verify(sink).write(CapEndMessage())
-    }
-
-    @Test fun test_handle_Negotiating_RemainingCaps_DoesNotSendCapEnd() {
-        capState.lifecycle = CapLifecycle.NEGOTIATING
-        capState.negotiate = setOf("cap1", "cap2", "cap3")
-
-        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), mapOf())
-
-        verify(sink, never()).write(any<IMessage>())
-    }
-
-    @Test fun test_handle_NotNegotiating_NoRemainingCaps_DoesNotSendCapEnd() {
-        capState.lifecycle = CapLifecycle.NEGOTIATED
-        capState.negotiate = setOf("cap1", "cap2")
-
-        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), mapOf())
-
-        verify(sink, never()).write(any<IMessage>())
+        verify(mockCapManager).onRegistrationStateChanged()
     }
 
 }

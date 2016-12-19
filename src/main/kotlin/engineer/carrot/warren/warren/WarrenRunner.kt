@@ -14,9 +14,11 @@ import engineer.carrot.warren.warren.extension.cap.CapKeys
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.extension.sasl.SaslState
+import engineer.carrot.warren.warren.helper.ThreadSleeper
+import engineer.carrot.warren.warren.registration.RegistrationManager
 import engineer.carrot.warren.warren.state.*
 
-data class ServerConfiguration(val server: String, val port: Int = 6697, val useTLS: Boolean = true, val fingerprints: Set<String>? = null)
+data class ServerConfiguration(val server: String, val port: Int = 6697, val useTLS: Boolean = true, val fingerprints: Set<String>? = null, val password: String? = null)
 data class UserConfiguration(val nickname: String, val user: String = nickname, val sasl: SaslConfiguration? = null, val nickserv: NickServConfiguration? = null)
 data class SaslConfiguration(val account: String, val password: String)
 data class NickServConfiguration(val account: String, val password: String, val channelJoinWaitSeconds: Int = 5)
@@ -48,7 +50,7 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         }
 
         val connectionState = ConnectionState(server = server.server, port = server.port, nickname = user.nickname, user = user.user,
-                lifecycle = lifecycleState, nickServ = nickServState)
+                lifecycle = lifecycleState, nickServ = nickServState, password = server.password)
 
         val kale = Kale().addDefaultMessages()
         val serialiser = IrcMessageSerialiser
@@ -73,7 +75,13 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         val internalEventQueue = WarrenInternalEventQueue()
         val newLineGenerator = NewLineWarrenEventGenerator(internalEventQueue, kale, lineSource = socket, fireIncomingLineEvent = events.fireIncomingLineEvent, warrenEventDispatcher = events.dispatcher)
 
-        return IrcRunner(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState, initialCapState = capState, initialSaslState = saslState)
+        val registrationManager = RegistrationManager()
+
+        val runner = IrcRunner(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = ThreadSleeper)
+
+        registrationManager.listener = runner
+
+        return runner
     }
 
 }

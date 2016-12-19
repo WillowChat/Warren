@@ -13,6 +13,9 @@ import engineer.carrot.warren.warren.event.internal.*
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.extension.sasl.SaslState
+import engineer.carrot.warren.warren.helper.ISleeper
+import engineer.carrot.warren.warren.registration.IRegistrationManager
+import engineer.carrot.warren.warren.registration.RegistrationManager
 import engineer.carrot.warren.warren.state.*
 import org.junit.Before
 import org.junit.Test
@@ -26,19 +29,23 @@ class SanityCheckIntegrationTests {
     lateinit var connectionState: ConnectionState
     lateinit var channelModesState: ChannelModesState
     lateinit var userPrefixesState: UserPrefixesState
+    lateinit var capState: CapState
 
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
     lateinit var mockSink: IMessageSink
     lateinit var mockLineSource: ILineSource
     lateinit var mockNewLineGenerator: IWarrenInternalEventGenerator
+    lateinit var mockSleeper: ISleeper
+
+    lateinit var registrationManager: RegistrationManager
 
     lateinit var internalEventQueue: IntegrationTestLineGenerator
     lateinit var kale: IKale
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.CONNECTING
-        val capLifecycleState = CapLifecycle.NEGOTIATED
-        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
+        val capLifecycleState = CapLifecycle.NEGOTIATING
+        capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
         connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState)
 
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
@@ -53,18 +60,25 @@ class SanityCheckIntegrationTests {
         mockEventDispatcher = mock()
         mockNewLineGenerator = mock()
 
+        registrationManager = RegistrationManager()
+
         kale = Kale().addDefaultMessages()
         internalEventQueue = IntegrationTestLineGenerator(queueOf(), kale)
 
         mockSink = mock()
         mockLineSource = mock()
+        mockSleeper = mock()
 
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        runner = IrcRunner(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState)
+        runner = IrcRunner(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = mockSleeper)
+
+        registrationManager.listener = runner
     }
 
     @Test fun test_run_ImaginaryNet_RegistrationAndMOTD_ResultsInConnectedLifecycle_WithCorrectCAPs() {
+        capState.negotiate = setOf("multi-prefix")
+
         internalEventQueue.lines = queueOf(
                 "NOTICE AUTH :*** Processing connection to imaginary.bunnies.io",
                 "NOTICE AUTH :*** Looking up your hostname...",
@@ -97,7 +111,7 @@ class SanityCheckIntegrationTests {
 
         runner.run()
 
-        assertEquals(LifecycleState.CONNECTED, runner.state!!.connection.lifecycle)
+        assertEquals(LifecycleState.CONNECTED, runner.state.connection.lifecycle)
         assertEquals(setOf("multi-prefix"), runner.caps.state.accepted)
     }
 
@@ -106,9 +120,7 @@ class SanityCheckIntegrationTests {
 fun <T> queueOf(vararg elements: T): Queue<T> {
     val queue = LinkedBlockingQueue<T>()
 
-    for (element in elements) {
-        queue.add(element)
-    }
+    queue += elements
 
     return queue
 }

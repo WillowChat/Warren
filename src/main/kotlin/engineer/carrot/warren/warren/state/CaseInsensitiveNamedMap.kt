@@ -55,6 +55,10 @@ open class CaseInsensitiveNamedMap<NamedType : INamed>(var mappingState: CaseMap
         return result
     }
 
+    fun clear() {
+        namedThings.clear()
+    }
+
     override fun toString(): String {
         return "CaseInsensitiveNamedMap(mappingState=$mappingState, namedThings=$namedThings)"
     }

@@ -8,7 +8,6 @@ import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.extension.cap.ICapManager
 import engineer.carrot.warren.warren.extension.sasl.SaslState
-import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
 import engineer.carrot.warren.warren.loggerFor
 import engineer.carrot.warren.warren.state.AuthLifecycle
 
@@ -24,8 +23,15 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
 
         LOGGER.trace("server ACKed following caps: $caps")
 
-        capState.accepted += caps
-        caps.forEach { capManager.capEnabled(it) }
+        for (cap in caps) {
+            if (!capState.negotiate.contains(cap)) {
+                LOGGER.debug("server acked cap we don't think we asked for")
+                continue
+            }
+
+            capState.accepted += cap
+            capManager.capEnabled(cap)
+        }
 
         if (caps.contains("sasl") && saslState.shouldAuth) {
             LOGGER.trace("server acked sasl - starting authentication for user: ${saslState.credentials?.account}")
@@ -39,11 +45,7 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
             CapLifecycle.NEGOTIATING -> {
                 LOGGER.trace("server ACKed some caps, checked if it's the last reply")
 
-                if (RegistrationHelper.shouldEndCapNegotiation(saslState, capState)) {
-                    RegistrationHelper.endCapNegotiation(sink, capState)
-                } else {
-                    LOGGER.trace("didn't think we should end the registration process, waiting")
-                }
+                capManager.onRegistrationStateChanged()
             }
 
             else -> LOGGER.trace("server ACKed caps but we don't think we're negotiating")

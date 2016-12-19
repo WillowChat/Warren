@@ -5,12 +5,15 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import engineer.carrot.warren.kale.irc.message.IMessage
+import engineer.carrot.warren.kale.irc.message.extension.cap.CapAckMessage
 import engineer.carrot.warren.kale.irc.message.extension.cap.CapEndMessage
 import engineer.carrot.warren.kale.irc.message.extension.cap.CapLsMessage
 import engineer.carrot.warren.kale.irc.message.extension.cap.CapReqMessage
+import engineer.carrot.warren.kale.irc.message.extension.sasl.Rpl903Message
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
+import engineer.carrot.warren.warren.extension.cap.ICapManager
 import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.state.AuthLifecycle
 import org.junit.Assert.assertEquals
@@ -22,15 +25,17 @@ class CapLsHandlerTests {
     lateinit var handler: CapLsHandler
     lateinit var capState: CapState
     lateinit var saslState: SaslState
-    lateinit var sink: IMessageSink
+    lateinit var mockSink: IMessageSink
+    lateinit var mockCapManager: ICapManager
 
     @Before fun setUp() {
         val capLifecycleState = CapLifecycle.NEGOTIATING
         capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
         saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.AUTH_FAILED, credentials = null)
-        sink = mock()
+        mockSink = mock()
+        mockCapManager = mock()
 
-        handler = CapLsHandler(capState, saslState, sink)
+        handler = CapLsHandler(capState, saslState, mockSink, mockCapManager)
     }
 
     @Test fun test_handle_AddsCapsToStateList() {
@@ -50,22 +55,12 @@ class CapLsHandlerTests {
         assertEquals(setOf("cap3", "cap4"), capState.rejected)
     }
 
-    @Test fun test_handle_Negotiating_ImplicitlyRejectsMissingCaps_NoneLeft_SendsCapEnd() {
+    @Test fun test_handle_Negotiating_TellsCapManagerRegistrationStateChanged() {
         capState.lifecycle = CapLifecycle.NEGOTIATING
-        capState.negotiate = setOf("cap1", "cap2")
-
-        handler.handle(CapLsMessage(caps = mapOf()), mapOf())
-
-        verify(sink).write(CapEndMessage())
-    }
-
-    @Test fun test_handle_Negotiating_ImplicitlyRejectsMissingCaps_SomeLeft_DoesNotSendCapEnd() {
-        capState.lifecycle = CapLifecycle.NEGOTIATING
-        capState.negotiate = setOf("cap1", "cap2", "cap3")
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), mapOf())
 
-        verify(sink, never()).write(CapEndMessage())
+        verify(mockCapManager).onRegistrationStateChanged()
     }
 
     @Test fun test_handle_Negotiating_SendsCapReqForSupportedCaps() {
@@ -74,7 +69,7 @@ class CapLsHandlerTests {
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), mapOf())
 
-        verify(sink).write(CapReqMessage(caps = listOf("cap1", "cap2")))
+        verify(mockSink).write(CapReqMessage(caps = listOf("cap1", "cap2")))
     }
 
     @Test fun test_handle_Negotiating_MultilineLs_DoesNothingElse() {
@@ -83,7 +78,7 @@ class CapLsHandlerTests {
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null), isMultiline = true), mapOf())
 
-        verify(sink, never()).write(any<IMessage>())
+        verify(mockSink, never()).write(any<IMessage>())
     }
 
     @Test fun test_handle_NotNegotiating_DoesNothingElse() {
@@ -92,7 +87,7 @@ class CapLsHandlerTests {
 
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), mapOf())
 
-        verify(sink, never()).write(any<IMessage>())
+        verify(mockSink, never()).write(any<IMessage>())
     }
 
 }
