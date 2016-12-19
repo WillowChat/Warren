@@ -23,8 +23,15 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
 
         LOGGER.trace("server ACKed following caps: $caps")
 
-        capState.accepted += caps
-        caps.forEach { capManager.capEnabled(it) }
+        for (cap in caps) {
+            if (!capState.negotiate.contains(cap)) {
+                LOGGER.debug("server acked cap we don't think we asked for")
+                continue
+            }
+
+            capState.accepted += cap
+            capManager.capEnabled(cap)
+        }
 
         if (caps.contains("sasl") && saslState.shouldAuth) {
             LOGGER.trace("server acked sasl - starting authentication for user: ${saslState.credentials?.account}")
