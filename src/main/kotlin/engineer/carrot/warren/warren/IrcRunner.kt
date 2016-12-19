@@ -15,6 +15,7 @@ import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.*
+import engineer.carrot.warren.warren.helper.ISleeper
 import engineer.carrot.warren.warren.registration.IRegistrationExtension
 import engineer.carrot.warren.warren.registration.IRegistrationListener
 import engineer.carrot.warren.warren.registration.IRegistrationManager
@@ -31,7 +32,7 @@ interface IIrcRunner : IStateCapturing<IrcState> {
 
 }
 
-class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, val startAsyncThreads: Boolean = true, initialCapState: CapState, initialSaslState: SaslState, private val registrationManager: IRegistrationManager) : IIrcRunner, IKaleParsingStateDelegate, IRegistrationListener {
+class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, val startAsyncThreads: Boolean = true, initialCapState: CapState, initialSaslState: SaslState, private val registrationManager: IRegistrationManager, private val sleeper: ISleeper) : IIrcRunner, IKaleParsingStateDelegate, IRegistrationListener {
 
     private val LOGGER = loggerFor<IrcRunner>()
 
@@ -113,8 +114,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
         if (internalState.connection.nickServ.shouldAuth && internalState.connection.nickServ.lifecycle == AuthLifecycle.AUTHED) {
             LOGGER.debug("waiting ${internalState.connection.nickServ.channelJoinWaitSeconds} seconds before joining channels")
             try {
-                // TODO: Replace with testable sleep
-                Thread.sleep(internalState.connection.nickServ.channelJoinWaitSeconds * 1000L)
+                sleeper.sleep(internalState.connection.nickServ.channelJoinWaitSeconds * 1000L)
             } catch (exception: InterruptedException) {
                 LOGGER.warn("interrupted whilst waiting to join channels - bailing out")
                 return
@@ -240,7 +240,7 @@ class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val interna
         return thread(start = false) {
             pingLoop@ while (!Thread.currentThread().isInterrupted) {
                 try {
-                    Thread.sleep(10 * 1000)
+                    sleeper.sleep(10 * 1000)
                 } catch(exception: InterruptedException) {
                     LOGGER.info("ping thread interrupted - bailing out")
                     break@pingLoop

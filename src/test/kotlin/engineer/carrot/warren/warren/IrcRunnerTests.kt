@@ -25,6 +25,7 @@ import engineer.carrot.warren.warren.extension.sasl.AuthenticateHandler
 import engineer.carrot.warren.warren.extension.sasl.Rpl903Handler
 import engineer.carrot.warren.warren.extension.sasl.Rpl904Handler
 import engineer.carrot.warren.warren.extension.sasl.Rpl905Handler
+import engineer.carrot.warren.warren.helper.ISleeper
 import engineer.carrot.warren.warren.registration.IRegistrationManager
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.*
@@ -45,6 +46,7 @@ class IrcRunnerTests {
     lateinit var mockSink: IMessageSink
     lateinit var mockLineSource: ILineSource
     lateinit var mockRegistrationManager: IRegistrationManager
+    lateinit var mockSleeper: ISleeper
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.DISCONNECTED
@@ -70,10 +72,11 @@ class IrcRunnerTests {
         mockLineSource = mock()
 
         mockRegistrationManager = mock()
+        mockSleeper = mock()
 
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = mockRegistrationManager)
+        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = mockRegistrationManager, sleeper = mockSleeper)
     }
 
     @Test fun test_run_RegistersBaseHandlers() {
@@ -165,7 +168,6 @@ class IrcRunnerTests {
         connectionState.nickServ.shouldAuth = true
         connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
 
-        // FIXME: Causes thread sleep
         runner.onRegistrationEnded()
 
         verify(mockSink).writeRaw("NICKSERV identify test-user test-password")
@@ -176,10 +178,19 @@ class IrcRunnerTests {
         connectionState.nickServ.shouldAuth = true
         connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
 
-        // FIXME: Causes thread sleep
         runner.onRegistrationEnded()
 
         verify(mockSink).writeRaw("NICKSERV identify test-user test-password")
+    }
+
+    @Test fun test_onRegistrationEnded_AllSuccessful_WaitsBeforeJoiningChannels() {
+        connectionState.lifecycle = LifecycleState.REGISTERING
+        connectionState.nickServ.shouldAuth = true
+        connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
+
+        runner.onRegistrationEnded()
+
+        verify(mockSleeper).sleep(connectionState.nickServ.channelJoinWaitSeconds * 1000L)
     }
 
 

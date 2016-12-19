@@ -13,6 +13,7 @@ import engineer.carrot.warren.warren.event.internal.*
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.extension.sasl.SaslState
+import engineer.carrot.warren.warren.helper.ISleeper
 import engineer.carrot.warren.warren.registration.IRegistrationManager
 import engineer.carrot.warren.warren.registration.RegistrationManager
 import engineer.carrot.warren.warren.state.*
@@ -33,6 +34,7 @@ class SanityCheckIntegrationTests {
     lateinit var mockSink: IMessageSink
     lateinit var mockLineSource: ILineSource
     lateinit var mockNewLineGenerator: IWarrenInternalEventGenerator
+    lateinit var mockSleeper: ISleeper
 
     lateinit var registrationManager: RegistrationManager
 
@@ -64,10 +66,11 @@ class SanityCheckIntegrationTests {
 
         mockSink = mock()
         mockLineSource = mock()
+        mockSleeper = mock()
 
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        runner = IrcRunner(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager)
+        runner = IrcRunner(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = mockSleeper)
 
         registrationManager.listener = runner
     }
