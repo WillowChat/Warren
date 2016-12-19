@@ -29,6 +29,7 @@ class SanityCheckIntegrationTests {
     lateinit var connectionState: ConnectionState
     lateinit var channelModesState: ChannelModesState
     lateinit var userPrefixesState: UserPrefixesState
+    lateinit var capState: CapState
 
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
     lateinit var mockSink: IMessageSink
@@ -44,7 +45,7 @@ class SanityCheckIntegrationTests {
     @Before fun setUp() {
         val lifecycleState = LifecycleState.CONNECTING
         val capLifecycleState = CapLifecycle.NEGOTIATING
-        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
+        capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
         connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState)
 
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
@@ -76,6 +77,8 @@ class SanityCheckIntegrationTests {
     }
 
     @Test fun test_run_ImaginaryNet_RegistrationAndMOTD_ResultsInConnectedLifecycle_WithCorrectCAPs() {
+        capState.negotiate = setOf("multi-prefix")
+
         internalEventQueue.lines = queueOf(
                 "NOTICE AUTH :*** Processing connection to imaginary.bunnies.io",
                 "NOTICE AUTH :*** Looking up your hostname...",
