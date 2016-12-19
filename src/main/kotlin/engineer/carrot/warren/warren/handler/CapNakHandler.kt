@@ -7,7 +7,6 @@ import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.extension.cap.ICapManager
 import engineer.carrot.warren.warren.extension.sasl.SaslState
-import engineer.carrot.warren.warren.handler.helper.RegistrationHelper
 import engineer.carrot.warren.warren.loggerFor
 
 class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapNakMessage> {
@@ -32,11 +31,7 @@ class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: 
                 val remainingCaps = capState.negotiate.subtract(capState.accepted).subtract(capState.rejected)
                 LOGGER.trace("remaining caps to negotiate: $remainingCaps")
 
-                if (RegistrationHelper.shouldEndCapNegotiation(saslState, capState)) {
-                    RegistrationHelper.endCapNegotiation(sink, capState)
-                } else {
-                    LOGGER.trace("didn't think we should end the registration process, waiting")
-                }
+                capManager.onRegistrationStateChanged()
             }
 
             else -> LOGGER.trace("server NAKed caps but we don't think we're negotiating")

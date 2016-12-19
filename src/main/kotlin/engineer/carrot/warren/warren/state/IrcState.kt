@@ -17,11 +17,8 @@ class JoiningChannelsState(mappingState: CaseMappingState) : CaseInsensitiveName
 
 data class JoiningChannelState(override val name: String, val key: String? = null, var status: JoiningChannelLifecycle) : INamed {
     override fun toString(): String {
-        return "JoiningChannelState(name=$name, key=${if (key == null) {
-            "null"
-        } else {
-            "***"
-        }}, status=$status)"
+        val key = if (key == null) { "null" } else { "***" }
+        return "JoiningChannelState(name=$name, key=$key, status=$status)"
     }
 }
 
@@ -35,7 +32,7 @@ data class ChannelUserState(val prefix: Prefix, val account: String? = null, val
     override val name = prefix.nick
 }
 
-data class ConnectionState(val server: String, val port: Int, var nickname: String, val user: String, var lifecycle: LifecycleState,
+data class ConnectionState(val server: String, val port: Int, var nickname: String, val user: String, val password: String? = null, var lifecycle: LifecycleState,
                            var nickServ: NickServState = NickServState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null, channelJoinWaitSeconds = 5),
                            var lastPingOrPong: Long = 0)
 

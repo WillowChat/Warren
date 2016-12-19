@@ -1,16 +1,14 @@
 package engineer.carrot.warren.warren
 
-import com.nhaarman.mockito_kotlin.inOrder
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockito_kotlin.*
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.IKaleParsingStateDelegate
 import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.IrcMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
+import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventGenerator
 import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventQueue
@@ -20,14 +18,13 @@ import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005Handler
-import engineer.carrot.warren.warren.extension.sasl.AuthenticateHandler
-import engineer.carrot.warren.warren.extension.sasl.Rpl903Handler
-import engineer.carrot.warren.warren.extension.sasl.Rpl904Handler
-import engineer.carrot.warren.warren.extension.sasl.Rpl905Handler
+import engineer.carrot.warren.warren.helper.ISleeper
+import engineer.carrot.warren.warren.registration.IRegistrationManager
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.never
 
 class IrcRunnerTests {
 
@@ -35,6 +32,7 @@ class IrcRunnerTests {
     lateinit var connectionState: ConnectionState
     lateinit var channelModesState: ChannelModesState
     lateinit var userPrefixesState: UserPrefixesState
+    lateinit var channelsState: ChannelsState
 
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
     lateinit var mockInternalEventQueue: IWarrenInternalEventQueue
@@ -42,6 +40,8 @@ class IrcRunnerTests {
     lateinit var mockKale: MockKale
     lateinit var mockSink: IMessageSink
     lateinit var mockLineSource: ILineSource
+    lateinit var mockRegistrationManager: IRegistrationManager
+    lateinit var mockSleeper: ISleeper
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.DISCONNECTED
@@ -51,10 +51,12 @@ class IrcRunnerTests {
 
         userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
+
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
         val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState, caseMappingState)
-        val channelsState = ChannelsState(joining = JoiningChannelsState(caseMappingState), joined = JoinedChannelsState(caseMappingState))
+
+        channelsState = ChannelsState(joining = JoiningChannelsState(caseMappingState), joined = JoinedChannelsState(caseMappingState))
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
@@ -66,9 +68,12 @@ class IrcRunnerTests {
         mockSink = mock()
         mockLineSource = mock()
 
+        mockRegistrationManager = mock()
+        mockSleeper = mock()
+
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState)
+        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = mockRegistrationManager, sleeper = mockSleeper)
     }
 
     @Test fun test_run_RegistersBaseHandlers() {
@@ -109,14 +114,12 @@ class IrcRunnerTests {
         }
     }
 
-    @Test fun test_run_SendsRegistrationMessages() {
+    @Test fun test_run_startsRegistration() {
         whenever(mockSink.setUp()).thenReturn(true)
 
         runner.run()
 
-        val inOrder = inOrder(mockSink)
-        inOrder.verify(mockSink).write(NickMessage(nickname = connectionState.nickname))
-        inOrder.verify(mockSink).write(UserMessage(username = connectionState.nickname, mode = "8", realname = connectionState.nickname))
+        verify(mockRegistrationManager).startRegistration()
     }
 
     @Test fun test_modeTakesAParameter_TypeDAlwaysFalse() {
@@ -153,6 +156,82 @@ class IrcRunnerTests {
     @Test fun test_modeTakesAParameter_Unknown_NonPrefix_ReturnsFalse() {
         assertFalse(runner.modeTakesAParameter(isAdding = true, token = 'z'))
         assertFalse(runner.modeTakesAParameter(isAdding = false, token = 'z'))
+    }
+
+    // IRegistrationListener
+
+    @Test fun test_onRegistrationEnded_Connecting_NickservAuthOn_WithCredentials_SendsIdentifyMessage() {
+        connectionState.lifecycle = LifecycleState.CONNECTING
+        connectionState.nickServ.shouldAuth = true
+        connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
+
+        runner.onRegistrationEnded()
+
+        verify(mockSink).writeRaw("NICKSERV identify test-user test-password")
+    }
+
+    @Test fun test_onRegistrationEnded_Registering_NickservAuthOn_WithCredentials_SendsIdentifyMessage() {
+        connectionState.lifecycle = LifecycleState.REGISTERING
+        connectionState.nickServ.shouldAuth = true
+        connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
+
+        runner.onRegistrationEnded()
+
+        verify(mockSink).writeRaw("NICKSERV identify test-user test-password")
+    }
+
+    @Test fun test_onRegistrationEnded_AllSuccessful_WaitsBeforeJoiningChannels() {
+        connectionState.lifecycle = LifecycleState.REGISTERING
+        connectionState.nickServ.shouldAuth = true
+        connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
+
+        runner.onRegistrationEnded()
+
+        verify(mockSleeper).sleep(connectionState.nickServ.channelJoinWaitSeconds * 1000L)
+    }
+
+    @Test fun test_onRegistrationEnded_NickservAuthOn_NoCredentials_DoesNotWriteAnything() {
+        connectionState.lifecycle = LifecycleState.REGISTERING
+        connectionState.nickServ.shouldAuth = true
+        connectionState.nickServ.credentials = null
+
+        runner.onRegistrationEnded()
+
+        verify(mockSink, never()).writeRaw(any())
+    }
+
+    @Test fun test_onRegistrationEnded_AtLeastOneChannel_JoinsChannels() {
+        connectionState.lifecycle = LifecycleState.REGISTERING
+        channelsState.joining += JoiningChannelState("#test", status = JoiningChannelLifecycle.JOINING)
+        channelsState.joining += JoiningChannelState("#test2", key = "testpass", status = JoiningChannelLifecycle.JOINING)
+
+        runner.onRegistrationEnded()
+
+        inOrder(mockSink) {
+            verify(mockSink).write(JoinMessage(channels = listOf("#test")))
+            verify(mockSink).write(JoinMessage(channels = listOf("#test2"), keys = listOf("testpass")))
+        }
+    }
+
+    @Test fun test_onRegistrationEnded_NoChannelsToJoin_DoesNotWriteJoinMessages() {
+        connectionState.lifecycle = LifecycleState.REGISTERING
+        channelsState.joining.clear()
+
+        runner.onRegistrationEnded()
+
+        verify(mockSink, never()).write(any<JoinMessage>())
+    }
+
+    @Test fun test_onRegistrationEnded_SetsConnectionLifecycleToConnected() {
+        runner.onRegistrationEnded()
+
+        assertEquals(LifecycleState.CONNECTED, connectionState.lifecycle)
+    }
+
+    @Test fun test_onRegistrationEnded_FiresConnectionLifecycleEvent_WithConnected() {
+        runner.onRegistrationEnded()
+
+        verify(mockEventDispatcher).fire(ConnectionLifecycleEvent(LifecycleState.CONNECTED))
     }
 
 }
