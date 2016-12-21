@@ -19,6 +19,7 @@ buildscript {
     val buildscriptKotlinVersion = "1.1-M04"
 
     repositories {
+        maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
         gradleScriptKotlin()
         jcenter()
     }
@@ -62,6 +63,7 @@ compileJava {
 }
 
 repositories {
+    maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
     gradleScriptKotlin()
     mavenCentral()
     maven { setUrl("https://maven.hopper.bunnies.io") }
