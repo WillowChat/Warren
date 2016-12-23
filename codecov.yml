@@ -4,3 +4,4 @@ coverage:
   - **/*Event.kt
   - **/*State.kt
   - **/*Configuration.kt
+  - **/*Runner.kt

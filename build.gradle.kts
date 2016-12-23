@@ -51,6 +51,7 @@ jacocoTestReport.doFirst {
         exclude("**/*Event.*")
         exclude("**/*State.*")
         exclude("**/*Configuration.*")
+        exclude("**/*Runner.*")
     }
 
     jacocoTestReport.reports.xml.isEnabled = true
