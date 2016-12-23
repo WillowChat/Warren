@@ -16,6 +16,7 @@ import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.*
 import engineer.carrot.warren.warren.helper.ISleeper
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.registration.IRegistrationExtension
 import engineer.carrot.warren.warren.registration.IRegistrationListener
 import engineer.carrot.warren.warren.registration.IRegistrationManager
@@ -26,15 +27,15 @@ import engineer.carrot.warren.warren.state.IrcState
 import engineer.carrot.warren.warren.state.LifecycleState
 import kotlin.concurrent.thread
 
-interface IIrcRunner : IStateCapturing<IrcState> {
+interface IIrcConnection : IStateCapturing<IrcState> {
 
     fun run()
 
 }
 
-class IrcRunner(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, val startAsyncThreads: Boolean = true, initialCapState: CapState, initialSaslState: SaslState, private val registrationManager: IRegistrationManager, private val sleeper: ISleeper) : IIrcRunner, IKaleParsingStateDelegate, IRegistrationListener {
+class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, val startAsyncThreads: Boolean = true, initialCapState: CapState, initialSaslState: SaslState, private val registrationManager: IRegistrationManager, private val sleeper: ISleeper) : IIrcConnection, IKaleParsingStateDelegate, IRegistrationListener {
 
-    private val LOGGER = loggerFor<IrcRunner>()
+    private val LOGGER = loggerFor<IrcConnection>()
 
     var eventSink: IWarrenInternalEventSink = internalEventQueue
 

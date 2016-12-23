@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.extension.account_notify
 
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.extension.account_notify.AccountMessage
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 
 class AccountHandler(val channelsState: JoinedChannelsState) : IKaleHandler<AccountMessage> {

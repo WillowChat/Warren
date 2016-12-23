@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren.registration
 
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 
 interface IRegistrationManager {
 

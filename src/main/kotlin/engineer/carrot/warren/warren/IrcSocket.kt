@@ -3,6 +3,7 @@ package engineer.carrot.warren.warren
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.irc.message.IIrcMessageSerialiser
 import engineer.carrot.warren.warren.helper.ISleeper
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.ssl.WrappedSSLSocketFactory
 import okio.BufferedSink
 import okio.BufferedSource

@@ -3,7 +3,7 @@ package engineer.carrot.warren.warren.extension.extended_join
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.extension.extended_join.ExtendedJoinMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.ChannelsState
 

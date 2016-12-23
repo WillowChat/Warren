@@ -1,6 +1,6 @@
 package engineer.carrot.warren.warren.handler.rpl.Rpl005
 
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.state.ChannelTypesState
 
 interface IRpl005ChanTypesHandler {

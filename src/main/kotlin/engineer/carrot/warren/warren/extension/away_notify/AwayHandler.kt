@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.extension.away_notify
 
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.extension.away_notify.AwayMessage
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 
 class AwayHandler(val channelsState: JoinedChannelsState) : IKaleHandler<AwayMessage> {

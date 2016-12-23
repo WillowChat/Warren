@@ -5,7 +5,7 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.ModeMessage
 import engineer.carrot.warren.warren.event.ChannelModeEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.UserModeEvent
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.state.CaseMappingState
 import engineer.carrot.warren.warren.state.ChannelTypesState
 import engineer.carrot.warren.warren.state.JoinedChannelsState

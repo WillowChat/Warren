@@ -12,7 +12,7 @@ import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.CapAckHandler
 import engineer.carrot.warren.warren.handler.CapLsHandler
 import engineer.carrot.warren.warren.handler.CapNakHandler
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.registration.IRegistrationExtension
 import engineer.carrot.warren.warren.registration.IRegistrationManager
 import engineer.carrot.warren.warren.state.AuthLifecycle

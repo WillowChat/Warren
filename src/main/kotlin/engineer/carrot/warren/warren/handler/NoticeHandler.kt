@@ -2,7 +2,7 @@ package engineer.carrot.warren.warren.handler
 
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.NoticeMessage
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.state.ChannelTypesState
 
 class NoticeHandler(val channelTypesState: ChannelTypesState) : IKaleHandler<NoticeMessage> {

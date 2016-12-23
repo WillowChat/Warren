@@ -7,7 +7,7 @@ import engineer.carrot.warren.kale.Kale
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.ILineSource
 import engineer.carrot.warren.warren.IMessageSink
-import engineer.carrot.warren.warren.IrcRunner
+import engineer.carrot.warren.warren.IrcConnection
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.internal.*
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
@@ -22,14 +22,16 @@ import org.junit.Test
 import org.junit.Assert.*
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
+import kotlin.system.measureTimeMillis
 
 class SanityCheckIntegrationTests {
 
-    lateinit var runner: IrcRunner
+    lateinit var connection: IrcConnection
     lateinit var connectionState: ConnectionState
     lateinit var channelModesState: ChannelModesState
     lateinit var userPrefixesState: UserPrefixesState
     lateinit var capState: CapState
+    lateinit var channelsState: ChannelsState
 
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
     lateinit var mockSink: IMessageSink
@@ -53,7 +55,7 @@ class SanityCheckIntegrationTests {
         val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
         val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState, caseMappingState)
-        val channelsState = ChannelsState(joining = JoiningChannelsState(caseMappingState), joined = JoinedChannelsState(caseMappingState))
+        channelsState = ChannelsState(joining = JoiningChannelsState(caseMappingState), joined = JoinedChannelsState(caseMappingState))
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
@@ -71,13 +73,16 @@ class SanityCheckIntegrationTests {
 
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        runner = IrcRunner(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = mockSleeper)
+        connection = IrcConnection(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = mockSleeper)
 
-        registrationManager.listener = runner
+        registrationManager.listener = connection
     }
 
     @Test fun test_run_ImaginaryNet_RegistrationAndMOTD_ResultsInConnectedLifecycle_WithCorrectCAPs() {
         capState.negotiate = setOf("multi-prefix")
+
+        channelsState.joining += JoiningChannelState("#channel1", status = JoiningChannelLifecycle.JOINING)
+        channelsState.joining += JoiningChannelState("#channel2", status = JoiningChannelLifecycle.JOINING)
 
         internalEventQueue.lines = queueOf(
                 "NOTICE AUTH :*** Processing connection to imaginary.bunnies.io",
@@ -104,15 +109,17 @@ class SanityCheckIntegrationTests {
                 ":imaginary.bunnies.io 250 carrot-warren :Highest connection count: 21 (19 clients) (1139 connections received)",
                 ":imaginary.bunnies.io 375 carrot-warren :- imaginary.bunnies.io Message of the Day -",
                 ":imaginary.bunnies.io 372 carrot-warren :-  no motd",
-                ":imaginary.bunnies.io 376 carrot-warren :End of /MOTD command."
+                ":imaginary.bunnies.io 376 carrot-warren :End of /MOTD command.",
+                ":test-nick JOIN #channel1",
+                ":test-nick JOIN #channel2",
+                ":someone JOIN #channel1",
+                ":someone JOIN #channel2"
         )
 
         whenever(mockSink.setUp()).thenReturn(true)
 
-        runner.run()
-
-        assertEquals(LifecycleState.CONNECTED, runner.state.connection.lifecycle)
-        assertEquals(setOf("multi-prefix"), runner.caps.state.accepted)
+        assertEquals(LifecycleState.CONNECTED, connection.state.connection.lifecycle)
+        assertEquals(setOf("multi-prefix"), connection.caps.state.accepted)
     }
 
 }

@@ -1,7 +1,7 @@
 package engineer.carrot.warren.warren.handler.rpl.Rpl005
 
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.state.CaseMappingState
 
 interface IRpl005CaseMappingHandler {

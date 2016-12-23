@@ -5,7 +5,7 @@ import engineer.carrot.warren.warren.ILineSource
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.RawIncomingLineEvent
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import java.util.concurrent.LinkedBlockingQueue
 
 interface IWarrenInternalEvent {

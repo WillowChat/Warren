@@ -5,7 +5,7 @@ import engineer.carrot.warren.kale.irc.message.rfc1459.rpl.Rpl376Message
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.registration.IRegistrationExtension
 
 class Rpl376Handler(val sink: IMessageSink, val capState: CapState, val rfc1459RegistrationExtension: IRegistrationExtension, val capRegistrationExtension: IRegistrationExtension) : IKaleHandler<Rpl376Message> {

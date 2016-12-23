@@ -28,7 +28,7 @@ import org.mockito.Mockito.never
 
 class IrcRunnerTests {
 
-    lateinit var runner: IrcRunner
+    lateinit var connection: IrcConnection
     lateinit var connectionState: ConnectionState
     lateinit var channelModesState: ChannelModesState
     lateinit var userPrefixesState: UserPrefixesState
@@ -73,13 +73,13 @@ class IrcRunnerTests {
 
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        runner = IrcRunner(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = mockRegistrationManager, sleeper = mockSleeper)
+        connection = IrcConnection(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = mockRegistrationManager, sleeper = mockSleeper)
     }
 
     @Test fun test_run_RegistersBaseHandlers() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        runner.run()
+        connection.run()
 
         assertEquals(22, mockKale.spyRegisterHandlers.size)
 
@@ -117,7 +117,7 @@ class IrcRunnerTests {
     @Test fun test_run_startsRegistration() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        runner.run()
+        connection.run()
 
         verify(mockRegistrationManager).startRegistration()
     }
@@ -125,37 +125,37 @@ class IrcRunnerTests {
     @Test fun test_modeTakesAParameter_TypeDAlwaysFalse() {
         channelModesState.typeD = setOf('x')
 
-        assertFalse(runner.modeTakesAParameter(isAdding = true, token = 'x'))
-        assertFalse(runner.modeTakesAParameter(isAdding = false, token = 'x'))
+        assertFalse(connection.modeTakesAParameter(isAdding = true, token = 'x'))
+        assertFalse(connection.modeTakesAParameter(isAdding = false, token = 'x'))
     }
 
     @Test fun test_modeTakesAParameter_TypeABAlwaysTrue() {
         channelModesState.typeA = setOf('x')
         channelModesState.typeB = setOf('y')
 
-        assertTrue(runner.modeTakesAParameter(isAdding = true, token = 'x'))
-        assertTrue(runner.modeTakesAParameter(isAdding = false, token = 'x'))
-        assertTrue(runner.modeTakesAParameter(isAdding = true, token = 'y'))
-        assertTrue(runner.modeTakesAParameter(isAdding = false, token = 'y'))
+        assertTrue(connection.modeTakesAParameter(isAdding = true, token = 'x'))
+        assertTrue(connection.modeTakesAParameter(isAdding = false, token = 'x'))
+        assertTrue(connection.modeTakesAParameter(isAdding = true, token = 'y'))
+        assertTrue(connection.modeTakesAParameter(isAdding = false, token = 'y'))
     }
 
     @Test fun test_modeTakesAParameter_TypeCTrueIfAdding() {
         channelModesState.typeC = setOf('c')
 
-        assertTrue(runner.modeTakesAParameter(isAdding = true, token = 'c'))
-        assertFalse(runner.modeTakesAParameter(isAdding = false, token = 'c'))
+        assertTrue(connection.modeTakesAParameter(isAdding = true, token = 'c'))
+        assertFalse(connection.modeTakesAParameter(isAdding = false, token = 'c'))
     }
 
     @Test fun test_modeTakesAParameter_PrefixRelated_ReturnsTrue() {
         userPrefixesState.prefixesToModes = mapOf('+' to 'v')
 
-        assertTrue(runner.modeTakesAParameter(isAdding = true, token = 'v'))
-        assertTrue(runner.modeTakesAParameter(isAdding = false, token = 'v'))
+        assertTrue(connection.modeTakesAParameter(isAdding = true, token = 'v'))
+        assertTrue(connection.modeTakesAParameter(isAdding = false, token = 'v'))
     }
 
     @Test fun test_modeTakesAParameter_Unknown_NonPrefix_ReturnsFalse() {
-        assertFalse(runner.modeTakesAParameter(isAdding = true, token = 'z'))
-        assertFalse(runner.modeTakesAParameter(isAdding = false, token = 'z'))
+        assertFalse(connection.modeTakesAParameter(isAdding = true, token = 'z'))
+        assertFalse(connection.modeTakesAParameter(isAdding = false, token = 'z'))
     }
 
     // IRegistrationListener
@@ -165,7 +165,7 @@ class IrcRunnerTests {
         connectionState.nickServ.shouldAuth = true
         connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
 
-        runner.onRegistrationEnded()
+        connection.onRegistrationEnded()
 
         verify(mockSink).writeRaw("NICKSERV identify test-user test-password")
     }
@@ -175,7 +175,7 @@ class IrcRunnerTests {
         connectionState.nickServ.shouldAuth = true
         connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
 
-        runner.onRegistrationEnded()
+        connection.onRegistrationEnded()
 
         verify(mockSink).writeRaw("NICKSERV identify test-user test-password")
     }
@@ -185,7 +185,7 @@ class IrcRunnerTests {
         connectionState.nickServ.shouldAuth = true
         connectionState.nickServ.credentials = AuthCredentials(account = "test-user", password = "test-password")
 
-        runner.onRegistrationEnded()
+        connection.onRegistrationEnded()
 
         verify(mockSleeper).sleep(connectionState.nickServ.channelJoinWaitSeconds * 1000L)
     }
@@ -195,7 +195,7 @@ class IrcRunnerTests {
         connectionState.nickServ.shouldAuth = true
         connectionState.nickServ.credentials = null
 
-        runner.onRegistrationEnded()
+        connection.onRegistrationEnded()
 
         verify(mockSink, never()).writeRaw(any())
     }
@@ -205,7 +205,7 @@ class IrcRunnerTests {
         channelsState.joining += JoiningChannelState("#test", status = JoiningChannelLifecycle.JOINING)
         channelsState.joining += JoiningChannelState("#test2", key = "testpass", status = JoiningChannelLifecycle.JOINING)
 
-        runner.onRegistrationEnded()
+        connection.onRegistrationEnded()
 
         inOrder(mockSink) {
             verify(mockSink).write(JoinMessage(channels = listOf("#test")))
@@ -217,19 +217,19 @@ class IrcRunnerTests {
         connectionState.lifecycle = LifecycleState.REGISTERING
         channelsState.joining.clear()
 
-        runner.onRegistrationEnded()
+        connection.onRegistrationEnded()
 
         verify(mockSink, never()).write(any<JoinMessage>())
     }
 
     @Test fun test_onRegistrationEnded_SetsConnectionLifecycleToConnected() {
-        runner.onRegistrationEnded()
+        connection.onRegistrationEnded()
 
         assertEquals(LifecycleState.CONNECTED, connectionState.lifecycle)
     }
 
     @Test fun test_onRegistrationEnded_FiresConnectionLifecycleEvent_WithConnected() {
-        runner.onRegistrationEnded()
+        connection.onRegistrationEnded()
 
         verify(mockEventDispatcher).fire(ConnectionLifecycleEvent(LifecycleState.CONNECTED))
     }

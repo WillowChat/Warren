@@ -3,7 +3,7 @@ package engineer.carrot.warren.warren.handler
 import engineer.carrot.warren.kale.IKaleHandler
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.warren.event.*
-import engineer.carrot.warren.warren.loggerFor
+import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.state.ChannelTypesState
 import engineer.carrot.warren.warren.state.JoinedChannelsState
 
