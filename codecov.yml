@@ -5,3 +5,4 @@ coverage:
   - **/*State.kt
   - **/*Configuration.kt
   - **/*Runner.kt
+  - **/*Factory.kt
