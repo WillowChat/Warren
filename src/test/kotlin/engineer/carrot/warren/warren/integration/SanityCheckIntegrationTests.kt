@@ -9,20 +9,22 @@ import engineer.carrot.warren.warren.ILineSource
 import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.IrcConnection
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
-import engineer.carrot.warren.warren.event.internal.*
+import engineer.carrot.warren.warren.event.internal.IWarrenInternalEvent
+import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventGenerator
+import engineer.carrot.warren.warren.event.internal.IWarrenInternalEventQueue
+import engineer.carrot.warren.warren.event.internal.NewLineEvent
 import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.extension.sasl.SaslState
+import engineer.carrot.warren.warren.helper.IExecutionContext
 import engineer.carrot.warren.warren.helper.ISleeper
-import engineer.carrot.warren.warren.registration.IRegistrationManager
 import engineer.carrot.warren.warren.registration.RegistrationManager
 import engineer.carrot.warren.warren.state.*
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
-import kotlin.system.measureTimeMillis
 
 class SanityCheckIntegrationTests {
 
@@ -38,6 +40,8 @@ class SanityCheckIntegrationTests {
     lateinit var mockLineSource: ILineSource
     lateinit var mockNewLineGenerator: IWarrenInternalEventGenerator
     lateinit var mockSleeper: ISleeper
+    lateinit var mockPingExecutionContext: IExecutionContext
+    lateinit var mockLineExecutionContext: IExecutionContext
 
     lateinit var registrationManager: RegistrationManager
 
@@ -71,9 +75,12 @@ class SanityCheckIntegrationTests {
         mockLineSource = mock()
         mockSleeper = mock()
 
+        mockPingExecutionContext = mock()
+        mockLineExecutionContext = mock()
+
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        connection = IrcConnection(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = mockSleeper)
+        connection = IrcConnection(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = mockSleeper, pingGeneratorExecutionContext = mockPingExecutionContext, lineGeneratorExecutionContext = mockLineExecutionContext)
 
         registrationManager.listener = connection
     }

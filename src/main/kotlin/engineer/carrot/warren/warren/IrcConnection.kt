@@ -15,6 +15,7 @@ import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.*
+import engineer.carrot.warren.warren.helper.IExecutionContext
 import engineer.carrot.warren.warren.helper.ISleeper
 import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.registration.IRegistrationExtension
@@ -25,7 +26,6 @@ import engineer.carrot.warren.warren.state.AuthLifecycle
 import engineer.carrot.warren.warren.state.IStateCapturing
 import engineer.carrot.warren.warren.state.IrcState
 import engineer.carrot.warren.warren.state.LifecycleState
-import kotlin.concurrent.thread
 
 interface IIrcConnection : IStateCapturing<IrcState> {
 
@@ -33,7 +33,7 @@ interface IIrcConnection : IStateCapturing<IrcState> {
 
 }
 
-class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, val startAsyncThreads: Boolean = true, initialCapState: CapState, initialSaslState: SaslState, private val registrationManager: IRegistrationManager, private val sleeper: ISleeper) : IIrcConnection, IKaleParsingStateDelegate, IRegistrationListener {
+class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, initialCapState: CapState, initialSaslState: SaslState, private val registrationManager: IRegistrationManager, private val sleeper: ISleeper, private val pingGeneratorExecutionContext: IExecutionContext, private val lineGeneratorExecutionContext: IExecutionContext) : IIrcConnection, IKaleParsingStateDelegate, IRegistrationListener {
 
     private val LOGGER = loggerFor<IrcConnection>()
 
@@ -114,9 +114,9 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
 
         if (internalState.connection.nickServ.shouldAuth && internalState.connection.nickServ.lifecycle == AuthLifecycle.AUTHED) {
             LOGGER.debug("waiting ${internalState.connection.nickServ.channelJoinWaitSeconds} seconds before joining channels")
-            try {
-                sleeper.sleep(internalState.connection.nickServ.channelJoinWaitSeconds * 1000L)
-            } catch (exception: InterruptedException) {
+
+            val slept = sleeper.sleep(internalState.connection.nickServ.channelJoinWaitSeconds * 1000L)
+            if (!slept) {
                 LOGGER.warn("interrupted whilst waiting to join channels - bailing out")
                 return
             }
@@ -164,13 +164,11 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
     }
 
     private fun runEventLoop() {
-        val lineThread = createLineThread(internalEventQueue, internalState)
-        val pingThread = createPingThread(internalEventQueue, internalState, sink)
+        val lineGeneratorBlock = lineGeneratorBlock(internalEventQueue, internalState)
+        val pingGeneratorBlock = pingGeneratorBlock(internalEventQueue, internalState, sink)
 
-        if (startAsyncThreads) {
-            lineThread.start()
-            pingThread.start()
-        }
+        lineGeneratorExecutionContext.execute(lineGeneratorBlock)
+        pingGeneratorExecutionContext.execute(pingGeneratorBlock)
 
         eventLoop@ while (true) {
             val event = internalEventQueue.grab()
@@ -194,27 +192,16 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
             }
         }
 
-        if (lineThread.isAlive) {
-            LOGGER.trace("line thread still alive - interrupting and assuming it'll bail out")
-            lineThread.interrupt()
-        } else {
-            LOGGER.trace("line thread not active - not killing it")
-        }
-
-        if (pingThread.isAlive) {
-            LOGGER.trace("Ping thread still alive - interrupting and assuming it'll bail out")
-            pingThread.interrupt()
-        } else {
-            LOGGER.trace("ping thread not active - not killing it")
-        }
+        lineGeneratorExecutionContext.tearDown()
+        pingGeneratorExecutionContext.tearDown()
 
         sink.tearDown()
 
         LOGGER.info("ending")
     }
 
-    private fun createLineThread(eventQueue: IWarrenInternalEventQueue, state: IrcState): Thread {
-        val lineThread = thread(start = false, name = "line thread") {
+    private fun lineGeneratorBlock(eventQueue: IWarrenInternalEventQueue, state: IrcState): () -> Unit {
+        return {
             LOGGER.debug("new line thread starting up")
             newLineGenerator.run()
             LOGGER.warn("new line generator ended")
@@ -224,26 +211,14 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
                 state.connection.lifecycle = LifecycleState.DISCONNECTED
             }
         }
-
-        lineThread.uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, exception ->
-            LOGGER.warn("uncaught exception in line generator, forcing a disconnect: $exception")
-
-            eventQueue.clear()
-            eventQueue.add {
-                state.connection.lifecycle = LifecycleState.DISCONNECTED
-            }
-        }
-
-        return lineThread
     }
 
-    private fun createPingThread(eventQueue: IWarrenInternalEventQueue, state: IrcState, sink: IMessageSink): Thread {
-        return thread(start = false) {
-            pingLoop@ while (!Thread.currentThread().isInterrupted) {
-                try {
-                    sleeper.sleep(10 * 1000)
-                } catch(exception: InterruptedException) {
-                    LOGGER.info("ping thread interrupted - bailing out")
+    private fun pingGeneratorBlock(eventQueue: IWarrenInternalEventQueue, state: IrcState, sink: IMessageSink): () -> Unit {
+        return {
+            pingLoop@ while (true) {
+                val slept = sleeper.sleep(10 * 1000)
+                if (!slept) {
+                    LOGGER.info("ping sleep failed - bailing out")
                     break@pingLoop
                 }
 

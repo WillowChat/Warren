@@ -15,6 +15,7 @@ import engineer.carrot.warren.warren.extension.cap.CapLifecycle
 import engineer.carrot.warren.warren.extension.cap.CapState
 import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.helper.ThreadSleeper
+import engineer.carrot.warren.warren.helper.ThreadedExecutionContext
 import engineer.carrot.warren.warren.helper.loggerFor
 import engineer.carrot.warren.warren.registration.RegistrationManager
 import engineer.carrot.warren.warren.state.*
@@ -78,7 +79,10 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
 
         val registrationManager = RegistrationManager()
 
-        val runner = IrcConnection(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = ThreadSleeper)
+        val pingExecutionContext = ThreadedExecutionContext(name = "ping context")
+        val newLineExecutionContext = ThreadedExecutionContext(name = "new line context")
+
+        val runner = IrcConnection(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = ThreadSleeper, pingGeneratorExecutionContext = pingExecutionContext, lineGeneratorExecutionContext = newLineExecutionContext)
 
         registrationManager.listener = runner
 

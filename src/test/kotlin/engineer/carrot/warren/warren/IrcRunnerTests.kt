@@ -7,6 +7,7 @@ import engineer.carrot.warren.kale.IKaleParsingStateDelegate
 import engineer.carrot.warren.kale.irc.message.IMessage
 import engineer.carrot.warren.kale.irc.message.IrcMessage
 import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
+import engineer.carrot.warren.kale.irc.message.rfc1459.PingMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.event.ConnectionLifecycleEvent
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
@@ -18,7 +19,9 @@ import engineer.carrot.warren.warren.extension.sasl.SaslState
 import engineer.carrot.warren.warren.handler.*
 import engineer.carrot.warren.warren.handler.rpl.*
 import engineer.carrot.warren.warren.handler.rpl.Rpl005.Rpl005Handler
+import engineer.carrot.warren.warren.helper.IExecutionContext
 import engineer.carrot.warren.warren.helper.ISleeper
+import engineer.carrot.warren.warren.helper.SimpleBlock
 import engineer.carrot.warren.warren.registration.IRegistrationManager
 import engineer.carrot.warren.warren.state.*
 import org.junit.Assert.*
@@ -42,6 +45,8 @@ class IrcRunnerTests {
     lateinit var mockLineSource: ILineSource
     lateinit var mockRegistrationManager: IRegistrationManager
     lateinit var mockSleeper: ISleeper
+    lateinit var mockPingExecutionContext: IExecutionContext
+    lateinit var mockLineExecutionContext: IExecutionContext
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.DISCONNECTED
@@ -71,9 +76,12 @@ class IrcRunnerTests {
         mockRegistrationManager = mock()
         mockSleeper = mock()
 
+        mockPingExecutionContext = mock()
+        mockLineExecutionContext = mock()
+
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        connection = IrcConnection(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, startAsyncThreads = false, initialCapState = capState, initialSaslState = saslState, registrationManager = mockRegistrationManager, sleeper = mockSleeper)
+        connection = IrcConnection(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, initialCapState = capState, initialSaslState = saslState, registrationManager = mockRegistrationManager, sleeper = mockSleeper, pingGeneratorExecutionContext = mockPingExecutionContext, lineGeneratorExecutionContext = mockLineExecutionContext)
     }
 
     @Test fun test_run_RegistersBaseHandlers() {
@@ -120,6 +128,146 @@ class IrcRunnerTests {
         connection.run()
 
         verify(mockRegistrationManager).startRegistration()
+    }
+
+    @Test fun test_run_UsesPingExecutionContext() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
+        connection.run()
+
+        verify(mockPingExecutionContext, times(1)).execute(any())
+    }
+
+    @Test fun test_run_UsesLineExecutionContext() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
+        connection.run()
+
+        verify(mockLineExecutionContext, times(1)).execute(any())
+    }
+
+    @Test fun test_run_TearsDownSink() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
+        connection.run()
+
+        verify(mockSink).tearDown()
+    }
+
+    @Test fun test_run_TearsDownPingExecutionContext() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
+        connection.run()
+
+        verify(mockPingExecutionContext).tearDown()
+    }
+
+    @Test fun test_run_TearsDownLineExecutionContext() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
+        connection.run()
+
+        verify(mockLineExecutionContext).tearDown()
+    }
+
+    @Test fun test_run_PingBlock_SleepsForTenSecondsFirst() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
+        connection.run()
+
+        whenever(mockSleeper.sleep(any()))
+                .thenReturn(true)
+                .thenReturn(false)
+
+        captureAndInvokeBlockFromContext(mockPingExecutionContext)
+
+        inOrder(mockSleeper, mockInternalEventQueue) {
+            verify(mockSleeper).sleep(10 * 1000)
+            verify(mockInternalEventQueue).add(any<SimpleBlock>())
+            verify(mockSleeper).sleep(10 * 1000)
+        }
+    }
+
+    private fun captureAndInvokeBlockFromContext(mockContext: IExecutionContext) {
+        val blockCaptor = argumentCaptor<SimpleBlock>()
+        verify(mockContext, times(1)).execute(blockCaptor.capture())
+        val pingBlock = blockCaptor.firstValue
+
+        pingBlock.invoke()
+    }
+
+    @Test fun test_run_PingBlock_LifecycleNotConnected_DoesNotWriteAnything() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
+        connection.run()
+
+        whenever(mockSleeper.sleep(any()))
+                .thenReturn(true)
+                .thenReturn(false)
+
+        captureAndInvokeBlockFromContext(mockPingExecutionContext)
+        captureAndInvokeBlockFromEventQueue()
+
+        verify(mockSink, never()).write(any<PingMessage>())
+    }
+
+    private fun captureAndInvokeBlockFromEventQueue() {
+        val blockCaptor = argumentCaptor<SimpleBlock>()
+        verify(mockInternalEventQueue, times(1)).add(blockCaptor.capture())
+        val pingBlock = blockCaptor.firstValue
+
+        pingBlock.invoke()
+    }
+
+    @Test fun test_run_PingBlock_LifecycleConnected_ReadyForPing_SendsPing() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
+        connection.run()
+
+        // FIXME: Relies on internal implementation too much
+        whenever(mockSleeper.sleep(any())).then {
+            connection.onRegistrationEnded()
+
+            true
+        }.thenReturn(false)
+
+        captureAndInvokeBlockFromContext(mockPingExecutionContext)
+        captureAndInvokeBlockFromEventQueue()
+
+        verify(mockSink).write(any<PingMessage>())
+    }
+
+    @Test fun test_run_LineBlock_TellsNewLineGeneratorToRun() {
+        whenever(mockSink.setUp()).thenReturn(true)
+
+        connection.run()
+
+        captureAndInvokeBlockFromContext(mockLineExecutionContext)
+
+        verify(mockNewLineGenerator).run()
+    }
+
+    @Test fun test_run_LineBlock_NewLineGeneratorEnds_ClearsEventQueue() {
+        whenever(mockSink.setUp()).thenReturn(true)
+        whenever(mockNewLineGenerator.run()).then { /* NO-OP */ }
+
+        connection.run()
+
+        captureAndInvokeBlockFromContext(mockLineExecutionContext)
+
+        verify(mockInternalEventQueue).clear()
+    }
+
+    @Test fun test_run_LineBlock_NewLineGeneratorEnds_AddsEventToMakeLifecycledDisconnected() {
+        whenever(mockSink.setUp()).thenReturn(true)
+        whenever(mockNewLineGenerator.run()).then { /* NO-OP */ }
+
+        connection.run()
+
+        captureAndInvokeBlockFromContext(mockLineExecutionContext)
+        captureAndInvokeBlockFromEventQueue()
+
+        assertEquals(LifecycleState.DISCONNECTED, connection.state.connection.lifecycle)
     }
 
     @Test fun test_modeTakesAParameter_TypeDAlwaysFalse() {
