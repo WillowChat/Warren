@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import engineer.carrot.warren.kale.IKale
 import engineer.carrot.warren.kale.Kale
+import engineer.carrot.warren.kale.KaleRouter
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
 import engineer.carrot.warren.warren.ILineSource
 import engineer.carrot.warren.warren.IMessageSink
@@ -68,7 +69,7 @@ class SanityCheckIntegrationTests {
 
         registrationManager = RegistrationManager()
 
-        kale = Kale().addDefaultMessages()
+        kale = Kale(KaleRouter().useDefaults())
         internalEventQueue = IntegrationTestLineGenerator(queueOf(), kale)
 
         mockSink = mock()

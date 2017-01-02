@@ -11,6 +11,7 @@ import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
 val warrenVersion by project
+val kaleVersion by project
 val kotlinVersion by project
 
 val projectTitle = "Warren"
@@ -74,7 +75,7 @@ repositories {
 dependencies {
     compile(kotlinModule("stdlib", kotlinVersion as String))
     compile("org.slf4j:slf4j-api:1.7.21")
-    compile("engineer.carrot.warren.kale:Kale:1.2.0.2")
+    compile("engineer.carrot.warren.kale:Kale:$kaleVersion")
     compile("com.squareup.okio:okio:1.11.0")
 
     runtime("org.slf4j:slf4j-simple:1.7.21")

@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren
 
 import engineer.carrot.warren.kale.Kale
+import engineer.carrot.warren.kale.KaleRouter
 import engineer.carrot.warren.kale.irc.message.IrcMessageSerialiser
 import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
 import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
@@ -54,7 +55,7 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         val connectionState = ConnectionState(server = server.server, port = server.port, nickname = user.nickname, user = user.user,
                 lifecycle = lifecycleState, nickServ = nickServState, password = server.password)
 
-        val kale = Kale().addDefaultMessages()
+        val kale = Kale(KaleRouter().useDefaults())
         val serialiser = IrcMessageSerialiser
 
         val socket = IrcSocket(connectionState.server, connectionState.port, server.useTLS, kale, serialiser, server.fingerprints)
