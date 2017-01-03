@@ -58,7 +58,13 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         val kale = Kale(KaleRouter().useDefaults())
         val serialiser = IrcMessageSerialiser
 
-        val socket = IrcSocket(connectionState.server, connectionState.port, server.useTLS, kale, serialiser, server.fingerprints)
+        val socketFactory = if (server.useTLS) {
+            TLSSocketFactory(connectionState.server, connectionState.port, server.fingerprints)
+        } else {
+            PlaintextSocketFactory(connectionState.server, connectionState.port)
+        }
+
+        val socket = IrcSocket(socketFactory, kale, serialiser)
 
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
         val channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))

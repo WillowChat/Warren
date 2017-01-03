@@ -9,7 +9,9 @@ import okio.BufferedSink
 import okio.BufferedSource
 import okio.Okio
 import java.io.IOException
+import java.io.InputStream
 import java.io.InterruptedIOException
+import java.io.OutputStream
 import java.net.Socket
 import java.util.concurrent.TimeUnit
 
@@ -19,15 +21,47 @@ interface ILineSource {
 
 }
 
-class IrcSocket(val server: String, val port: Int, val useTLS: Boolean, val kale: IKale, val serialiser: IIrcMessageSerialiser, val fingerprints: Set<String>?) : IMessageSink, ILineSource {
+interface ISocketFactory {
 
-    private val LOGGER = loggerFor<IrcSocket>()
+    fun create(): Socket?
+    fun sink(stream: OutputStream): BufferedSink
+    fun source(stream: InputStream): BufferedSource
 
-    lateinit var socket: Socket
-    lateinit var source: BufferedSource
-    lateinit var sink: BufferedSink
+}
 
-    private fun createTLSSocket(): Socket? {
+abstract class SocketFactory : ISocketFactory {
+
+    override fun sink(stream: OutputStream): BufferedSink {
+        return Okio.buffer(Okio.sink(stream))
+    }
+
+    override fun source(stream: InputStream): BufferedSource {
+        return Okio.buffer(Okio.source(stream))
+    }
+
+}
+
+class PlaintextSocketFactory(val server: String, val port: Int) : SocketFactory() {
+
+    private val LOGGER = loggerFor<PlaintextSocketFactory>()
+
+    override fun create(): Socket? {
+        try {
+            return Socket(server, port)
+        } catch (exception: Exception) {
+            LOGGER.error("failed to connect using $server:$port $exception")
+        }
+
+        return null
+    }
+
+}
+
+class TLSSocketFactory(val server: String, val port: Int, val fingerprints: Set<String>?) : SocketFactory() {
+
+    private val LOGGER = loggerFor<TLSSocketFactory>()
+
+    override fun create(): Socket? {
         val socketFactory = WrappedSSLSocketFactory(fingerprints)
 
         try {
@@ -42,23 +76,18 @@ class IrcSocket(val server: String, val port: Int, val useTLS: Boolean, val kale
         return null
     }
 
-    private fun createPlaintextSocket(): Socket? {
-        try {
-            return Socket(server, port)
-        } catch (exception: Exception) {
-            LOGGER.error("failed to connect using $server:$port $exception")
-        }
+}
 
-        return null
-    }
+class IrcSocket(val socketFactory: ISocketFactory, val kale: IKale, val serialiser: IIrcMessageSerialiser) : IMessageSink, ILineSource {
+
+    private val LOGGER = loggerFor<IrcSocket>()
+
+    private lateinit var socket: Socket
+    private lateinit var source: BufferedSource
+    private lateinit var sink: BufferedSink
 
     override fun setUp(): Boolean {
-        val rawSocket = if (useTLS) {
-            createTLSSocket()
-        } else {
-            LOGGER.warn("making a plaintext socket for connection to $server:$port - use TLS on port 6697 if the server supports it")
-            createPlaintextSocket()
-        }
+        val rawSocket = socketFactory.create()
 
         if (rawSocket == null) {
             LOGGER.error("failed to set up socket, bailing")
@@ -67,8 +96,8 @@ class IrcSocket(val server: String, val port: Int, val useTLS: Boolean, val kale
 
         socket = rawSocket
 
-        sink = Okio.buffer(Okio.sink(socket.outputStream))
-        source = Okio.buffer(Okio.source(socket.inputStream))
+        sink = socketFactory.sink(socket.outputStream)
+        source = socketFactory.source(socket.inputStream)
 
         source.timeout().timeout(5, TimeUnit.SECONDS)
 
@@ -83,13 +112,11 @@ class IrcSocket(val server: String, val port: Int, val useTLS: Boolean, val kale
         val line = try {
             source.readUtf8LineStrict()
         } catch (exception: IOException) {
-            LOGGER.warn("exception waiting for line: $exception")
-            return null
-        } catch (exception: InterruptedIOException) {
-            LOGGER.warn("process wait interrupted, bailing out")
+            LOGGER.warn("some type of IOException, bailing out")
             tearDown()
             return null
         }
+
 
         LOGGER.trace(">> $line")
 
