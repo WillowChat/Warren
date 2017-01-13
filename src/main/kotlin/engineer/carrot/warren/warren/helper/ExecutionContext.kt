@@ -1,7 +1,5 @@
 package engineer.carrot.warren.warren.helper
 
-import kotlin.concurrent.thread
-
 interface IExecutionContext {
 
     fun execute(block: () -> Unit)
@@ -11,25 +9,29 @@ interface IExecutionContext {
 
 typealias SimpleBlock = () -> Unit
 
-class ThreadedExecutionContext(private val name: String): IExecutionContext {
+class ThreadedExecutionContext(private val name: String, private val threadFactory: IThreadFactory = ThreadFactory()): IExecutionContext {
 
     private val LOGGER = loggerFor<ThreadedExecutionContext>()
-    private var currentThread: Thread? = null
+    private var currentThread: IWarrenThread? = null
+    private val threadLock = Any()
 
     override fun execute(block: SimpleBlock) {
         if (currentThread != null) {
             throw RuntimeException("tried to execute block without tearing down first")
         }
 
-        val threadedBlock = thread(start = false, name = name) {
-            block()
-        }
+        synchronized(threadLock) {
+            val thread = threadFactory.create(block, name)
+            thread.start()
 
-        threadedBlock.start()
+            currentThread = thread
+        }
     }
 
     override fun tearDown() {
-        val thread = currentThread ?: return
+        val thread = synchronized(threadLock) {
+            currentThread
+        } ?: return
 
         if (thread.isAlive) {
             LOGGER.debug("interrupting $name")
@@ -41,7 +43,7 @@ class ThreadedExecutionContext(private val name: String): IExecutionContext {
 
 }
 
-class ImmediateExecutionContext: IExecutionContext {
+internal class ImmediateExecutionContext: IExecutionContext {
 
     override fun execute(block: () -> Unit) {
         block()
@@ -49,7 +51,7 @@ class ImmediateExecutionContext: IExecutionContext {
 
 }
 
-class NoOpExecutionContext: IExecutionContext {
+internal class NoOpExecutionContext: IExecutionContext {
 
     override fun execute(block: () -> Unit) {
         // NO-OP
