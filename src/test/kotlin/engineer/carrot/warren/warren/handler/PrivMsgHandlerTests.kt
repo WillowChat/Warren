@@ -39,6 +39,15 @@ class PrivMsgHandlerTests {
     }
 
     @Test fun test_handle_ChannelMessage_NotInChannel_DoesNothing() {
+        val channel = emptyChannel("&channel")
+
+        joinedChannelsState += channel
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&notInChannel", message = "a test message"), mapOf())
+
+        verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
+    }
+
+    @Test fun test_handle_ChannelMessage_MissingUser_DoesNothing() {
         handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&notInChannel", message = "a test message"), mapOf())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
@@ -67,10 +76,27 @@ class PrivMsgHandlerTests {
         verify(mockEventDispatcher).fire(ChannelActionEvent(user = generateUser("someone"), channel = channel, message = "an action"))
     }
 
+    @Test fun test_handle_ChannelMessage_UnknownCtcp_DoesNotFireEvent() {
+        val channel = emptyChannel("&channel")
+        channel.users += generateUser("someone")
+
+        joinedChannelsState += channel
+
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "${CharacterCodes.CTCP}UNKNOWN ${CharacterCodes.CTCP}"), mapOf())
+
+        verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
+    }
+
     @Test fun test_handle_PrivateMessage_Action_FiresEvent() {
         handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not a channel", message = "${CharacterCodes.CTCP}ACTION an action${CharacterCodes.CTCP}"), mapOf())
 
         verify(mockEventDispatcher).fire(PrivateActionEvent(user = Prefix(nick = "someone"), message = "an action"))
+    }
+
+    @Test fun test_handle_PrivateMessage_UnknownCtcp_DoesNotFireEvent() {
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not a channel", message = "${CharacterCodes.CTCP}UNKNOWN ${CharacterCodes.CTCP}"), mapOf())
+
+        verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
 }
