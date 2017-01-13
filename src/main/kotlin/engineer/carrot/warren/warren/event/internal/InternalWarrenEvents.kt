@@ -6,6 +6,8 @@ import engineer.carrot.warren.warren.IMessageSink
 import engineer.carrot.warren.warren.event.IWarrenEventDispatcher
 import engineer.carrot.warren.warren.event.RawIncomingLineEvent
 import engineer.carrot.warren.warren.helper.loggerFor
+import java.util.*
+import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 
 interface IWarrenInternalEvent {
@@ -33,9 +35,7 @@ interface IWarrenInternalEventQueue : IWarrenInternalEventSource, IWarrenInterna
 
 }
 
-class WarrenInternalEventQueue : IWarrenInternalEventQueue {
-
-    private val queue = LinkedBlockingQueue<IWarrenInternalEvent>(100)
+class WarrenInternalEventQueue(private val queue: BlockingQueue<IWarrenInternalEvent> = LinkedBlockingQueue<IWarrenInternalEvent>(100)) : IWarrenInternalEventQueue {
 
     override fun add(event: IWarrenInternalEvent) {
         queue.add(event)
