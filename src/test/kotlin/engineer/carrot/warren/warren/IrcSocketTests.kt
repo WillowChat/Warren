@@ -1,6 +1,7 @@
 package engineer.carrot.warren.warren
 
 import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.inOrder
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import engineer.carrot.warren.kale.IKale
@@ -18,7 +19,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
 import java.util.concurrent.TimeUnit
-import com.nhaarman.mockito_kotlin.inOrder
 
 class IrcSocketTests {
 
