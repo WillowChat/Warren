@@ -1,7 +1,5 @@
 package engineer.carrot.warren.warren.event
 
-import engineer.carrot.warren.kale.irc.prefix.Prefix
-import engineer.carrot.warren.warren.state.*
 import kotlin.reflect.KClass
 
 interface IEventListener<in T> {
@@ -39,13 +37,9 @@ interface IWarrenEventDispatcher {
 }
 
 class WarrenEventDispatcher : IWarrenEventDispatcher {
-    private val onAnythingListeners: IEventListenersWrapper<Any>
+    private val onAnythingListeners: IEventListenersWrapper<Any> = EventListenersWrapper<Any>()
 
     private var eventToListenersMap = mutableMapOf<Class<*>, IEventListenersWrapper<*>>()
-
-    init {
-        onAnythingListeners = EventListenersWrapper<Any>()
-    }
 
     override fun <T : IWarrenEvent> fire(event: T) {
         onAnythingListeners.fireToAll(event)
@@ -72,27 +66,5 @@ class WarrenEventDispatcher : IWarrenEventDispatcher {
         eventToListenersMap[eventClass.java] = newWrapper
 
         return newWrapper
-    }
-}
-
-object WarrenEventDispatcherRunner {
-    @JvmStatic fun main(args: Array<String>) {
-        val eventDispatcher = WarrenEventDispatcher()
-
-        eventDispatcher.onAnything {
-            println("anything listener: $it")
-        }
-
-        eventDispatcher.on(ChannelMessageEvent::class) {
-            println("channel message listener 1: $it")
-        }
-
-        eventDispatcher.on(PrivateMessageEvent::class) {
-            println("private message listener 2: $it")
-        }
-
-        eventDispatcher.fire(ChannelMessageEvent(user = generateUser("someone"), channel = emptyChannel("#channel"), message = "something"))
-        eventDispatcher.fire(PrivateMessageEvent(user = Prefix(nick = "someone"), message = "something"))
-        eventDispatcher.fire(ConnectionLifecycleEvent(lifecycle = LifecycleState.CONNECTED))
     }
 }
