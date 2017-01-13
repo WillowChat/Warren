@@ -6,3 +6,4 @@ coverage:
   - **/*Configuration.kt
   - **/*Runner.kt
   - **/*Factory.kt
+  - **/*Sleeper.kt
