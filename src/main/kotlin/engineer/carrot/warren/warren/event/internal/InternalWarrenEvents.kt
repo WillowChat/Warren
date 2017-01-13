@@ -63,7 +63,7 @@ class WarrenInternalEventQueue(private val queue: BlockingQueue<IWarrenInternalE
 
 }
 
-class NewLineEvent(val line: String, val kale: IKale) : IWarrenInternalEvent {
+data class NewLineEvent(val line: String, val kale: IKale) : IWarrenInternalEvent {
 
     override fun execute() {
         kale.process(line)
@@ -71,7 +71,7 @@ class NewLineEvent(val line: String, val kale: IKale) : IWarrenInternalEvent {
 
 }
 
-class SendSomethingEvent(val message: Any, val sink: IMessageSink) : IWarrenInternalEvent {
+data class SendSomethingEvent(val message: Any, val sink: IMessageSink) : IWarrenInternalEvent {
 
     override fun execute() {
         sink.write(message)
@@ -85,7 +85,7 @@ interface IWarrenInternalEventGenerator {
 
 }
 
-class NewLineWarrenEventGenerator(val queue: IWarrenInternalEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher?) : IWarrenInternalEventGenerator {
+class NewLineWarrenEventGenerator(val queue: IWarrenInternalEventQueue, val kale: IKale, val lineSource: ILineSource, val fireIncomingLineEvent: Boolean, val warrenEventDispatcher: IWarrenEventDispatcher) : IWarrenInternalEventGenerator {
 
     private val LOGGER = loggerFor<NewLineWarrenEventGenerator>()
 
@@ -98,7 +98,7 @@ class NewLineWarrenEventGenerator(val queue: IWarrenInternalEventQueue, val kale
             } else {
                 LOGGER.trace("added to queue: $line")
 
-                if (fireIncomingLineEvent && warrenEventDispatcher != null) {
+                if (fireIncomingLineEvent) {
                     warrenEventDispatcher.fire(RawIncomingLineEvent(line = line))
                 }
 
