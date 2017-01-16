@@ -2,11 +2,11 @@
 
 Kotlin (JVM targeted), unit tested, IRC v3.2 state management and observing. Made for personal use, and open sourced. Intended to provide the tools needed to make IRC related software, like bridges and bots.
 
-[Kale](https://github.com/CarrotCodes/Kale) is the parsing and serialising counterpart.
+[Kale](https://github.com/WillowChat/Kale) is the parsing and serialising counterpart.
 
-[Thump](https://github.com/CarrotCodes/Thump) is the primary upstream project - a bridge that lets people chat between Minecraft and IRC whilst they play.
+[Thump](https://github.com/WillowChat/Thump) is the primary upstream project - a bridge that lets people chat between Minecraft and IRC whilst they play.
 
-[![codecov](https://codecov.io/gh/CarrotCodes/Warren/branch/develop/graph/badge.svg)](https://codecov.io/gh/CarrotCodes/Warren)
+[![codecov](https://codecov.io/gh/WillowChat/Warren/branch/develop/graph/badge.svg)](https://codecov.io/gh/WillowChat/Warren)
 
 ## Features
 
@@ -16,11 +16,11 @@ Warren and Kale have a few interesting features:
 * Both parsing and state management are verified by hundreds of unit tests
 * Messages, and state handlers, are individually encapsulated
 
-Planned releases (and their features) are tracked in [Projects](https://github.com/CarrotCodes/Warren/projects).
+Planned releases (and their features) are tracked in [Projects](https://github.com/WillowChat/Warren/projects).
 
 ## Example usage
 
-The project includes a simple [example runner](https://github.com/CarrotCodes/Warren/blob/develop/src/main/kotlin/engineer/carrot/warren/warren/WarrenRunner.kt) that prints out events as they happen, logs in using SASL and replies to me saying `rabbit party` in a channel.
+The project includes a simple [example runner](https://github.com/WillowChat/Warren/blob/develop/src/main/kotlin/engineer/carrot/warren/warren/WarrenRunner.kt) that prints out events as they happen, logs in using SASL and replies to me saying `rabbit party` in a channel.
 
 If you're interested in more complex usage, come talk to me on IRC: #carrot on [ImaginaryNet](http://imaginarynet.uk/)
 
