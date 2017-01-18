@@ -107,12 +107,12 @@ val branchAddition = if(project.hasProperty("BRANCH")) {
 }
 
 version = "$warrenVersion$buildNumberAddition$branchAddition"
-group = "engineer.carrot.warren.warren"
+group = "chat.willow.warren"
 project.setProperty("archivesBaseName", projectTitle)
 
 shadowJar {
     mergeServiceFiles()
-    relocate("kotlin", "engineer.carrot.warren.warren.repack.kotlin")
+    relocate("kotlin", "chat.willow.warren.repack.kotlin")
     exclude("META-INF/*.DSA")
     exclude("META-INF/*.RSA")
 }
