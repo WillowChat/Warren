@@ -1,7 +1,7 @@
 package chat.willow.warren.handler.rpl
 
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.rfc1459.rpl.Rpl376Message
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.rfc1459.rpl.Rpl376Message
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState

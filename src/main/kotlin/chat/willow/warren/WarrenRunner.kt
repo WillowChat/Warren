@@ -1,10 +1,10 @@
 package chat.willow.warren
 
-import engineer.carrot.warren.kale.Kale
-import engineer.carrot.warren.kale.KaleRouter
-import engineer.carrot.warren.kale.irc.message.IrcMessageSerialiser
-import engineer.carrot.warren.kale.irc.message.rfc1459.PrivMsgMessage
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.Kale
+import chat.willow.kale.KaleRouter
+import chat.willow.kale.irc.message.IrcMessageSerialiser
+import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
+import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.event.ChannelMessageEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.WarrenEventDispatcher

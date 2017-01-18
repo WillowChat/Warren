@@ -4,9 +4,9 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.inOrder
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
-import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.PassMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
+import chat.willow.kale.irc.message.rfc1459.NickMessage
+import chat.willow.kale.irc.message.rfc1459.PassMessage
+import chat.willow.kale.irc.message.rfc1459.UserMessage
 import chat.willow.warren.IMessageSink
 import org.junit.Before
 import org.junit.Test

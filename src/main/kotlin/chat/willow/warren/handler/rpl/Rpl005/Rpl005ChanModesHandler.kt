@@ -1,6 +1,6 @@
 package chat.willow.warren.handler.rpl.Rpl005
 
-import engineer.carrot.warren.kale.irc.CharacterCodes
+import chat.willow.kale.irc.CharacterCodes
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.ChannelModesState
 

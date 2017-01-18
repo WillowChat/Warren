@@ -3,7 +3,7 @@ package chat.willow.warren.extension.sasl
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
-import engineer.carrot.warren.kale.IKale
+import chat.willow.kale.IKale
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState

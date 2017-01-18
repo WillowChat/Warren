@@ -1,6 +1,6 @@
 package chat.willow.warren.extension.account_notify
 
-import engineer.carrot.warren.kale.IKale
+import chat.willow.kale.IKale
 import chat.willow.warren.extension.cap.ICapExtension
 import chat.willow.warren.state.JoinedChannelsState
 

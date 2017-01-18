@@ -4,10 +4,10 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
-import engineer.carrot.warren.kale.IKale
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.IKale
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.rfc1459.JoinMessage
+import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.state.*
 import org.junit.Before
 import org.junit.Test

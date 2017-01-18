@@ -1,7 +1,7 @@
 package chat.willow.warren.handler
 
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.rfc1459.QuitMessage
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.rfc1459.QuitMessage
 import chat.willow.warren.event.ConnectionLifecycleEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.helper.loggerFor

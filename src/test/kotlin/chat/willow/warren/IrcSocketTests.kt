@@ -6,9 +6,9 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.inOrder
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
-import engineer.carrot.warren.kale.IKale
-import engineer.carrot.warren.kale.irc.message.IIrcMessageSerialiser
-import engineer.carrot.warren.kale.irc.message.IrcMessage
+import chat.willow.kale.IKale
+import chat.willow.kale.irc.message.IIrcMessageSerialiser
+import chat.willow.kale.irc.message.IrcMessage
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.Timeout

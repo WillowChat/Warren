@@ -3,8 +3,8 @@ package chat.willow.warren.extension.away_notify
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
-import engineer.carrot.warren.kale.IKale
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.IKale
+import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.JoinedChannelsState
 import org.junit.Before

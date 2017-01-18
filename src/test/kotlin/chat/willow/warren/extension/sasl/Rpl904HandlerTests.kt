@@ -4,10 +4,10 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
-import engineer.carrot.warren.kale.irc.message.IMessage
-import engineer.carrot.warren.kale.irc.message.extension.cap.CapEndMessage
-import engineer.carrot.warren.kale.irc.message.extension.sasl.Rpl903Message
-import engineer.carrot.warren.kale.irc.message.extension.sasl.Rpl904Message
+import chat.willow.kale.irc.message.IMessage
+import chat.willow.kale.irc.message.extension.cap.CapEndMessage
+import chat.willow.kale.irc.message.extension.sasl.Rpl903Message
+import chat.willow.kale.irc.message.extension.sasl.Rpl904Message
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState

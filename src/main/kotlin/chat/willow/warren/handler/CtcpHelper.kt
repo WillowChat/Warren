@@ -1,6 +1,6 @@
 package chat.willow.warren.handler
 
-import engineer.carrot.warren.kale.irc.CharacterCodes
+import chat.willow.kale.irc.CharacterCodes
 
 enum class CtcpEnum {
     NONE,

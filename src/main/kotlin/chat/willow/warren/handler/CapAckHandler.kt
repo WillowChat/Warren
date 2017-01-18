@@ -1,8 +1,8 @@
 package chat.willow.warren.handler
 
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.extension.cap.CapAckMessage
-import engineer.carrot.warren.kale.irc.message.extension.sasl.AuthenticateMessage
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.extension.cap.CapAckMessage
+import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState

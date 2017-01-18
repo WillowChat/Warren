@@ -1,8 +1,8 @@
 package chat.willow.warren.handler
 
-import engineer.carrot.warren.kale.irc.message.rfc1459.PartMessage
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
-import engineer.carrot.warren.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.message.rfc1459.PartMessage
+import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before

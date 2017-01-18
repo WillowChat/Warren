@@ -70,13 +70,13 @@ repositories {
     maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
     gradleScriptKotlin()
     mavenCentral()
-    maven { setUrl("https://maven.hopper.bunnies.io") }
+    maven { setUrl("https://maven.ci.carrot.codes") }
 }
 
 dependencies {
     compile(kotlinModule("stdlib", kotlinVersion as String))
     compile("org.slf4j:slf4j-api:1.7.21")
-    compile("engineer.carrot.warren.kale:Kale:$kaleVersion")
+    compile("chat.willow.kale:Kale:$kaleVersion")
     compile("com.squareup.okio:okio:1.11.0")
 
     runtime("org.slf4j:slf4j-simple:1.7.21")

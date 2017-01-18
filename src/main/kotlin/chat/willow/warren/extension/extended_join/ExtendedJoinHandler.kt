@@ -1,8 +1,8 @@
 package chat.willow.warren.extension.extended_join
 
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.extension.extended_join.ExtendedJoinMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.extension.extended_join.ExtendedJoinMessage
+import chat.willow.kale.irc.message.rfc1459.JoinMessage
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.ChannelsState

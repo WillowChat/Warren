@@ -1,7 +1,7 @@
 package chat.willow.warren.handler
 
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.rfc1459.PongMessage
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.rfc1459.PongMessage
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.ConnectionState

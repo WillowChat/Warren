@@ -1,7 +1,7 @@
 package chat.willow.warren.handler.rpl
 
-import engineer.carrot.warren.kale.irc.message.rfc1459.rpl.Rpl473Message
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.message.rfc1459.rpl.Rpl473Message
+import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before

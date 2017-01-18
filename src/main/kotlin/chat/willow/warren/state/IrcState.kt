@@ -1,7 +1,7 @@
 package chat.willow.warren.state
 
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
-import engineer.carrot.warren.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.prefix.Prefix
 
 data class IrcState(val connection: ConnectionState, val parsing: ParsingState, val channels: ChannelsState)
 

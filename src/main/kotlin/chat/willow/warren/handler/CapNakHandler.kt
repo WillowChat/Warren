@@ -1,7 +1,7 @@
 package chat.willow.warren.handler
 
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.extension.cap.CapNakMessage
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.extension.cap.CapNakMessage
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState

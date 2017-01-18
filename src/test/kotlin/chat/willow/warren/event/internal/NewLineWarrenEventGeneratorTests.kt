@@ -3,7 +3,7 @@ package chat.willow.warren.event.internal
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
-import engineer.carrot.warren.kale.IKale
+import chat.willow.kale.IKale
 import chat.willow.warren.ILineSource
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.RawIncomingLineEvent

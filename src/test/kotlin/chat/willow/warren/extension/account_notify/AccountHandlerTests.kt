@@ -1,8 +1,8 @@
 package chat.willow.warren.extension.account_notify
 
-import engineer.carrot.warren.kale.irc.message.extension.account_notify.AccountMessage
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
-import engineer.carrot.warren.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.message.extension.account_notify.AccountMessage
+import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.warren.state.*
 import org.junit.Before
 import org.junit.Test

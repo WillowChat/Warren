@@ -1,7 +1,7 @@
 package chat.willow.warren.extension.account_notify
 
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.extension.account_notify.AccountMessage
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.extension.account_notify.AccountMessage
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.JoinedChannelsState
 

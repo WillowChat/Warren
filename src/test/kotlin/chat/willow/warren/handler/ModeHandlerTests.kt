@@ -4,9 +4,9 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
-import engineer.carrot.warren.kale.irc.message.rfc1459.ModeMessage
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
-import engineer.carrot.warren.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.message.rfc1459.ModeMessage
+import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.warren.event.ChannelModeEvent
 import chat.willow.warren.event.IWarrenEvent
 import chat.willow.warren.event.IWarrenEventDispatcher

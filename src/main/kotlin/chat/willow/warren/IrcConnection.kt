@@ -1,10 +1,9 @@
 package chat.willow.warren
 
-import chat.willow.warren.IMessageSink
-import engineer.carrot.warren.kale.IKale
-import engineer.carrot.warren.kale.IKaleParsingStateDelegate
-import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.PingMessage
+import chat.willow.kale.IKale
+import chat.willow.kale.IKaleParsingStateDelegate
+import chat.willow.kale.irc.message.rfc1459.JoinMessage
+import chat.willow.kale.irc.message.rfc1459.PingMessage
 import chat.willow.warren.event.ConnectionLifecycleEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.internal.IWarrenInternalEventGenerator

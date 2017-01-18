@@ -1,6 +1,6 @@
 package chat.willow.warren.handler.rpl.Rpl005
 
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.ChannelUsersState
 import chat.willow.warren.state.JoinedChannelsState

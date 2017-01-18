@@ -1,8 +1,8 @@
 package chat.willow.warren
 
 import chat.willow.warren.IMessageSink
-import engineer.carrot.warren.kale.IKale
-import engineer.carrot.warren.kale.irc.message.IIrcMessageSerialiser
+import chat.willow.kale.IKale
+import chat.willow.kale.irc.message.IIrcMessageSerialiser
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.ssl.WrappedSSLSocketFactory
 import okio.BufferedSink

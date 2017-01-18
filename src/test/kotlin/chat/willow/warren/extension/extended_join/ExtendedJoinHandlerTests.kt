@@ -2,11 +2,11 @@ package chat.willow.warren.extension.extended_join
 
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.extension.extended_join.ExtendedJoinMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
-import engineer.carrot.warren.kale.irc.prefix.Prefix
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.extension.extended_join.ExtendedJoinMessage
+import chat.willow.kale.irc.message.rfc1459.JoinMessage
+import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.warren.state.*
 import org.junit.Assert.*
 import org.junit.Before

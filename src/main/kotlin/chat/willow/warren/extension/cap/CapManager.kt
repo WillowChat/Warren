@@ -1,8 +1,8 @@
 package chat.willow.warren.extension.cap
 
-import engineer.carrot.warren.kale.IKale
-import engineer.carrot.warren.kale.irc.message.extension.cap.CapEndMessage
-import engineer.carrot.warren.kale.irc.message.extension.cap.CapLsMessage
+import chat.willow.kale.IKale
+import chat.willow.kale.irc.message.extension.cap.CapEndMessage
+import chat.willow.kale.irc.message.extension.cap.CapLsMessage
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.account_notify.AccountNotifyExtension
 import chat.willow.warren.extension.away_notify.AwayNotifyExtension

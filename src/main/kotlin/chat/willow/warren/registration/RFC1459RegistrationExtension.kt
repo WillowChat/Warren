@@ -1,8 +1,8 @@
 package chat.willow.warren.registration
 
-import engineer.carrot.warren.kale.irc.message.rfc1459.NickMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.PassMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.UserMessage
+import chat.willow.kale.irc.message.rfc1459.NickMessage
+import chat.willow.kale.irc.message.rfc1459.PassMessage
+import chat.willow.kale.irc.message.rfc1459.UserMessage
 import chat.willow.warren.IMessageSink
 
 class RFC1459RegistrationExtension(private val sink: IMessageSink, private val nickname: String, private val username: String, private val password: String? = null, private val registrationManager: IRegistrationManager): IRegistrationExtension {

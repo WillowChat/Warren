@@ -4,8 +4,8 @@ import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
-import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.rpl.Rpl376Message
+import chat.willow.kale.irc.message.rfc1459.JoinMessage
+import chat.willow.kale.irc.message.rfc1459.rpl.Rpl376Message
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.event.ConnectionLifecycleEvent
 import chat.willow.warren.event.IWarrenEventDispatcher

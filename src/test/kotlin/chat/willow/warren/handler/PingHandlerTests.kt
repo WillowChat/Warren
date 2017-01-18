@@ -2,8 +2,8 @@ package chat.willow.warren.handler
 
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
-import engineer.carrot.warren.kale.irc.message.rfc1459.PingMessage
-import engineer.carrot.warren.kale.irc.message.rfc1459.PongMessage
+import chat.willow.kale.irc.message.rfc1459.PingMessage
+import chat.willow.kale.irc.message.rfc1459.PongMessage
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.state.ConnectionState
 import chat.willow.warren.state.LifecycleState

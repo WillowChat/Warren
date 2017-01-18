@@ -1,10 +1,10 @@
 package chat.willow.warren.extension.cap
 
 import com.nhaarman.mockito_kotlin.*
-import engineer.carrot.warren.kale.IKale
-import engineer.carrot.warren.kale.irc.message.extension.cap.CapEndMessage
-import engineer.carrot.warren.kale.irc.message.extension.cap.CapLsMessage
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.IKale
+import chat.willow.kale.irc.message.extension.cap.CapEndMessage
+import chat.willow.kale.irc.message.extension.cap.CapLsMessage
+import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.registration.IRegistrationManager

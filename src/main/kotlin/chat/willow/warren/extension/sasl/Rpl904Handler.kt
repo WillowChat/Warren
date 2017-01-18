@@ -1,7 +1,7 @@
 package chat.willow.warren.extension.sasl
 
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.extension.sasl.Rpl904Message
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.extension.sasl.Rpl904Message
 import chat.willow.warren.extension.cap.ICapManager
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.AuthLifecycle

@@ -1,6 +1,6 @@
 package chat.willow.warren.event.internal
 
-import engineer.carrot.warren.kale.IKale
+import chat.willow.kale.IKale
 import chat.willow.warren.ILineSource
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.event.IWarrenEventDispatcher

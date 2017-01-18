@@ -1,6 +1,6 @@
 package chat.willow.warren.extension.sasl
 
-import engineer.carrot.warren.kale.IKale
+import chat.willow.kale.IKale
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.ICapExtension
 import chat.willow.warren.extension.cap.ICapManager

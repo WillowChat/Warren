@@ -2,10 +2,10 @@ package chat.willow.warren.integration
 
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
-import engineer.carrot.warren.kale.IKale
-import engineer.carrot.warren.kale.Kale
-import engineer.carrot.warren.kale.KaleRouter
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.IKale
+import chat.willow.kale.Kale
+import chat.willow.kale.KaleRouter
+import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.ILineSource
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.IrcConnection

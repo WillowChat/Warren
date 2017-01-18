@@ -1,7 +1,7 @@
 package chat.willow.warren.extension.extended_join
 
-import engineer.carrot.warren.kale.IKale
-import engineer.carrot.warren.kale.irc.message.rfc1459.JoinMessage
+import chat.willow.kale.IKale
+import chat.willow.kale.irc.message.rfc1459.JoinMessage
 import chat.willow.warren.extension.cap.ICapExtension
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.ChannelsState

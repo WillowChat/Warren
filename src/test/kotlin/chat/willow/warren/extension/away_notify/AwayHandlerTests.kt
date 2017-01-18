@@ -1,8 +1,8 @@
 package chat.willow.warren.extension.away_notify
 
-import engineer.carrot.warren.kale.irc.message.extension.away_notify.AwayMessage
-import engineer.carrot.warren.kale.irc.message.utility.CaseMapping
-import engineer.carrot.warren.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.message.extension.away_notify.AwayMessage
+import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.warren.state.*
 import org.junit.Assert.*
 import org.junit.Before

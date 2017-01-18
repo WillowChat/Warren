@@ -1,7 +1,7 @@
 package chat.willow.warren.handler.rpl
 
-import engineer.carrot.warren.kale.IKaleHandler
-import engineer.carrot.warren.kale.irc.message.rfc1459.rpl.Rpl471Message
+import chat.willow.kale.IKaleHandler
+import chat.willow.kale.irc.message.rfc1459.rpl.Rpl471Message
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.JoiningChannelLifecycle

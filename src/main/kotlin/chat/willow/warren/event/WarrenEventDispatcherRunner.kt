@@ -1,6 +1,6 @@
 package chat.willow.warren.event
 
-import engineer.carrot.warren.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.warren.state.LifecycleState
 import chat.willow.warren.state.emptyChannel
 import chat.willow.warren.state.generateUser
