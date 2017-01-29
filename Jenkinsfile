@@ -59,7 +59,7 @@ pipeline {
 
                         sh "./gradlew generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} --no-daemon"
 
-                        stash includes: 'build/publications/mavenJava/pom-default.xml,build/libs/*.jar', name: 'maven_artifacts', useDefaultExcludes: false
+                        stash includes: 'build/publications/mavenJava/pom-default.xml', name: 'maven_artifacts', useDefaultExcludes: false
                     }
                 )
             }
@@ -99,6 +99,7 @@ pipeline {
                 sh "rm -Rv build || true"
 
                 unstash 'maven_artifacts'
+                unstash 'build_libs'
 
                 sh "ls -lR build"
 
