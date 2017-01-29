@@ -127,19 +127,18 @@ val sourcesTask = task<Jar>("sourcesJar") {
 project.artifacts.add("archives", sourcesTask)
 project.artifacts.add("archives", shadowJarTask())
 
-if (project.hasProperty("DEPLOY_DIR")) {
-    configure<PublishingExtension> {
-        this.repositories.maven({ setUrl("file://${project.property("DEPLOY_DIR")}") })
+configure<PublishingExtension> {
+    val deployUrl = if (project.hasProperty("DEPLOY_URL")) { project.property("DEPLOY_URL") } else { project.buildDir.absolutePath }
+    this.repositories.maven({ setUrl("$deployUrl") })
 
-        publications {
-            create<MavenPublication>("mavenJava") {
-                from(components.getByName("java"))
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components.getByName("java"))
 
-                artifact(shadowJarTask())
-                artifact(sourcesTask)
+            artifact(shadowJarTask())
+            artifact(sourcesTask)
 
-                artifactId = projectTitle
-            }
+            artifactId = projectTitle
         }
     }
 }
