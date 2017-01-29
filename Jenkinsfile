@@ -35,8 +35,10 @@ pipeline {
                         sh "rm -Rv build || true"
 
                         sh "./gradlew clean build -x test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
+                        sh "./gradlew generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
 
                         stash includes: 'build/libs/**/*.jar', name: 'build_libs', useDefaultExcludes: false
+                        stash includes: 'build/publications/mavenJava/pom-default.xml', name: 'maven_artifacts', useDefaultExcludes: false
                     },
                     test: {
                         checkout scm
@@ -52,14 +54,6 @@ pipeline {
                         }
 
                         step([$class: 'JacocoPublisher'])
-                    },
-                    pom: {
-                        checkout scm
-                        sh "rm -Rv build || true"
-
-                        sh "./gradlew generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} --no-daemon"
-
-                        stash includes: 'build/publications/mavenJava/pom-default.xml', name: 'maven_artifacts', useDefaultExcludes: false
                     }
                 )
             }
