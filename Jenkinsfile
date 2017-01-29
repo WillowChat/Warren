@@ -27,39 +27,82 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build & Test') {
             steps {
-                sh "./gradlew clean build -x test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
-            }
-        }
+                parallel(
+                    build: {
+                        checkout scm
+                        sh "rm -Rv build || true"
 
-        stage('Test') {
-            steps {
-                sh "./gradlew test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
-            }
-        }
+                        sh "./gradlew clean build -x test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
 
-        stage('Coverage') {
-            steps {
-                sh "./gradlew jacocoTestReport --no-daemon"
+                        stash includes: 'build/libs/**/*.jar', name: 'build_libs', useDefaultExcludes: false
+                    },
+                    test: {
+                        checkout scm
+                        sh "rm -Rv build || true"
 
-                withCredentials([[$class: 'StringBinding', credentialsId: 'engineer.carrot.warren.warren.codecov', variable: 'CODECOV_TOKEN']]) {
-                    sh "./codecov.sh -B ${env.BRANCH_NAME}"
-                }
+                        sh "./gradlew test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
+                        stash includes: 'build/test-results/**/*', name: 'test_results', useDefaultExcludes: false
 
-                step([$class: 'JacocoPublisher'])
+                        sh "./gradlew jacocoTestReport --no-daemon"
+
+                        withCredentials([[$class: 'StringBinding', credentialsId: 'engineer.carrot.warren.warren.codecov', variable: 'CODECOV_TOKEN']]) {
+                            sh "./codecov.sh -B ${env.BRANCH_NAME}"
+                        }
+
+                        step([$class: 'JacocoPublisher'])
+                    },
+                    pom: {
+                        checkout scm
+                        sh "rm -Rv build || true"
+
+                        sh "./gradlew generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} --no-daemon"
+
+                        stash includes: 'build/publications/mavenJava/pom-default.xml,build/libs/*.jar', name: 'maven_artifacts', useDefaultExcludes: false
+                    }
+                )
             }
         }
 
         stage('Archive') {
             steps {
-                archive includes: 'build/libs/*.jar'
+                parallel(
+                    archive: {
+                        sh "rm -Rv build/libs || true"
+
+                        unstash 'build_libs'
+
+                        sh "ls -lR build/libs"
+
+                        archive includes: 'build/libs/*.jar'
+                    },
+                    junit: {
+                        sh "rm -Rv build/test-results || true"
+
+                        unstash 'test_results'
+
+                        sh "ls -lR build/test-results"
+
+                        junit 'build/test-results/**/*.xml'
+                    }
+                )
             }
         }
 
         stage('Deploy') {
+            agent {
+                label 'maven_repo'
+            }
+
             steps {
-                sh "./gradlew publishMavenJavaPublicationToMavenRepository -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" -PDEPLOY_DIR=/var/www/maven.hopper.bunnies.io --no-daemon"
+                sh "rm -Rv build || true"
+
+                unstash 'maven_artifacts'
+
+                sh "ls -lR build"
+
+                sh "find build/libs -name Warren\\*${env.BUILD_NUMBER}.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
             }
         }
     }
