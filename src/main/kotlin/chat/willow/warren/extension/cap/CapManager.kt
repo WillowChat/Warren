@@ -4,10 +4,12 @@ import chat.willow.kale.IKale
 import chat.willow.kale.irc.message.extension.cap.CapEndMessage
 import chat.willow.kale.irc.message.extension.cap.CapLsMessage
 import chat.willow.warren.IMessageSink
+import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.extension.account_notify.AccountNotifyExtension
 import chat.willow.warren.extension.away_notify.AwayNotifyExtension
 import chat.willow.warren.extension.cap.handler.*
 import chat.willow.warren.extension.extended_join.ExtendedJoinExtension
+import chat.willow.warren.extension.invite_notify.InviteNotifyExtension
 import chat.willow.warren.extension.sasl.SaslExtension
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.loggerFor
@@ -38,9 +40,10 @@ enum class CapKeys(val key: String) {
     MULTI_PREFIX("multi-prefix"),
     CAP_NOTIFY("cap-notify"),
     USERHOST_IN_NAMES("userhost-in-names"),
+    INVITE_NOTIFY("invite-notify"),
 }
 
-class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager) : ICapManager, ICapExtension, IRegistrationExtension {
+class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager, private val eventDispatcher: IWarrenEventDispatcher) : ICapManager, ICapExtension, IRegistrationExtension {
 
     private val LOGGER = loggerFor<CapManager>()
 
@@ -59,7 +62,8 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
             CapKeys.SASL.key to sasl,
             CapKeys.ACCOUNT_NOTIFY.key to AccountNotifyExtension(kale, channelsState.joined),
             CapKeys.AWAY_NOTIFY.key to AwayNotifyExtension(kale, channelsState.joined),
-            CapKeys.EXTENDED_JOIN.key to ExtendedJoinExtension(kale, channelsState, caseMappingState)
+            CapKeys.EXTENDED_JOIN.key to ExtendedJoinExtension(kale, channelsState, caseMappingState),
+            CapKeys.INVITE_NOTIFY.key to InviteNotifyExtension(kale, eventDispatcher)
     )
 
     override fun captureStateSnapshot() {

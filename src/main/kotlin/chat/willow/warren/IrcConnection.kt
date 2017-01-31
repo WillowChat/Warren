@@ -44,7 +44,7 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
 
     private val PONG_TIMER_MS: Long = 30 * 1000
 
-    val caps = CapManager(initialCapState, kale, internalState.channels, initialSaslState, sink, internalState.parsing.caseMapping, registrationManager)
+    val caps = CapManager(initialCapState, kale, internalState.channels, initialSaslState, sink, internalState.parsing.caseMapping, registrationManager, eventDispatcher)
     lateinit var rfc1459RegistrationExtension: IRegistrationExtension
 
     override fun captureStateSnapshot() {
