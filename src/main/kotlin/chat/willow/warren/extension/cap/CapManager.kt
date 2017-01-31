@@ -36,7 +36,8 @@ enum class CapKeys(val key: String) {
     AWAY_NOTIFY("away-notify"),
     EXTENDED_JOIN("extended-join"),
     MULTI_PREFIX("multi-prefix"),
-    CAP_NOTIFY("cap-notify")
+    CAP_NOTIFY("cap-notify"),
+    USERHOST_IN_NAMES("userhost-in-names"),
 }
 
 class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager) : ICapManager, ICapExtension, IRegistrationExtension {

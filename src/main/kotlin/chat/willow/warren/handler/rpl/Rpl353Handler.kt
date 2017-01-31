@@ -2,6 +2,9 @@ package chat.willow.warren.handler.rpl
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.rpl.Rpl353Message
+import chat.willow.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.prefix.PrefixParser
+import chat.willow.kale.irc.prefix.PrefixSerialiser
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.JoinedChannelsState
@@ -24,9 +27,9 @@ class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesStat
         }
 
         for (name in names) {
-            val (prefixes, nick) = trimPrefixes(name)
+            val (prefixes, userhost) = trimPrefixes(name)
 
-            if (nick.isEmpty()) {
+            if (userhost == null || userhost.nick.isEmpty()) {
                 LOGGER.warn("nick was empty after trimming: $name")
                 continue
             }
@@ -36,14 +39,14 @@ class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesStat
                     .mapNotNull { userPrefixesState.prefixesToModes[it] }
                     .forEach { modes += it }
 
-            channel.users += generateUser(nick, modes)
+            channel.users += generateUser(userhost.nick, modes)
         }
 
         LOGGER.trace("channel state after 353: $channel")
     }
 
 
-    private fun trimPrefixes(rawNick: String): Pair<Set<Char>, String> {
+    private fun trimPrefixes(rawNick: String): Pair<Set<Char>, Prefix?> {
         var nick = rawNick
         var prefixes = setOf<Char>()
 
@@ -52,11 +55,13 @@ class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesStat
                 prefixes += char
                 nick = nick.substring(1)
             } else {
-                return Pair(prefixes, nick)
+                val userhost = PrefixParser.parse(nick)
+                return Pair(prefixes, userhost)
             }
         }
 
-        return Pair(prefixes, nick)
+        val userhost = PrefixParser.parse(nick)
+        return Pair(prefixes, userhost)
     }
 
 }

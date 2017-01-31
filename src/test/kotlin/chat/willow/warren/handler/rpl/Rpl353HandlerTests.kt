@@ -23,7 +23,7 @@ class Rpl353HandlerTests {
     @Test fun test_handle_WellFormed_AddsCorrectNicksToChannel() {
         channelsState.joined += ChannelState("#channel", users = generateUsers(mappingState = caseMappingState))
 
-        handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@test-nick", "+another-person", "someone-else")), mapOf())
+        handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@test-nick@somewhere", "+another-person", "someone-else!realname@somewhere_else")), mapOf())
 
         assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsersWithModes(("test-nick" to setOf('o')), ("another-person" to setOf('v')), ("someone-else" to setOf()), mappingState = caseMappingState))), caseMappingState), channelsState)
     }
