@@ -1,4 +1,4 @@
-package chat.willow.warren.handler
+package chat.willow.warren.extension.cap.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.extension.cap.CapNakMessage

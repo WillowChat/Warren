@@ -9,9 +9,9 @@ import chat.willow.warren.extension.away_notify.AwayNotifyExtension
 import chat.willow.warren.extension.extended_join.ExtendedJoinExtension
 import chat.willow.warren.extension.sasl.SaslExtension
 import chat.willow.warren.extension.sasl.SaslState
-import chat.willow.warren.handler.CapAckHandler
-import chat.willow.warren.handler.CapLsHandler
-import chat.willow.warren.handler.CapNakHandler
+import chat.willow.warren.extension.cap.handler.CapAckHandler
+import chat.willow.warren.extension.cap.handler.CapLsHandler
+import chat.willow.warren.extension.cap.handler.CapNakHandler
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.registration.IRegistrationExtension
 import chat.willow.warren.registration.IRegistrationManager

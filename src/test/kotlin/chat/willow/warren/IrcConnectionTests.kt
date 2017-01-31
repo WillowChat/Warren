@@ -18,6 +18,9 @@ import chat.willow.warren.event.internal.IWarrenInternalEventGenerator
 import chat.willow.warren.event.internal.IWarrenInternalEventQueue
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
+import chat.willow.warren.extension.cap.handler.CapAckHandler
+import chat.willow.warren.extension.cap.handler.CapLsHandler
+import chat.willow.warren.extension.cap.handler.CapNakHandler
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.handler.*
 import chat.willow.warren.handler.rpl.*
