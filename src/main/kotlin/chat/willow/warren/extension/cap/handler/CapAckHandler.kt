@@ -25,30 +25,36 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
 
         for (cap in caps) {
             if (!capState.negotiate.contains(cap)) {
-                LOGGER.debug("server acked cap we don't think we asked for")
+                LOGGER.debug("server acked cap we don't think we asked for $cap")
                 continue
             }
 
+            if (capState.accepted.contains(cap)) {
+                LOGGER.debug("we've already accepted cap $cap")
+                continue
+            }
+
+            capState.rejected -= cap
             capState.accepted += cap
             capManager.capEnabled(cap)
-        }
-
-        if (caps.contains("sasl") && saslState.shouldAuth) {
-            LOGGER.trace("server acked sasl - starting authentication for user: ${saslState.credentials?.account}")
-
-            saslState.lifecycle = AuthLifecycle.AUTHING
-
-            sink.write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
         }
 
         when (lifecycle) {
             CapLifecycle.NEGOTIATING -> {
                 LOGGER.trace("server ACKed some caps, checked if it's the last reply")
 
+                if (caps.contains("sasl") && saslState.shouldAuth) {
+                    LOGGER.trace("server acked sasl - starting authentication for user: ${saslState.credentials?.account}")
+
+                    saslState.lifecycle = AuthLifecycle.AUTHING
+
+                    sink.write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
+                }
+
                 capManager.onRegistrationStateChanged()
             }
 
-            else -> LOGGER.trace("server ACKed caps but we don't think we're negotiating")
+            else -> Unit
         }
     }
 

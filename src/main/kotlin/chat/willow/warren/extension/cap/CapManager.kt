@@ -6,12 +6,10 @@ import chat.willow.kale.irc.message.extension.cap.CapLsMessage
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.account_notify.AccountNotifyExtension
 import chat.willow.warren.extension.away_notify.AwayNotifyExtension
+import chat.willow.warren.extension.cap.handler.*
 import chat.willow.warren.extension.extended_join.ExtendedJoinExtension
 import chat.willow.warren.extension.sasl.SaslExtension
 import chat.willow.warren.extension.sasl.SaslState
-import chat.willow.warren.extension.cap.handler.CapAckHandler
-import chat.willow.warren.extension.cap.handler.CapLsHandler
-import chat.willow.warren.extension.cap.handler.CapNakHandler
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.registration.IRegistrationExtension
 import chat.willow.warren.registration.IRegistrationManager
@@ -38,6 +36,7 @@ enum class CapKeys(val key: String) {
     AWAY_NOTIFY("away-notify"),
     EXTENDED_JOIN("extended-join"),
     MULTI_PREFIX("multi-prefix"),
+    CAP_NOTIFY("cap-notify")
 }
 
 class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager) : ICapManager, ICapExtension, IRegistrationExtension {
@@ -52,6 +51,8 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
     private val capLsHandler: CapLsHandler by lazy { CapLsHandler(internalState, sasl.internalState, sink, this) }
     private val capAckHandler: CapAckHandler by lazy { CapAckHandler(internalState, sasl.internalState, sink, this) }
     private val capNakHandler: CapNakHandler by lazy { CapNakHandler(internalState, sasl.internalState, sink, this) }
+    private val capNewHandler: CapNewHandler by lazy { CapNewHandler(internalState, sink) }
+    private val capDelHandler: CapDelHandler by lazy { CapDelHandler(internalState, sink, this) }
 
     private val capExtensions = mapOf(
             CapKeys.SASL.key to sasl,
@@ -112,12 +113,16 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
         kale.register(capLsHandler)
         kale.register(capAckHandler)
         kale.register(capNakHandler)
+        kale.register(capNewHandler)
+        kale.register(capDelHandler)
     }
 
     override fun tearDown() {
         kale.unregister(capLsHandler)
         kale.unregister(capAckHandler)
         kale.unregister(capNakHandler)
+        kale.unregister(capNewHandler)
+        kale.unregister(capDelHandler)
     }
 
     // IRegistrationExtension

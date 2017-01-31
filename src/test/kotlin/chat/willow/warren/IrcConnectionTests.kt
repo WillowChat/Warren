@@ -18,9 +18,7 @@ import chat.willow.warren.event.internal.IWarrenInternalEventGenerator
 import chat.willow.warren.event.internal.IWarrenInternalEventQueue
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
-import chat.willow.warren.extension.cap.handler.CapAckHandler
-import chat.willow.warren.extension.cap.handler.CapLsHandler
-import chat.willow.warren.extension.cap.handler.CapNakHandler
+import chat.willow.warren.extension.cap.handler.*
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.handler.*
 import chat.willow.warren.handler.rpl.*
@@ -95,11 +93,13 @@ class IrcRunnerTests {
 
         connection.run()
 
-        assertEquals(22, mockKale.spyRegisterHandlers.size)
+        assertEquals(24, mockKale.spyRegisterHandlers.size)
 
         assertTrue(arrayContainsHandlerOfType<CapLsHandler>(mockKale.spyRegisterHandlers)) // FIXME: move to other test
         assertTrue(arrayContainsHandlerOfType<CapAckHandler>(mockKale.spyRegisterHandlers))
         assertTrue(arrayContainsHandlerOfType<CapNakHandler>(mockKale.spyRegisterHandlers))
+        assertTrue(arrayContainsHandlerOfType<CapNewHandler>(mockKale.spyRegisterHandlers))
+        assertTrue(arrayContainsHandlerOfType<CapDelHandler>(mockKale.spyRegisterHandlers))
 
         assertTrue(arrayContainsHandlerOfType<JoinHandler>(mockKale.spyRegisterHandlers))
         assertTrue(arrayContainsHandlerOfType<KickHandler>(mockKale.spyRegisterHandlers))

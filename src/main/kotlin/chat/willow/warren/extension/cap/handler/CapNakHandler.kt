@@ -21,8 +21,15 @@ class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: 
 
         LOGGER.trace("server NAKed following caps: $caps")
 
-        capState.rejected += caps
-        caps.forEach { capManager.capDisabled(it) }
+        for (cap in caps) {
+            if (capState.rejected.contains(cap)) {
+                LOGGER.debug("we've already rejected cap $cap")
+                continue
+            }
+
+            capState.rejected += cap
+            capManager.capDisabled(cap)
+        }
 
         when (lifecycle) {
             CapLifecycle.NEGOTIATING -> {
@@ -34,7 +41,7 @@ class CapNakHandler(val capState: CapState, val saslState: SaslState, val sink: 
                 capManager.onRegistrationStateChanged()
             }
 
-            else -> LOGGER.trace("server NAKed caps but we don't think we're negotiating")
+            else -> Unit
         }
     }
 
