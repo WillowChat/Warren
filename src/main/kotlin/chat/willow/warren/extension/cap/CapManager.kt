@@ -10,6 +10,8 @@ import chat.willow.warren.extension.away_notify.AwayNotifyExtension
 import chat.willow.warren.extension.cap.handler.*
 import chat.willow.warren.extension.extended_join.ExtendedJoinExtension
 import chat.willow.warren.extension.invite_notify.InviteNotifyExtension
+import chat.willow.warren.extension.monitor.MonitorExtension
+import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.extension.sasl.SaslExtension
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.loggerFor
@@ -29,6 +31,8 @@ interface ICapManager : IStateCapturing<CapState> {
     fun capEnabled(name: String)
     fun capDisabled(name: String)
     fun onRegistrationStateChanged()
+    val sasl: IStateCapturing<SaslState>
+    val monitor: IStateCapturing<MonitorState>
 
 }
 
@@ -41,16 +45,18 @@ enum class CapKeys(val key: String) {
     CAP_NOTIFY("cap-notify"),
     USERHOST_IN_NAMES("userhost-in-names"),
     INVITE_NOTIFY("invite-notify"),
+    MONITOR("monitor"),
 }
 
-class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager, private val eventDispatcher: IWarrenEventDispatcher) : ICapManager, ICapExtension, IRegistrationExtension {
+class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager, private val eventDispatcher: IWarrenEventDispatcher) : ICapManager, ICapExtension, IRegistrationExtension {
 
     private val LOGGER = loggerFor<CapManager>()
 
     internal var internalState: CapState = initialState
     @Volatile override var state: CapState = initialState.copy()
 
-    val sasl = SaslExtension(initialSaslState, kale, this, sink)
+    override val sasl = SaslExtension(initialSaslState, kale, this, sink)
+    override val monitor = MonitorExtension(initialMonitorState)
 
     private val capLsHandler: CapLsHandler by lazy { CapLsHandler(internalState, sasl.internalState, sink, this) }
     private val capAckHandler: CapAckHandler by lazy { CapAckHandler(internalState, sasl.internalState, sink, this) }
@@ -63,13 +69,15 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
             CapKeys.ACCOUNT_NOTIFY.key to AccountNotifyExtension(kale, channelsState.joined),
             CapKeys.AWAY_NOTIFY.key to AwayNotifyExtension(kale, channelsState.joined),
             CapKeys.EXTENDED_JOIN.key to ExtendedJoinExtension(kale, channelsState, caseMappingState),
-            CapKeys.INVITE_NOTIFY.key to InviteNotifyExtension(kale, eventDispatcher)
+            CapKeys.INVITE_NOTIFY.key to InviteNotifyExtension(kale, eventDispatcher),
+            CapKeys.MONITOR.key to monitor
     )
 
     override fun captureStateSnapshot() {
         state = internalState.copy()
 
         sasl.captureStateSnapshot()
+        monitor.captureStateSnapshot()
     }
 
     override fun capEnabled(name: String) {

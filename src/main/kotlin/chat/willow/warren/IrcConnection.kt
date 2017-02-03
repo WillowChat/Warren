@@ -11,10 +11,11 @@ import chat.willow.warren.event.internal.IWarrenInternalEventQueue
 import chat.willow.warren.event.internal.IWarrenInternalEventSink
 import chat.willow.warren.extension.cap.CapManager
 import chat.willow.warren.extension.cap.CapState
+import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.handler.*
 import chat.willow.warren.handler.rpl.*
-import chat.willow.warren.handler.rpl.Rpl005.*
+import chat.willow.warren.handler.rpl.isupport.*
 import chat.willow.warren.helper.IExecutionContext
 import chat.willow.warren.helper.ISleeper
 import chat.willow.warren.helper.loggerFor
@@ -33,7 +34,7 @@ interface IIrcConnection : IStateCapturing<IrcState> {
 
 }
 
-class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, initialCapState: CapState, initialSaslState: SaslState, private val registrationManager: IRegistrationManager, private val sleeper: ISleeper, private val pingGeneratorExecutionContext: IExecutionContext, private val lineGeneratorExecutionContext: IExecutionContext) : IIrcConnection, IKaleParsingStateDelegate, IRegistrationListener {
+class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, initialCapState: CapState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val registrationManager: IRegistrationManager, private val sleeper: ISleeper, private val pingGeneratorExecutionContext: IExecutionContext, private val lineGeneratorExecutionContext: IExecutionContext) : IIrcConnection, IKaleParsingStateDelegate, IRegistrationListener {
 
     private val LOGGER = loggerFor<IrcConnection>()
 
@@ -44,7 +45,7 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
 
     private val PONG_TIMER_MS: Long = 30 * 1000
 
-    val caps = CapManager(initialCapState, kale, internalState.channels, initialSaslState, sink, internalState.parsing.caseMapping, registrationManager, eventDispatcher)
+    val caps = CapManager(initialCapState, kale, internalState.channels, initialSaslState, initialMonitorState, sink, internalState.parsing.caseMapping, registrationManager, eventDispatcher)
     lateinit var rfc1459RegistrationExtension: IRegistrationExtension
 
     override fun captureStateSnapshot() {
@@ -89,7 +90,7 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
         kale.register(PrivMsgHandler(eventDispatcher, internalState.channels.joined, internalState.parsing.channelTypes))
         kale.register(QuitHandler(eventDispatcher, internalState.connection, internalState.channels.joined))
         kale.register(TopicHandler(internalState.channels.joined, internalState.parsing.caseMapping))
-        kale.register(Rpl005Handler(internalState.parsing, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler, Rpl005CaseMappingHandler))
+        kale.register(Rpl005Handler(internalState.parsing, caps.monitor.internalState, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler, Rpl005CaseMappingHandler, Rpl005MonitorHandler(caps)))
         kale.register(Rpl332Handler(internalState.channels.joined, internalState.parsing.caseMapping))
         kale.register(Rpl353Handler(internalState.channels.joined, internalState.parsing.userPrefixes, internalState.parsing.caseMapping))
         kale.register(Rpl376Handler(sink, caps.internalState, rfc1459RegistrationExtension, caps))

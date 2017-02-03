@@ -6,6 +6,7 @@ import chat.willow.kale.irc.message.extension.cap.CapLsMessage
 import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.event.IWarrenEventDispatcher
+import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.registration.IRegistrationManager
 import chat.willow.warren.state.AuthLifecycle
@@ -29,6 +30,7 @@ class CapManagerTests {
     private var caseMappingState = CaseMappingState(CaseMapping.RFC1459)
     private var channelsState = emptyChannelsState(caseMappingState)
     private var initialSaslState = SaslState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = null)
+    private var initialMonitorState = MonitorState(maxCount = 0)
 
     @Before fun setUp() {
         mockKale = mock()
@@ -36,7 +38,7 @@ class CapManagerTests {
         mockRegistrationManager = mock()
         mockEventDispatcher = mock()
 
-        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
+        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
     }
 
     @Test fun test_onRegistrationStateChanged_NotNegotiatingCaps_NoSasl_SendsCapEnd() {
@@ -45,7 +47,7 @@ class CapManagerTests {
         initialState.accepted = setOf("cap1")
         initialState.rejected = setOf("cap2")
 
-        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
+        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
 
         sut.onRegistrationStateChanged()
 
@@ -58,7 +60,7 @@ class CapManagerTests {
         initialState.accepted = setOf("cap1")
         initialState.rejected = setOf("cap2")
 
-        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
+        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
 
         sut.onRegistrationStateChanged()
 
@@ -71,7 +73,7 @@ class CapManagerTests {
         initialState.accepted = setOf("cap1", "sasl")
         initialState.rejected = setOf("cap2")
 
-        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
+        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
 
         sut.onRegistrationStateChanged()
 

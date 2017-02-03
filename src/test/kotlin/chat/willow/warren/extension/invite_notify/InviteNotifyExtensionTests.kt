@@ -1,14 +1,11 @@
 package chat.willow.warren.extension.invite_notify
 
+import chat.willow.kale.IKale
+import chat.willow.warren.event.IWarrenEventDispatcher
+import chat.willow.warren.extension.invite_notify.handler.InviteHandler
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
-import chat.willow.kale.IKale
-import chat.willow.kale.irc.message.utility.CaseMapping
-import chat.willow.warren.event.IWarrenEventDispatcher
-import chat.willow.warren.extension.invite_notify.handler.InviteHandler
-import chat.willow.warren.state.CaseMappingState
-import chat.willow.warren.state.JoinedChannelsState
 import org.junit.Before
 import org.junit.Test
 

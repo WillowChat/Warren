@@ -1,4 +1,4 @@
-package chat.willow.warren.handler.rpl.Rpl005
+package chat.willow.warren.handler.rpl.isupport
 
 import chat.willow.warren.state.ChannelTypesState
 import org.junit.Assert.assertEquals

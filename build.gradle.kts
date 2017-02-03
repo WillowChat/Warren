@@ -75,6 +75,7 @@ repositories {
 
 dependencies {
     compile(kotlinModule("stdlib", kotlinVersion as String))
+    compile(kotlinModule("reflect", kotlinVersion as String))
     compile("org.slf4j:slf4j-api:1.7.21")
     compile("chat.willow.kale:Kale:$kaleVersion")
     compile("com.squareup.okio:okio:1.11.0")

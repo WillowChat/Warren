@@ -1,7 +1,5 @@
 package chat.willow.warren.integration
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
 import chat.willow.kale.IKale
 import chat.willow.kale.Kale
 import chat.willow.kale.KaleRouter
@@ -16,11 +14,14 @@ import chat.willow.warren.event.internal.IWarrenInternalEventQueue
 import chat.willow.warren.event.internal.NewLineEvent
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
+import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.IExecutionContext
 import chat.willow.warren.helper.ISleeper
 import chat.willow.warren.registration.RegistrationManager
 import chat.willow.warren.state.*
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -62,6 +63,7 @@ class SanityCheckIntegrationTests {
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState, caseMappingState)
         channelsState = ChannelsState(joining = JoiningChannelsState(caseMappingState), joined = JoinedChannelsState(caseMappingState))
 
+        val monitorState = MonitorState(maxCount = 0)
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
         mockEventDispatcher = mock()
@@ -81,7 +83,7 @@ class SanityCheckIntegrationTests {
 
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        connection = IrcConnection(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = mockSleeper, pingGeneratorExecutionContext = mockPingExecutionContext, lineGeneratorExecutionContext = mockLineExecutionContext)
+        connection = IrcConnection(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, initialCapState = capState, initialSaslState = saslState, initialMonitorState = monitorState, registrationManager = registrationManager, sleeper = mockSleeper, pingGeneratorExecutionContext = mockPingExecutionContext, lineGeneratorExecutionContext = mockLineExecutionContext)
 
         registrationManager.listener = connection
     }

@@ -5,7 +5,6 @@ import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.warren.event.IWarrenEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.InvitedToChannelEvent
-import chat.willow.warren.extension.invite_notify.handler.InviteHandler
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never

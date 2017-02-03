@@ -1,4 +1,4 @@
-package chat.willow.warren.handler.rpl.Rpl005
+package chat.willow.warren.handler.rpl.isupport
 
 import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.state.CaseMappingState

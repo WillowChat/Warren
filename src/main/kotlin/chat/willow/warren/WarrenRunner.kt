@@ -14,6 +14,7 @@ import chat.willow.warren.event.internal.WarrenInternalEventQueue
 import chat.willow.warren.extension.cap.CapKeys
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
+import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.ThreadSleeper
 import chat.willow.warren.helper.ThreadedExecutionContext
@@ -79,6 +80,8 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
 
         val channelsState = ChannelsState(joining = joiningState, joined = JoinedChannelsState(caseMappingState))
 
+        val initialMonitorState = MonitorState(maxCount = 0)
+
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
         val internalEventQueue = WarrenInternalEventQueue()
@@ -89,7 +92,7 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         val pingExecutionContext = ThreadedExecutionContext(name = "ping context")
         val newLineExecutionContext = ThreadedExecutionContext(name = "new line context")
 
-        val runner = IrcConnection(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState, initialCapState = capState, initialSaslState = saslState, registrationManager = registrationManager, sleeper = ThreadSleeper, pingGeneratorExecutionContext = pingExecutionContext, lineGeneratorExecutionContext = newLineExecutionContext)
+        val runner = IrcConnection(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState, initialCapState = capState, initialSaslState = saslState, initialMonitorState = initialMonitorState, registrationManager = registrationManager, sleeper = ThreadSleeper, pingGeneratorExecutionContext = pingExecutionContext, lineGeneratorExecutionContext = newLineExecutionContext)
 
         registrationManager.listener = runner
 

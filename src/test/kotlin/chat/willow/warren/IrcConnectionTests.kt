@@ -1,9 +1,5 @@
 package chat.willow.warren
 
-import chat.willow.warren.ILineSource
-import chat.willow.warren.IMessageSink
-import chat.willow.warren.IrcConnection
-import com.nhaarman.mockito_kotlin.*
 import chat.willow.kale.IKale
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.IKaleParsingStateDelegate
@@ -19,15 +15,17 @@ import chat.willow.warren.event.internal.IWarrenInternalEventQueue
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.handler.*
+import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.handler.*
 import chat.willow.warren.handler.rpl.*
-import chat.willow.warren.handler.rpl.Rpl005.Rpl005Handler
+import chat.willow.warren.handler.rpl.isupport.Rpl005Handler
 import chat.willow.warren.helper.IExecutionContext
 import chat.willow.warren.helper.ISleeper
 import chat.willow.warren.helper.SimpleBlock
 import chat.willow.warren.registration.IRegistrationManager
 import chat.willow.warren.state.*
+import com.nhaarman.mockito_kotlin.*
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -40,6 +38,7 @@ class IrcRunnerTests {
     lateinit var channelModesState: ChannelModesState
     lateinit var userPrefixesState: UserPrefixesState
     lateinit var channelsState: ChannelsState
+    lateinit var monitorState: MonitorState
 
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
     lateinit var mockInternalEventQueue: IWarrenInternalEventQueue
@@ -66,6 +65,7 @@ class IrcRunnerTests {
         val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState, caseMappingState)
 
         channelsState = ChannelsState(joining = JoiningChannelsState(caseMappingState), joined = JoinedChannelsState(caseMappingState))
+        monitorState = MonitorState(maxCount = 0)
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
@@ -85,7 +85,7 @@ class IrcRunnerTests {
 
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        connection = IrcConnection(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, initialCapState = capState, initialSaslState = saslState, registrationManager = mockRegistrationManager, sleeper = mockSleeper, pingGeneratorExecutionContext = mockPingExecutionContext, lineGeneratorExecutionContext = mockLineExecutionContext)
+        connection = IrcConnection(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, initialCapState = capState, initialSaslState = saslState, initialMonitorState = monitorState, registrationManager = mockRegistrationManager, sleeper = mockSleeper, pingGeneratorExecutionContext = mockPingExecutionContext, lineGeneratorExecutionContext = mockLineExecutionContext)
     }
 
     @Test fun test_run_RegistersBaseHandlers() {
