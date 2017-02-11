@@ -48,7 +48,7 @@ enum class CapKeys(val key: String) {
     MONITOR("monitor"),
 }
 
-class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager, private val eventDispatcher: IWarrenEventDispatcher) : ICapManager, ICapExtension, IRegistrationExtension {
+class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager, eventDispatcher: IWarrenEventDispatcher) : ICapManager, ICapExtension, IRegistrationExtension {
 
     private val LOGGER = loggerFor<CapManager>()
 
@@ -56,7 +56,7 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
     @Volatile override var state: CapState = initialState.copy()
 
     override val sasl = SaslExtension(initialSaslState, kale, this, sink)
-    override val monitor = MonitorExtension(initialMonitorState, kale, sink)
+    override val monitor = MonitorExtension(initialMonitorState, kale, sink, eventDispatcher)
 
     private val capLsHandler: CapLsHandler by lazy { CapLsHandler(internalState, sasl.internalState, sink, this) }
     private val capAckHandler: CapAckHandler by lazy { CapAckHandler(internalState, sasl.internalState, sink, this) }

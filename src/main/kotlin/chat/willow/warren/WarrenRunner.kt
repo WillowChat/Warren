@@ -15,6 +15,7 @@ import chat.willow.warren.extension.cap.CapKeys
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.monitor.MonitorState
+import chat.willow.warren.extension.monitor.UserOnlineEvent
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.ThreadSleeper
 import chat.willow.warren.helper.ThreadedExecutionContext
@@ -28,8 +29,11 @@ data class SaslConfiguration(val account: String, val password: String)
 data class NickServConfiguration(val account: String, val password: String, val channelJoinWaitSeconds: Int = 5)
 data class ChannelsConfiguration(val channels: Map<String, String?> = mapOf())
 data class EventConfiguration(val dispatcher: IWarrenEventDispatcher, val fireIncomingLineEvent: Boolean = false)
+data class ExtensionsConfiguration(val monitor: MonitorExtensionConfiguration)
 
-class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration, val channels: ChannelsConfiguration, val events: EventConfiguration) {
+data class MonitorExtensionConfiguration(val users: List<String>)
+
+class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration, val channels: ChannelsConfiguration, val events: EventConfiguration, val extensions: ExtensionsConfiguration) {
 
     fun create(): IrcConnection {
         val lifecycleState = LifecycleState.CONNECTING
@@ -80,7 +84,7 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
 
         val channelsState = ChannelsState(joining = joiningState, joined = JoinedChannelsState(caseMappingState))
 
-        val initialMonitorState = MonitorState(maxCount = 0)
+        val initialMonitorState = MonitorState(maxCount = 0, users = extensions.monitor.users)
 
         val initialState = IrcState(connectionState, parsingState, channelsState)
 
@@ -106,7 +110,7 @@ object WarrenRunner {
     private val LOGGER = loggerFor<WarrenRunner>()
 
     @JvmStatic fun main(args: Array<String>) {
-        val server = args[0]
+        val host = args[0]
         val port = args[1].toInt()
         val useTLS = (port != 6667)
         val nickname = args[2]
@@ -123,9 +127,13 @@ object WarrenRunner {
             null
         }
 
-        val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, sasl = sasl),
-                ChannelsConfiguration(mapOf("#carrot" to null, "#botdev" to null)), EventConfiguration(events, fireIncomingLineEvent = true))
-        val connection = factory.create()
+        val server = ServerConfiguration(host, port, useTLS)
+        val user = UserConfiguration(nickname, sasl = sasl)
+        val channels = ChannelsConfiguration(mapOf("#carrot" to null, "#botdev" to null))
+        val eventsConfig = EventConfiguration(events, fireIncomingLineEvent = true)
+        val extensions = ExtensionsConfiguration(MonitorExtensionConfiguration(users = listOf("carrot")))
+
+        val connection = WarrenFactory(server, user, channels, eventsConfig, extensions).create()
 
         events.on(ChannelMessageEvent::class) {
             LOGGER.info("channel message: $it")
@@ -133,6 +141,10 @@ object WarrenRunner {
             if (it.user.prefix.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
                 connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel.name, message = "🐰🎉"), connection.sink))
             }
+        }
+
+        events.on(UserOnlineEvent::class) {
+            LOGGER.info("user online: ${it.prefix.nick}")
         }
 
         connection.run()

@@ -20,32 +20,9 @@ Planned releases (and their features) are tracked in [Projects](https://github.c
 
 ## Example usage
 
-The project includes a simple [example runner](https://github.com/WillowChat/Warren/blob/develop/src/main/kotlin/engineer/carrot/warren/warren/WarrenRunner.kt) that prints out events as they happen, logs in using SASL and replies to me saying `rabbit party` in a channel.
+The project includes a simple [example runner](https://github.com/WillowChat/Warren/blob/develop/src/main/kotlin/chat/willow/warren/WarrenRunner.kt) that prints out events as they happen, logs in using SASL and replies to me saying `rabbit party` in a channel.
 
 If you're interested in more complex usage, come talk to me on IRC: #carrot on [ImaginaryNet](http://imaginarynet.uk/)
-
-```kotlin
-val events = WarrenEventDispatcher()
-events.onAnything {
-    LOGGER.info("event: $it")
-}
-
-val sasl = SaslConfiguration(account = nickname, password = password)
-
-val factory = WarrenFactory(ServerConfiguration(server, port, useTLS), UserConfiguration(nickname, sasl = sasl),
-                            ChannelsConfiguration(mapOf("#botdev" to null)), EventConfiguration(events, fireIncomingLineEvent = true))
-val connection = factory.create()
-
-events.on(ChannelMessageEvent::class) {
-    LOGGER.info("channel message: $it")
-
-    if (it.user.prefix.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
-        connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel.name, message = "🐰🎉"), connection.sink))
-    }
-}
-
-connection.run()
-```
 
 ## TODO
 
