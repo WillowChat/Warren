@@ -1,6 +1,7 @@
 package chat.willow.warren.extension.monitor
 
 import chat.willow.kale.IKale
+import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.monitor.handler.*
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
@@ -12,13 +13,15 @@ class MonitorExtensionTests {
 
     private lateinit var sut: MonitorExtension
     private lateinit var mockKale: IKale
+    private lateinit var mockSink: IMessageSink
 
     @Before fun setUp() {
         val initialState = MonitorState(maxCount = 100)
 
         mockKale = mock()
+        mockSink = mock()
 
-        sut = MonitorExtension(initialState, mockKale)
+        sut = MonitorExtension(initialState, mockKale, mockSink)
     }
 
     @Test fun test_setUp_RegistersHandlers() {
