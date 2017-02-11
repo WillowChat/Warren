@@ -1,4 +1,4 @@
-package chat.willow.warren.extension.sasl
+package chat.willow.warren.extension.sasl.handler
 
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
@@ -7,6 +7,8 @@ import com.nhaarman.mockito_kotlin.verify
 import chat.willow.kale.irc.message.IMessage
 import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
 import chat.willow.warren.IMessageSink
+import chat.willow.warren.extension.sasl.AuthenticateHandler
+import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.state.AuthCredentials
 import chat.willow.warren.state.AuthLifecycle
 import org.junit.Before

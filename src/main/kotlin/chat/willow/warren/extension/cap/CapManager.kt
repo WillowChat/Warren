@@ -56,7 +56,7 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
     @Volatile override var state: CapState = initialState.copy()
 
     override val sasl = SaslExtension(initialSaslState, kale, this, sink)
-    override val monitor = MonitorExtension(initialMonitorState)
+    override val monitor = MonitorExtension(initialMonitorState, kale, sink)
 
     private val capLsHandler: CapLsHandler by lazy { CapLsHandler(internalState, sasl.internalState, sink, this) }
     private val capAckHandler: CapAckHandler by lazy { CapAckHandler(internalState, sasl.internalState, sink, this) }
