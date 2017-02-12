@@ -45,7 +45,7 @@ pipeline {
 
         stage('Test') {
            steps {
-               sh "./gradlew test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
+               sh "./gradlew build test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
                stash includes: 'build/test-results/**/*', name: 'test_results', useDefaultExcludes: false
 
                sh "./gradlew jacocoTestReport"
