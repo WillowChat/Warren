@@ -1,7 +1,9 @@
 #!/usr/bin/env groovy
 
 pipeline {
-    agent any
+    agent {
+        label 'java8'
+    }
 
     post {
         always {
@@ -15,10 +17,6 @@ pipeline {
         failure {
             ircSendFailure()
         }
-    }
-    
-    environment {
-        GRADLE_OPTS = "-Dorg.gradle.daemon=false"
     }
 
     stages {
@@ -35,8 +33,8 @@ pipeline {
             steps {
                 sh "rm -Rv build || true"
 
-                sh "./gradlew clean build test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
-                sh "./gradlew generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
+                sh "./gradlew --no-daemon build test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
+                sh "./gradlew --no-daemon generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
 
                 stash includes: 'build/libs/**/*.jar', name: 'build_libs', useDefaultExcludes: false
                 stash includes: 'build/publications/mavenJava/pom-default.xml', name: 'maven_artifacts', useDefaultExcludes: false
@@ -46,7 +44,7 @@ pipeline {
 
         stage('Coverage') {
            steps {
-               sh "./gradlew jacocoTestReport"
+               sh "./gradlew --no-daemon jacocoTestReport"
 
                withCredentials([[$class: 'StringBinding', credentialsId: 'engineer.carrot.warren.warren.codecov', variable: 'CODECOV_TOKEN']]) {
                    sh "./codecov.sh -B ${env.BRANCH_NAME}"
