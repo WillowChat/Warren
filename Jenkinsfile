@@ -31,23 +31,21 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build & Test') {
             steps {
                 sh "rm -Rv build || true"
 
-                sh "./gradlew clean build -x test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
+                sh "./gradlew clean build test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
                 sh "./gradlew generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
 
                 stash includes: 'build/libs/**/*.jar', name: 'build_libs', useDefaultExcludes: false
                 stash includes: 'build/publications/mavenJava/pom-default.xml', name: 'maven_artifacts', useDefaultExcludes: false
+                stash includes: 'build/test-results/**/*', name: 'test_results', useDefaultExcludes: false
             }
         }
 
-        stage('Test') {
+        stage('Coverage') {
            steps {
-               sh "./gradlew build test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
-               stash includes: 'build/test-results/**/*', name: 'test_results', useDefaultExcludes: false
-
                sh "./gradlew jacocoTestReport"
 
                withCredentials([[$class: 'StringBinding', credentialsId: 'engineer.carrot.warren.warren.codecov', variable: 'CODECOV_TOKEN']]) {
