@@ -16,6 +16,10 @@ pipeline {
             ircSendFailure()
         }
     }
+    
+    environment {
+        GRADLE_OPTS = "-Dorg.gradle.daemon=false"
+    }
 
     stages {
         stage('Checkout') {
@@ -34,8 +38,8 @@ pipeline {
                         checkout scm
                         sh "rm -Rv build || true"
 
-                        sh "./gradlew clean build -x test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
-                        sh "./gradlew generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
+                        sh "./gradlew clean build -x test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
+                        sh "./gradlew generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
 
                         stash includes: 'build/libs/**/*.jar', name: 'build_libs', useDefaultExcludes: false
                         stash includes: 'build/publications/mavenJava/pom-default.xml', name: 'maven_artifacts', useDefaultExcludes: false
@@ -44,10 +48,10 @@ pipeline {
                         checkout scm
                         sh "rm -Rv build || true"
 
-                        sh "./gradlew test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\" --no-daemon"
+                        sh "./gradlew test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
                         stash includes: 'build/test-results/**/*', name: 'test_results', useDefaultExcludes: false
 
-                        sh "./gradlew jacocoTestReport --no-daemon"
+                        sh "./gradlew jacocoTestReport"
 
                         withCredentials([[$class: 'StringBinding', credentialsId: 'engineer.carrot.warren.warren.codecov', variable: 'CODECOV_TOKEN']]) {
                             sh "./codecov.sh -B ${env.BRANCH_NAME}"
