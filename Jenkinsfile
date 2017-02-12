@@ -33,7 +33,7 @@ pipeline {
             steps {
                 sh "rm -Rv build || true"
 
-                sh "./gradlew --no-daemon --rerun-tasks build test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
+                sh "./gradlew --no-daemon --rerun-tasks clean build test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
                 sh "./gradlew --no-daemon --rerun-tasks generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
 
                 stash includes: 'build/libs/**/*.jar', name: 'build_libs', useDefaultExcludes: false
