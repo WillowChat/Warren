@@ -33,8 +33,8 @@ pipeline {
             steps {
                 sh "rm -Rv build || true"
 
-                sh "./gradlew --no-daemon build test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
-                sh "./gradlew --no-daemon generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
+                sh "./gradlew --no-daemon --rerun-tasks build test -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
+                sh "./gradlew --no-daemon --rerun-tasks generatePomFileForMavenJavaPublication -PBUILD_NUMBER=${env.BUILD_NUMBER} -PBRANCH=\"${env.BRANCH_NAME}\""
 
                 stash includes: 'build/libs/**/*.jar', name: 'build_libs', useDefaultExcludes: false
                 stash includes: 'build/publications/mavenJava/pom-default.xml', name: 'maven_artifacts', useDefaultExcludes: false
@@ -44,7 +44,7 @@ pipeline {
 
         stage('Coverage') {
            steps {
-               sh "./gradlew --no-daemon jacocoTestReport"
+               sh "./gradlew --no-daemon --rerun-tasks jacocoTestReport"
 
                withCredentials([[$class: 'StringBinding', credentialsId: 'engineer.carrot.warren.warren.codecov', variable: 'CODECOV_TOKEN']]) {
                    sh "./codecov.sh -B ${env.BRANCH_NAME}"
