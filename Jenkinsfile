@@ -44,15 +44,17 @@ pipeline {
         }
 
         stage('Coverage') {
-           steps {
-               sh "./gradlew ${env.GRADLE_OPTIONS} jacocoTestReport"
+            environment {
+                CODECOV_TOKEN = credentials('engineer.carrot.warren.warren.codecov')
+            }
+            
+            steps {
+                sh "./gradlew ${env.GRADLE_OPTIONS} jacocoTestReport"
 
-               withCredentials([[$class: 'StringBinding', credentialsId: 'engineer.carrot.warren.warren.codecov', variable: 'CODECOV_TOKEN']]) {
-                   sh "./codecov.sh -B ${env.BRANCH_NAME}"
-               }
+                sh "./codecov.sh -B ${env.BRANCH_NAME}"
 
-               step([$class: 'JacocoPublisher'])
-           }
+                step([$class: 'JacocoPublisher'])
+            }
         }
 
         stage('Archive') {
