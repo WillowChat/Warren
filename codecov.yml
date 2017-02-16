@@ -7,3 +7,6 @@ coverage:
   - **/*Runner.kt
   - **/*Factory.kt
   - **/*Sleeper.kt
+  status:
+    project: off
+    patch: off
