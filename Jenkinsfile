@@ -47,7 +47,7 @@ pipeline {
             environment {
                 CODECOV_TOKEN = credentials('engineer.carrot.warren.warren.codecov')
             }
-            
+
             steps {
                 sh "./gradlew ${env.GRADLE_OPTIONS} jacocoTestReport"
 
@@ -75,6 +75,7 @@ pipeline {
                 sh "ls -lR build"
 
                 sh "find build/libs -name Warren\\*${env.BUILD_NUMBER}.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
+                sh "find build/libs -name Warren\\*sources.jar | head -n 1 | xargs -I '{}' mvn install:install-file -Dfile={} -Dclassifier=sources -DpomFile=build/publications/mavenJava/pom-default.xml -DlocalRepositoryPath=/var/www/maven.hopper.bunnies.io"
             }
         }
     }
