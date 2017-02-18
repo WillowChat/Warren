@@ -45,4 +45,4 @@ Warren is published on my personal Maven repository. It uses a [Let's Encrypt](h
 ### Gradle
 
 * Add to `repositories`: ` maven { url = "https://maven.ci.carrot.codes" }`
-* Add to `dependencies`: `compile 'chat.willow.warren:Warren:1.4.0'`
+* Add to `dependencies`: `compile 'chat.willow.warren:Warren:1.4.0.74'`
