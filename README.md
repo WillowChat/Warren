@@ -35,6 +35,14 @@ The source code of this project is licensed under the terms of the ISC license, 
 ## Building
 This project uses Gradle for pretty easy setup and building.
 
-Basic usage:
 * **Setup**: `./gradlew clean`
 * **Building**: `./gradlew clean build` - this will also produce a fat Jar with shaded dependencies included
+
+## Usage
+
+Warren is published on my personal Maven repository. It uses a [Let's Encrypt](https://letsencrypt.org/) certificate, and you need to use Java 8 >= 8u101 or Java 7 >= 7u111 to connect to it.
+
+### Gradle
+
+* Add to `repositories`: ` maven { url = "https://maven.ci.carrot.codes" }`
+* Add to `dependencies`: `compile 'chat.willow.warren:Warren:1.4.0'`
