@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.TopicMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.JoinedChannelsState
@@ -12,7 +13,7 @@ class TopicHandler(val channelsState: JoinedChannelsState, val caseMappingState:
 
     override val messageType = TopicMessage::class.java
 
-    override fun handle(message: TopicMessage, tags: Map<String, String?>) {
+    override fun handle(message: TopicMessage, tags: ITagStore) {
         val channel = channelsState[message.channel]
         val topic = message.topic
 

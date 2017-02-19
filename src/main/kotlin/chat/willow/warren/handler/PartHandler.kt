@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.PartMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.ConnectionState
@@ -13,7 +14,7 @@ class PartHandler(val connectionState: ConnectionState, val channelsState: Joine
 
     override val messageType = PartMessage::class.java
 
-    override fun handle(message: PartMessage, tags: Map<String, String?>) {
+    override fun handle(message: PartMessage, tags: ITagStore) {
         val channelNames = message.channels
         val source = message.source
 

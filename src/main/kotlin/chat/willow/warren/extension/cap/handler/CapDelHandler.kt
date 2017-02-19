@@ -2,6 +2,7 @@ package chat.willow.warren.extension.cap.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.extension.cap.CapDelMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.ICapManager
@@ -13,7 +14,7 @@ class CapDelHandler(val capState: CapState, val sink: IMessageSink, val capManag
 
     override val messageType = CapDelMessage::class.java
 
-    override fun handle(message: CapDelMessage, tags: Map<String, String?>) {
+    override fun handle(message: CapDelMessage, tags: ITagStore) {
         val caps = message.caps
 
         LOGGER.trace("server NEWed following caps: $caps")

@@ -3,6 +3,7 @@ package chat.willow.warren.extension.cap.handler
 import chat.willow.kale.irc.message.IMessage
 import chat.willow.kale.irc.message.extension.cap.CapLsMessage
 import chat.willow.kale.irc.message.extension.cap.CapReqMessage
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -38,7 +39,7 @@ class CapLsHandlerTests {
     @Test fun test_handle_AddsCapsToStateList() {
         capState.negotiate = setOf("cap1", "cap2", "cap3")
 
-        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to "value")), mapOf())
+        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to "value")), TagStore())
 
         assertEquals(mapOf("cap1" to null, "cap2" to "value"), capState.server)
     }
@@ -47,7 +48,7 @@ class CapLsHandlerTests {
         capState.lifecycle = CapLifecycle.NEGOTIATING
         capState.negotiate = setOf("cap1", "cap2", "cap3", "cap4")
 
-        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), mapOf())
+        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), TagStore())
 
         assertEquals(setOf("cap3", "cap4"), capState.rejected)
     }
@@ -55,7 +56,7 @@ class CapLsHandlerTests {
     @Test fun test_handle_Negotiating_TellsCapManagerRegistrationStateChanged() {
         capState.lifecycle = CapLifecycle.NEGOTIATING
 
-        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), mapOf())
+        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), TagStore())
 
         verify(mockCapManager).onRegistrationStateChanged()
     }
@@ -64,7 +65,7 @@ class CapLsHandlerTests {
         capState.lifecycle = CapLifecycle.NEGOTIATING
         capState.negotiate = setOf("cap1", "cap2")
 
-        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), mapOf())
+        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), TagStore())
 
         verify(mockSink).write(CapReqMessage(caps = listOf("cap1", "cap2")))
     }
@@ -73,7 +74,7 @@ class CapLsHandlerTests {
         capState.lifecycle = CapLifecycle.NEGOTIATING
         capState.negotiate = setOf("cap1", "cap2")
 
-        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null), isMultiline = true), mapOf())
+        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null), isMultiline = true), TagStore())
 
         verify(mockSink, never()).write(any<IMessage>())
     }
@@ -82,7 +83,7 @@ class CapLsHandlerTests {
         capState.lifecycle = CapLifecycle.NEGOTIATED
         capState.negotiate = setOf("cap1", "cap2")
 
-        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), mapOf())
+        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), TagStore())
 
         verify(mockSink, never()).write(any<IMessage>())
     }

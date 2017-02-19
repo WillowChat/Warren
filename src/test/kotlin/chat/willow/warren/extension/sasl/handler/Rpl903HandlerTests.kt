@@ -7,6 +7,7 @@ import com.nhaarman.mockito_kotlin.verify
 import chat.willow.kale.irc.message.IMessage
 import chat.willow.kale.irc.message.extension.cap.CapEndMessage
 import chat.willow.kale.irc.message.extension.sasl.Rpl903Message
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -35,13 +36,13 @@ class Rpl903HandlerTests {
     }
 
     @Test fun test_handle_LifecycleSetToAuthed() {
-        handler.handle(Rpl903Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
+        handler.handle(Rpl903Message(source = "", target = "", contents = "SASL auth succeeded"), TagStore())
 
         assertEquals(AuthLifecycle.AUTHED, saslState.lifecycle)
     }
 
     @Test fun test_handle_TellsCapManagerRegistrationStateChanged() {
-        handler.handle(Rpl903Message(source = "", target = "", contents = "SASL auth succeeded"), mapOf())
+        handler.handle(Rpl903Message(source = "", target = "", contents = "SASL auth succeeded"), TagStore())
 
         verify(mockCapManager).onRegistrationStateChanged()
     }

@@ -2,6 +2,7 @@ package chat.willow.warren.extension.cap.handler
 
 import chat.willow.kale.irc.message.extension.cap.CapNewMessage
 import chat.willow.kale.irc.message.extension.cap.CapReqMessage
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -31,7 +32,7 @@ class CapNewHandlerTests {
         state.negotiate = setOf("cap1", "cap2")
         state.accepted = setOf()
 
-        handler.handle(CapNewMessage(target = "", caps = mapOf("cap1" to null, "cap2" to null, "cap3" to null)), mapOf())
+        handler.handle(CapNewMessage(target = "", caps = mapOf("cap1" to null, "cap2" to null, "cap3" to null)), TagStore())
 
         verify(mockSink).write(CapReqMessage(caps = listOf("cap1", "cap2")))
     }
@@ -40,7 +41,7 @@ class CapNewHandlerTests {
         state.negotiate = setOf("cap1", "cap2")
         state.accepted = setOf("cap1")
 
-        handler.handle(CapNewMessage(target = "", caps = mapOf("cap1" to null, "cap2" to null, "cap3" to null)), mapOf())
+        handler.handle(CapNewMessage(target = "", caps = mapOf("cap1" to null, "cap2" to null, "cap3" to null)), TagStore())
 
         verify(mockSink).write(CapReqMessage(caps = listOf("cap2")))
     }
@@ -49,7 +50,7 @@ class CapNewHandlerTests {
         state.negotiate = setOf("cap1", "cap2")
         state.accepted = setOf("cap1", "cap2")
 
-        handler.handle(CapNewMessage(target = "", caps = mapOf("cap1" to null, "cap2" to null, "cap3" to null)), mapOf())
+        handler.handle(CapNewMessage(target = "", caps = mapOf("cap1" to null, "cap2" to null, "cap3" to null)), TagStore())
 
         verify(mockSink, never()).write(any())
     }

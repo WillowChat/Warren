@@ -6,6 +6,7 @@ import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import chat.willow.kale.irc.message.IMessage
 import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.sasl.AuthenticateHandler
 import chat.willow.warren.extension.sasl.SaslState
@@ -30,7 +31,7 @@ class AuthenticateHandlerTests {
     @Test fun test_handle_NotAuthing_DoesNothing() {
         state.lifecycle = AuthLifecycle.NO_AUTH
 
-        handler.handle(AuthenticateMessage(payload = "+", isEmpty = true), mapOf())
+        handler.handle(AuthenticateMessage(payload = "+", isEmpty = true), TagStore())
 
         verify(sink, never()).write(any<IMessage>())
     }
@@ -39,7 +40,7 @@ class AuthenticateHandlerTests {
         state.lifecycle = AuthLifecycle.NO_AUTH
         state.credentials = null
 
-        handler.handle(AuthenticateMessage(payload = "+", isEmpty = true), mapOf())
+        handler.handle(AuthenticateMessage(payload = "+", isEmpty = true), TagStore())
 
         verify(sink, never()).write(any<IMessage>())
     }
@@ -48,7 +49,7 @@ class AuthenticateHandlerTests {
         state.lifecycle = AuthLifecycle.AUTHING
         state.credentials = AuthCredentials(account = "test-nick", password = "test-password")
 
-        handler.handle(AuthenticateMessage(payload = "+", isEmpty = true), mapOf())
+        handler.handle(AuthenticateMessage(payload = "+", isEmpty = true), TagStore())
 
         verify(sink).write(AuthenticateMessage(payload = "dGVzdC1uaWNrAHRlc3QtbmljawB0ZXN0LXBhc3N3b3Jk", isEmpty = false))
     }

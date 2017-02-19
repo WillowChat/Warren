@@ -3,6 +3,7 @@ package chat.willow.warren.extension.away_notify
 import chat.willow.kale.irc.message.extension.away_notify.AwayMessage
 import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
 import org.junit.Assert.*
 import org.junit.Before
@@ -25,7 +26,7 @@ class AwayHandlerTests {
 
         val message = AwayMessage(source = Prefix(nick = "test-user"), message = "away message")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         assertEquals("away message", channelsState["#channel"]!!.users["test-user"]!!.awayMessage)
         assertEquals("away message", channelsState["#channel2"]!!.users["test-user"]!!.awayMessage)
@@ -37,7 +38,7 @@ class AwayHandlerTests {
 
         val message = AwayMessage(source = Prefix(nick = "test-user"), message = "away message")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         assertNull(channelsState["#channel"]!!.users["someone-else"]!!.awayMessage)
     }
@@ -48,7 +49,7 @@ class AwayHandlerTests {
 
         val message = AwayMessage(source = Prefix(nick = "test-user"), message = null)
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         assertNull(channelsState["#channel"]!!.users["test-user"]!!.awayMessage)
         assertNull(channelsState["#channel2"]!!.users["test-user"]!!.awayMessage)
@@ -60,7 +61,7 @@ class AwayHandlerTests {
 
         val message = AwayMessage(source = Prefix(nick = "test-user"), message = null)
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         assertEquals("away message", channelsState["#channel"]!!.users["someone-else"]!!.awayMessage)
     }

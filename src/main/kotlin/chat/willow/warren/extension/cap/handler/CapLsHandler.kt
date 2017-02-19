@@ -3,6 +3,7 @@ package chat.willow.warren.extension.cap.handler
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.extension.cap.CapLsMessage
 import chat.willow.kale.irc.message.extension.cap.CapReqMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -16,7 +17,7 @@ class CapLsHandler(val capState: CapState, val saslState: SaslState, val sink: I
 
     override val messageType = CapLsMessage::class.java
 
-    override fun handle(message: CapLsMessage, tags: Map<String, String?>) {
+    override fun handle(message: CapLsMessage, tags: ITagStore) {
         val caps = message.caps
         val lifecycle = capState.lifecycle
 

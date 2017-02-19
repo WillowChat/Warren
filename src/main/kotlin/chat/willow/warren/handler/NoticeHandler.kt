@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.NoticeMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.ChannelTypesState
 
@@ -11,7 +12,7 @@ class NoticeHandler(val channelTypesState: ChannelTypesState) : IKaleHandler<Not
 
     override val messageType = NoticeMessage::class.java
 
-    override fun handle(message: NoticeMessage, tags: Map<String, String?>) {
+    override fun handle(message: NoticeMessage, tags: ITagStore) {
         val source = message.source
         val target = message.target
         val messageContents = message.message

@@ -2,6 +2,7 @@ package chat.willow.warren.extension.invite_notify.handler
 
 import chat.willow.kale.irc.message.rfc1459.InviteMessage
 import chat.willow.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.event.IWarrenEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.InvitedToChannelEvent
@@ -26,7 +27,7 @@ class InviteHandlerTests {
     @Test fun test_handle_MessageWithSource_FiresEventForInviteToChannel() {
         val message = InviteMessage(source = Prefix(nick = "test-user"), user = "anybody", channel = "#somewhere")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         verify(mockEventDispatcher).fire(InvitedToChannelEvent(source = Prefix(nick = "test-user"), channel = "#somewhere"))
     }
@@ -34,7 +35,7 @@ class InviteHandlerTests {
     @Test fun test_handle_MessageWithoutSource_DoesNotFireEvents() {
         val message = InviteMessage(source = null, user = "anybody", channel = "#somewhere")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }

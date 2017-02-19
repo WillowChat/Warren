@@ -5,6 +5,7 @@ import chat.willow.kale.irc.message.rfc1459.rpl.Rpl353Message
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.prefix.PrefixParser
 import chat.willow.kale.irc.prefix.PrefixSerialiser
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.JoinedChannelsState
@@ -17,7 +18,7 @@ class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesStat
 
     override val messageType = Rpl353Message::class.java
 
-    override fun handle(message: Rpl353Message, tags: Map<String, String?>) {
+    override fun handle(message: Rpl353Message, tags: ITagStore) {
         val names = message.names
 
         val channel = channelsState[message.channel]

@@ -2,6 +2,7 @@ package chat.willow.warren.extension.away_notify
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.extension.away_notify.AwayMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.JoinedChannelsState
 
@@ -10,7 +11,7 @@ class AwayHandler(val channelsState: JoinedChannelsState) : IKaleHandler<AwayMes
     private val LOGGER = loggerFor<AwayHandler>()
     override val messageType = AwayMessage::class.java
 
-    override fun handle(message: AwayMessage, tags: Map<String, String?>) {
+    override fun handle(message: AwayMessage, tags: ITagStore) {
         val nick = message.source.nick
         val awayMessage = message.message
 

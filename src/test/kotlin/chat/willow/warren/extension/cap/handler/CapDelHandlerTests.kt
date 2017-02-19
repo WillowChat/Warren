@@ -1,6 +1,7 @@
 package chat.willow.warren.extension.cap.handler
 
 import chat.willow.kale.irc.message.extension.cap.CapDelMessage
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -31,7 +32,7 @@ class CapDelHandlerTests {
         capState.rejected = setOf()
         capState.accepted = setOf()
 
-        handler.handle(CapDelMessage(target = "", caps = listOf("cap1", "cap2")), mapOf())
+        handler.handle(CapDelMessage(target = "", caps = listOf("cap1", "cap2")), TagStore())
 
         verify(mockSink, never()).write(any())
     }
@@ -40,7 +41,7 @@ class CapDelHandlerTests {
         capState.rejected = setOf("cap1", "cap2")
         capState.accepted = setOf()
 
-        handler.handle(CapDelMessage(target = "", caps = listOf("cap1", "cap2")), mapOf())
+        handler.handle(CapDelMessage(target = "", caps = listOf("cap1", "cap2")), TagStore())
 
         verify(mockSink, never()).write(any())
     }
@@ -49,7 +50,7 @@ class CapDelHandlerTests {
         capState.rejected = setOf("cap1")
         capState.accepted = setOf("cap2", "cap3")
 
-        handler.handle(CapDelMessage(target = "", caps = listOf("cap1", "cap2", "cap3")), mapOf())
+        handler.handle(CapDelMessage(target = "", caps = listOf("cap1", "cap2", "cap3")), TagStore())
 
         assertEquals(setOf("cap1", "cap2", "cap3"), capState.rejected)
         assertEquals(setOf<String>(), capState.accepted)

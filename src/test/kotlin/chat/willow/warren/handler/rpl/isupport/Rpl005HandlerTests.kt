@@ -2,6 +2,7 @@ package chat.willow.warren.handler.rpl.isupport
 
 import chat.willow.kale.irc.message.rfc1459.rpl.Rpl005Message
 import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.extension.cap.ICapManager
 import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.state.*
@@ -42,25 +43,25 @@ class Rpl005HandlerTests {
     }
 
     @Test fun test_handle_UserPrefixes() {
-        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("PREFIX" to "(ovh)@+%")), mapOf())
+        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("PREFIX" to "(ovh)@+%")), TagStore())
 
         verify(mockPrefixHandler).handle("(ovh)@+%", userPrefixesState)
     }
 
     @Test fun test_handle_ChannelModes() {
-        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CHANMODES" to "eIb,k,l,imnpstSr")), mapOf())
+        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CHANMODES" to "eIb,k,l,imnpstSr")), TagStore())
 
         verify(mockChannelModesHandler).handle("eIb,k,l,imnpstSr", channelModesState)
     }
 
     @Test fun test_handle_CaseMapping() {
-        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CASEMAPPING" to "something")), mapOf())
+        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("CASEMAPPING" to "something")), TagStore())
 
         verify(mockCaseMappingHandler).handle("something", caseMappingState)
     }
 
     @Test fun test_handle_Monitor() {
-        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("MONITOR" to "1234")), mapOf())
+        handler.handle(Rpl005Message(source = "test.server", target = "test_user", tokens = mapOf("MONITOR" to "1234")), TagStore())
 
         verify(mockMonitorHandler).handle("1234", monitorState)
     }

@@ -2,6 +2,7 @@ package chat.willow.warren.extension.sasl
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.AuthLifecycle
@@ -13,7 +14,7 @@ class AuthenticateHandler(val state: SaslState, val sink: IMessageSink) : IKaleH
 
     override val messageType = AuthenticateMessage::class.java
 
-    override fun handle(message: AuthenticateMessage, tags: Map<String, String?>) {
+    override fun handle(message: AuthenticateMessage, tags: ITagStore) {
         if (state.lifecycle != AuthLifecycle.AUTHING) {
             LOGGER.warn("got an auth challenge, but we don't think we're authenticating - ignoring: $message")
             return

@@ -2,6 +2,7 @@ package chat.willow.warren.handler.rpl
 
 import chat.willow.kale.irc.message.rfc1459.rpl.Rpl353Message
 import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -23,7 +24,7 @@ class Rpl353HandlerTests {
     @Test fun test_handle_WellFormed_AddsCorrectNicksToChannel() {
         channelsState.joined += ChannelState("#channel", users = generateUsers(mappingState = caseMappingState))
 
-        handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@test-nick@somewhere", "+another-person", "someone-else!realname@somewhere_else")), mapOf())
+        handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@test-nick@somewhere", "+another-person", "someone-else!realname@somewhere_else")), TagStore())
 
         assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsersWithModes(("test-nick" to setOf('o')), ("another-person" to setOf('v')), ("someone-else" to setOf()), mappingState = caseMappingState))), caseMappingState), channelsState)
     }
@@ -31,13 +32,13 @@ class Rpl353HandlerTests {
     @Test fun test_handle_MalformedUserNick_ProcessesTheRestAnyway() {
         channelsState.joined += ChannelState("#channel", users = generateUsers(mappingState = caseMappingState))
 
-        handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@", "+another-person", "someone-else")), mapOf())
+        handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@", "+another-person", "someone-else")), TagStore())
 
         assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsersWithModes(("another-person" to setOf('v')), ("someone-else" to setOf()), mappingState = caseMappingState))), caseMappingState), channelsState)
     }
 
     @Test fun test_handle_NotInChannel_DoesNothing() {
-        handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@test-nick", "+another-person", "someone-else")), mapOf())
+        handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@test-nick", "+another-person", "someone-else")), TagStore())
 
         assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }

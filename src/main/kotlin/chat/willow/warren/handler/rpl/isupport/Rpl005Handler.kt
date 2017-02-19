@@ -2,6 +2,7 @@ package chat.willow.warren.handler.rpl.isupport
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.rpl.Rpl005Message
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.ParsingState
@@ -12,7 +13,7 @@ class Rpl005Handler(val state: ParsingState, val monitorState: MonitorState, val
 
     override val messageType = Rpl005Message::class.java
 
-    override fun handle(message: Rpl005Message, tags: Map<String, String?>) {
+    override fun handle(message: Rpl005Message, tags: ITagStore) {
         LOGGER.debug("got isupport additions: ${message.tokens}")
 
         for ((key, value) in message.tokens) {

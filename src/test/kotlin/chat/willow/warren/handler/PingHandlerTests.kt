@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import chat.willow.kale.irc.message.rfc1459.PingMessage
 import chat.willow.kale.irc.message.rfc1459.PongMessage
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.state.ConnectionState
 import chat.willow.warren.state.LifecycleState
@@ -26,7 +27,7 @@ class PingHandlerTests {
     }
 
     @Test fun test_handle_SendsPongWithCorrectToken() {
-        handler.handle(PingMessage(token = "TestToken"), mapOf())
+        handler.handle(PingMessage(token = "TestToken"), TagStore())
 
         verify(mockSink).write(PongMessage(token = "TestToken"))
     }
@@ -35,7 +36,7 @@ class PingHandlerTests {
         val expectedTime = System.currentTimeMillis()
         val tolerance = 1000
 
-        handler.handle(PingMessage(token = "TestToken"), mapOf())
+        handler.handle(PingMessage(token = "TestToken"), TagStore())
 
         assertTrue(connectionState.lastPingOrPong > tolerance)
         assertTrue(connectionState.lastPingOrPong > expectedTime - tolerance)

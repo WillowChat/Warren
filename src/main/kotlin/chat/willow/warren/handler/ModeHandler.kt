@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.ModeMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.event.ChannelModeEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.UserModeEvent
@@ -17,7 +18,7 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
 
     override val messageType = ModeMessage::class.java
 
-    override fun handle(message: ModeMessage, tags: Map<String, String?>) {
+    override fun handle(message: ModeMessage, tags: ITagStore) {
         val target = message.target
 
         if (channelTypesState.types.any { char -> target.startsWith(char) }) {

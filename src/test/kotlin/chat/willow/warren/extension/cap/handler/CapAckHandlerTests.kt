@@ -2,6 +2,7 @@ package chat.willow.warren.extension.cap.handler
 
 import chat.willow.kale.irc.message.extension.cap.CapAckMessage
 import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -38,7 +39,7 @@ class CapAckHandlerTests {
     @Test fun test_handle_AddsAckedCapsToStateList() {
         state.negotiate = setOf("cap1", "cap2", "cap3")
 
-        handler.handle(CapAckMessage(caps = listOf("cap1", "cap2")), mapOf())
+        handler.handle(CapAckMessage(caps = listOf("cap1", "cap2")), TagStore())
 
         assertEquals(setOf("cap1", "cap2"), state.accepted)
     }
@@ -46,7 +47,7 @@ class CapAckHandlerTests {
     @Test fun test_handle_Negotiating_TellsCapManagerRegistrationStateChanged() {
         state.lifecycle = CapLifecycle.NEGOTIATING
 
-        handler.handle(CapAckMessage(caps = listOf("cap 1", "cap 2")), mapOf())
+        handler.handle(CapAckMessage(caps = listOf("cap 1", "cap 2")), TagStore())
 
         verify(mockCapManager).onRegistrationStateChanged()
     }
@@ -54,7 +55,7 @@ class CapAckHandlerTests {
     @Test fun test_handle_ACKedSasl_ShouldAuth_ChangesSaslLifecycleToAuthing() {
         saslState.shouldAuth = true
 
-        handler.handle(CapAckMessage(caps = listOf("sasl")), mapOf())
+        handler.handle(CapAckMessage(caps = listOf("sasl")), TagStore())
 
         assertEquals(AuthLifecycle.AUTHING, saslState.lifecycle)
     }
@@ -62,7 +63,7 @@ class CapAckHandlerTests {
     @Test fun test_handle_ACKedSasl_NoAuth_DoesNotWriteAuthenticateMessage() {
         saslState.shouldAuth = false
 
-        handler.handle(CapAckMessage(caps = listOf("sasl")), mapOf())
+        handler.handle(CapAckMessage(caps = listOf("sasl")), TagStore())
 
         verify(mockSink, never()).write(any())
     }
@@ -71,7 +72,7 @@ class CapAckHandlerTests {
         state.negotiate = setOf("sasl")
         saslState.shouldAuth = true
 
-        handler.handle(CapAckMessage(caps = listOf("sasl")), mapOf())
+        handler.handle(CapAckMessage(caps = listOf("sasl")), TagStore())
 
         verify(mockSink).write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
     }
@@ -79,7 +80,7 @@ class CapAckHandlerTests {
     @Test fun test_handle_ServerACKedCapThatWeDidntNegotiate_DoesNotAcceptIt() {
         state.negotiate = setOf("cap1", "cap2")
 
-        handler.handle(CapAckMessage(caps = listOf("cap3")), mapOf())
+        handler.handle(CapAckMessage(caps = listOf("cap3")), TagStore())
 
         assertFalse(state.accepted.contains("cap3"))
         verify(mockCapManager, never()).capEnabled("cap3")

@@ -3,6 +3,7 @@ package chat.willow.warren.extension.cap.handler
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.extension.cap.CapAckMessage
 import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -17,7 +18,7 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
 
     override val messageType = CapAckMessage::class.java
 
-    override fun handle(message: CapAckMessage, tags: Map<String, String?>) {
+    override fun handle(message: CapAckMessage, tags: ITagStore) {
         val caps = message.caps
         val lifecycle = capState.lifecycle
 

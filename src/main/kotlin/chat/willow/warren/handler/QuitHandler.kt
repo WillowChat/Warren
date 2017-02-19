@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.QuitMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.event.ConnectionLifecycleEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.helper.loggerFor
@@ -15,7 +16,7 @@ class QuitHandler(val eventDispatcher: IWarrenEventDispatcher, val connectionSta
 
     override val messageType = QuitMessage::class.java
 
-    override fun handle(message: QuitMessage, tags: Map<String, String?>) {
+    override fun handle(message: QuitMessage, tags: ITagStore) {
         val from = message.source?.nick
 
         if (from == null) {

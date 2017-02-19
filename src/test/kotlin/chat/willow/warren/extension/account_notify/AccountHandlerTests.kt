@@ -3,6 +3,7 @@ package chat.willow.warren.extension.account_notify
 import chat.willow.kale.irc.message.extension.account_notify.AccountMessage
 import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
 import org.junit.Before
 import org.junit.Test
@@ -25,7 +26,7 @@ class AccountHandlerTests {
 
         val message = AccountMessage(source = Prefix(nick = "test-user"), account = "*")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         assertNull(channelsState["#channel"]!!.users["test-user"]!!.account)
         assertNull(channelsState["#channel2"]!!.users["test-user"]!!.account)
@@ -37,7 +38,7 @@ class AccountHandlerTests {
 
         val message = AccountMessage(source = Prefix(nick = "test-user"), account = "test-account")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         assertEquals("test-account", channelsState["#channel"]!!.users["test-user"]!!.account)
         assertEquals("test-account", channelsState["#channel2"]!!.users["test-user"]!!.account)
@@ -49,7 +50,7 @@ class AccountHandlerTests {
 
         val message = AccountMessage(source = Prefix(nick = "test-user"), account = "*")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         assertEquals("someone-account", channelsState["#channel"]!!.users["someone-else"]!!.account)
     }
@@ -60,7 +61,7 @@ class AccountHandlerTests {
 
         val message = AccountMessage(source = Prefix(nick = "test-user"), account = "test-user-account")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         assertEquals("someone-account", channelsState["#channel"]!!.users["someone-else"]!!.account)
     }

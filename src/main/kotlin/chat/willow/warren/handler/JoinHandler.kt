@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.JoinMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.*
 
@@ -11,7 +12,7 @@ class JoinHandler(val connectionState: ConnectionState, val joiningChannelsState
 
     override val messageType = JoinMessage::class.java
 
-    override fun handle(message: JoinMessage, tags: Map<String, String?>) {
+    override fun handle(message: JoinMessage, tags: ITagStore) {
         val channelNames = message.channels
         val source = message.source
 

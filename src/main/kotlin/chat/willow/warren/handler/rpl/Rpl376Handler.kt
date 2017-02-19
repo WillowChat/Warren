@@ -2,6 +2,7 @@ package chat.willow.warren.handler.rpl
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.rpl.Rpl376Message
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -14,7 +15,7 @@ class Rpl376Handler(val sink: IMessageSink, val capState: CapState, val rfc1459R
 
     override val messageType = Rpl376Message::class.java
 
-    override fun handle(message: Rpl376Message, tags: Map<String, String?>) {
+    override fun handle(message: Rpl376Message, tags: ITagStore) {
 
         if (capState.lifecycle == CapLifecycle.NEGOTIATING) {
             LOGGER.warn("got MOTD end before CAP end, assuming CAP negotiation failed")

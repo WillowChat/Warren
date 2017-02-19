@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.NickMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.ConnectionState
 import chat.willow.warren.state.JoinedChannelsState
@@ -12,7 +13,7 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Joine
 
     override val messageType = NickMessage::class.java
 
-    override fun handle(message: NickMessage, tags: Map<String, String?>) {
+    override fun handle(message: NickMessage, tags: ITagStore) {
         val from = message.source
         val to = message.nickname
 

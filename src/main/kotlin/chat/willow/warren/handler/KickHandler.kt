@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.KickMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.ConnectionState
@@ -13,7 +14,7 @@ class KickHandler(val connectionState: ConnectionState, val channelsState: Joine
 
     override val messageType = KickMessage::class.java
 
-    override fun handle(message: KickMessage, tags: Map<String, String?>) {
+    override fun handle(message: KickMessage, tags: ITagStore) {
         val kickedNicks = message.users
         val channels = message.channels
 

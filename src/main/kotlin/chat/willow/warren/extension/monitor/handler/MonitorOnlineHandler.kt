@@ -2,6 +2,7 @@ package chat.willow.warren.extension.monitor.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.extension.monitor.rpl.RplMonOnlineMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.extension.monitor.UserOnlineEvent
 import chat.willow.warren.helper.loggerFor
@@ -11,7 +12,7 @@ class MonitorOnlineHandler(private val eventDispatcher: IWarrenEventDispatcher) 
     private val LOGGER = loggerFor<MonitorOnlineHandler>()
     override val messageType = RplMonOnlineMessage::class.java
 
-    override fun handle(message: RplMonOnlineMessage, tags: Map<String, String?>) {
+    override fun handle(message: RplMonOnlineMessage, tags: ITagStore) {
         message.targets.forEach { eventDispatcher.fire(UserOnlineEvent(it)) }
     }
 

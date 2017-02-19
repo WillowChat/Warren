@@ -5,6 +5,7 @@ import chat.willow.kale.KaleRouter
 import chat.willow.kale.irc.message.IrcMessageSerialiser
 import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
 import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.tag.KaleTagRouter
 import chat.willow.warren.event.ChannelMessageEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.WarrenEventDispatcher
@@ -60,7 +61,7 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         val connectionState = ConnectionState(server = server.server, port = server.port, nickname = user.nickname, user = user.user,
                 lifecycle = lifecycleState, nickServ = nickServState, password = server.password)
 
-        val kale = Kale(KaleRouter().useDefaults())
+        val kale = Kale(KaleRouter().useDefaults(), KaleTagRouter().useDefaults())
         val serialiser = IrcMessageSerialiser
 
         val socketFactory = if (server.useTLS) {

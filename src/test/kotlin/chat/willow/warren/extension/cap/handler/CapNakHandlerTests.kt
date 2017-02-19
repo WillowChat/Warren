@@ -1,6 +1,7 @@
 package chat.willow.warren.extension.cap.handler
 
 import chat.willow.kale.irc.message.extension.cap.CapNakMessage
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -34,7 +35,7 @@ class CapNakHandlerTests {
     @Test fun test_handle_AddsNakedCapsToStateList() {
         capState.negotiate = setOf("cap1", "cap2", "cap3")
 
-        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), mapOf())
+        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), TagStore())
 
         assertEquals(setOf("cap1", "cap2"), capState.rejected)
     }
@@ -42,7 +43,7 @@ class CapNakHandlerTests {
     @Test fun test_handle_Negotiating_TellsCapManagerRegistrationStateChanged() {
         capState.lifecycle = CapLifecycle.NEGOTIATING
 
-        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), mapOf())
+        handler.handle(CapNakMessage(caps = listOf("cap1", "cap2")), TagStore())
 
         verify(mockCapManager).onRegistrationStateChanged()
     }

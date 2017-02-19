@@ -8,6 +8,7 @@ import chat.willow.kale.irc.message.IMessage
 import chat.willow.kale.irc.message.extension.cap.CapEndMessage
 import chat.willow.kale.irc.message.extension.sasl.Rpl903Message
 import chat.willow.kale.irc.message.extension.sasl.Rpl905Message
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -36,13 +37,13 @@ class Rpl905HandlerTests {
     }
 
     @Test fun test_handle_LifecycleSetToAuthFailed() {
-        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth failed"), mapOf())
+        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth failed"), TagStore())
 
         assertEquals(AuthLifecycle.AUTH_FAILED, saslState.lifecycle)
     }
 
     @Test fun test_handle_TellsCapManagerRegistrationStateChanged() {
-        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth failed"), mapOf())
+        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth failed"), TagStore())
 
         verify(mockCapManager).onRegistrationStateChanged()
     }

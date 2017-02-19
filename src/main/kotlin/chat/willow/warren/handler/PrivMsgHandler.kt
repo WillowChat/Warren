@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.event.*
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.ChannelTypesState
@@ -13,7 +14,7 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsSt
 
     override val messageType = PrivMsgMessage::class.java
 
-    override fun handle(message: PrivMsgMessage, tags: Map<String, String?>) {
+    override fun handle(message: PrivMsgMessage, tags: ITagStore) {
         val source = message.source
         val target = message.target
         var messageContents = message.message
@@ -21,11 +22,6 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsSt
         if (source == null) {
             LOGGER.warn("got a PrivMsg but the source was missing - bailing: $message")
             return
-        }
-
-        var serverTime = ""
-        if (message.time != null) {
-            serverTime = "${message.time} "
         }
 
         var ctcp = CtcpEnum.NONE
@@ -59,13 +55,13 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsSt
                 CtcpEnum.NONE -> {
                     eventDispatcher.fire(ChannelMessageEvent(user = user, channel = channel, message = messageContents))
 
-                    LOGGER.debug("$serverTime$target <${source.nick}> $messageContents")
+                    LOGGER.debug("$target <${source.nick}> $messageContents")
                 }
 
                 CtcpEnum.ACTION -> {
                     eventDispatcher.fire(ChannelActionEvent(user = user, channel = channel, message = messageContents))
 
-                    LOGGER.debug("$serverTime$target ${source.nick} * $messageContents")
+                    LOGGER.debug("$target ${source.nick} * $messageContents")
                 }
 
                 else -> Unit
@@ -77,13 +73,13 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsSt
                 CtcpEnum.NONE -> {
                     eventDispatcher.fire(PrivateMessageEvent(user = source, message = messageContents))
 
-                    LOGGER.debug("PM: $serverTime <${source.nick}> $messageContents")
+                    LOGGER.debug("PM: <${source.nick}> $messageContents")
                 }
 
                 CtcpEnum.ACTION -> {
                     eventDispatcher.fire(PrivateActionEvent(user = source, message = messageContents))
 
-                    LOGGER.debug("PM: $serverTime ${source.nick} * $messageContents")
+                    LOGGER.debug("PM: ${source.nick} * $messageContents")
                 }
 
                 else -> Unit

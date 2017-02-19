@@ -6,6 +6,7 @@ import com.nhaarman.mockito_kotlin.never
 import com.nhaarman.mockito_kotlin.verify
 import chat.willow.kale.irc.message.rfc1459.JoinMessage
 import chat.willow.kale.irc.message.rfc1459.rpl.Rpl376Message
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.event.ConnectionLifecycleEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
@@ -41,7 +42,7 @@ class Rpl376HandlerTests {
     }
 
     @Test fun test_handle_TellsRFC1459RegistrationExtension_Succeeded() {
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), TagStore())
 
         verify(mockRFC1459RegistrationExtension).onRegistrationSucceeded()
     }
@@ -49,7 +50,7 @@ class Rpl376HandlerTests {
     @Test fun test_handle_CapLifecycleIsNegotiating_TellsCapRegistrationExtension_Failure() {
         capState.lifecycle = CapLifecycle.NEGOTIATING
 
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), TagStore())
 
         verify(mockCapRegistrationExtension).onRegistrationFailed()
     }
@@ -57,7 +58,7 @@ class Rpl376HandlerTests {
     @Test fun test_handle_CapLifecycleIsNegotiated_DoesNotNotifyCapRegistrationExtension() {
         capState.lifecycle = CapLifecycle.NEGOTIATED
 
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), mapOf())
+        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), TagStore())
 
         verify(mockCapRegistrationExtension, never()).onRegistrationFailed()
     }

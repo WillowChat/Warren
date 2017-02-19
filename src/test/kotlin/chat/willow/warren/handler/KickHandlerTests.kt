@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.irc.message.rfc1459.KickMessage
 import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -26,7 +27,7 @@ class KickHandlerTests {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", mappingState = caseMappingState))
         channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
 
-        handler.handle(KickMessage(users = listOf("someone"), channels = listOf("#channel", "#channel2")), mapOf())
+        handler.handle(KickMessage(users = listOf("someone"), channels = listOf("#channel", "#channel2")), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone-else", mappingState = caseMappingState))
         val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
@@ -38,7 +39,7 @@ class KickHandlerTests {
     @Test fun test_handle_MultipleNicks_NotSelf_RemovesFromChannel() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", "last-person", mappingState = caseMappingState))
 
-        handler.handle(KickMessage(users = listOf("someone", "someone-else"), channels = listOf("#channel")), mapOf())
+        handler.handle(KickMessage(users = listOf("someone", "someone-else"), channels = listOf("#channel")), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("last-person", mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
@@ -49,7 +50,7 @@ class KickHandlerTests {
     @Test fun test_handle_UserNotInChannel_DoesNothing() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", mappingState = caseMappingState))
 
-        handler.handle(KickMessage(users = listOf("nonexistent-user"), channels = listOf("#channel")), mapOf())
+        handler.handle(KickMessage(users = listOf("nonexistent-user"), channels = listOf("#channel")), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone", mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
@@ -60,7 +61,7 @@ class KickHandlerTests {
     @Test fun test_handle_KickSelf_LeavesChannel() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick", mappingState = caseMappingState))
 
-        handler.handle(KickMessage(users = listOf("test-nick"), channels = listOf("#channel")), mapOf())
+        handler.handle(KickMessage(users = listOf("test-nick"), channels = listOf("#channel")), TagStore())
 
         val expectedChannelsState = emptyChannelsState(caseMappingState)
 

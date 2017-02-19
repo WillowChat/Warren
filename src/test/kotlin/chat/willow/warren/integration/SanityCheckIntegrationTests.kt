@@ -4,6 +4,7 @@ import chat.willow.kale.IKale
 import chat.willow.kale.Kale
 import chat.willow.kale.KaleRouter
 import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.tag.KaleTagRouter
 import chat.willow.warren.ILineSource
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.IrcConnection
@@ -71,7 +72,7 @@ class SanityCheckIntegrationTests {
 
         registrationManager = RegistrationManager()
 
-        kale = Kale(KaleRouter().useDefaults())
+        kale = Kale(KaleRouter().useDefaults(), KaleTagRouter().useDefaults())
         internalEventQueue = IntegrationTestLineGenerator(queueOf(), kale)
 
         mockSink = mock()

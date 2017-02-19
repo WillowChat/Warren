@@ -7,6 +7,7 @@ import chat.willow.kale.irc.message.extension.extended_join.ExtendedJoinMessage
 import chat.willow.kale.irc.message.rfc1459.JoinMessage
 import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
 import org.junit.Assert.*
 import org.junit.Before
@@ -34,17 +35,18 @@ class ExtendedJoinHandlerTests {
     @Test fun test_handle_CallsJoinHandler_WithCorrectMessage() {
         val message = ExtendedJoinMessage(source = Prefix(nick = "test-user"), channel = "#channel", account = "test-account", realName = "real name")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
-        verify(mockJoinHandler).handle(message = JoinMessage(source = Prefix(nick = "test-user"), channels = listOf("#channel")), tags = mapOf())
+        verify(mockJoinHandler).handle(message = JoinMessage(source = Prefix(nick = "test-user"), channels = listOf("#channel")), tags = TagStore())
     }
 
     @Test fun test_handle_CallsJoinHandler_WithCorrectTags() {
         val message = ExtendedJoinMessage(source = Prefix(nick = "test-user"), channel = "#channel", account = "test-account", realName = "real name")
 
-        sut.handle(message, tags = mapOf("test-key" to "test-value"))
+        val tagStore = TagStore()
+        sut.handle(message, tags = tagStore)
 
-        verify(mockJoinHandler).handle(message = JoinMessage(source = Prefix(nick = "test-user"), channels = listOf("#channel")), tags = mapOf("test-key" to "test-value"))
+        verify(mockJoinHandler).handle(message = JoinMessage(source = Prefix(nick = "test-user"), channels = listOf("#channel")), tags = tagStore)
     }
 
     @Test fun test_handle_JoinedChannel_UserAccountUpdatedInAllChannels() {
@@ -54,7 +56,7 @@ class ExtendedJoinHandlerTests {
 
         val message = ExtendedJoinMessage(source = Prefix(nick = "test-user"), channel = "#channel", account = "test-account", realName = "real name")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         assertEquals("test-account", channelsState.joined["#channel"]!!.users["test-user"]!!.account)
         assertEquals("test-account", channelsState.joined["#channel2"]!!.users["test-user"]!!.account)
@@ -67,7 +69,7 @@ class ExtendedJoinHandlerTests {
 
         val message = ExtendedJoinMessage(source = Prefix(nick = "test-user"), channel = "#channel", account = "test-account", realName = "real name")
 
-        sut.handle(message, tags = mapOf())
+        sut.handle(message, tags = TagStore())
 
         assertEquals("someone-account", channelsState.joined["#channel"]!!.users["someone-else"]!!.account)
         assertEquals("someone-account", channelsState.joined["#channel2"]!!.users["someone-else"]!!.account)

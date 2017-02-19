@@ -2,6 +2,7 @@ package chat.willow.warren.extension.account_notify
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.extension.account_notify.AccountMessage
+import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.JoinedChannelsState
 
@@ -10,7 +11,7 @@ class AccountHandler(val channelsState: JoinedChannelsState) : IKaleHandler<Acco
     private val LOGGER = loggerFor<AccountHandler>()
     override val messageType = AccountMessage::class.java
 
-    override fun handle(message: AccountMessage, tags: Map<String, String?>) {
+    override fun handle(message: AccountMessage, tags: ITagStore) {
         val nick = message.source.nick
 
         val account: String? = if (message.account == "*") {

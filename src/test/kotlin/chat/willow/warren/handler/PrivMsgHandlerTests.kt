@@ -8,6 +8,7 @@ import chat.willow.kale.irc.CharacterCodes
 import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
 import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.event.*
 import chat.willow.warren.state.*
 import org.junit.Before
@@ -33,7 +34,7 @@ class PrivMsgHandlerTests {
 
         joinedChannelsState += channel
 
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "a test message"), mapOf())
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "a test message"), TagStore())
 
         verify(mockEventDispatcher).fire(ChannelMessageEvent(user = generateUser("someone"), channel = channel, message = "a test message"))
     }
@@ -42,25 +43,25 @@ class PrivMsgHandlerTests {
         val channel = emptyChannel("&channel")
 
         joinedChannelsState += channel
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&notInChannel", message = "a test message"), mapOf())
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&notInChannel", message = "a test message"), TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
     @Test fun test_handle_ChannelMessage_MissingUser_DoesNothing() {
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&notInChannel", message = "a test message"), mapOf())
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&notInChannel", message = "a test message"), TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
     @Test fun test_handle_PrivateMessage_FiresEvent() {
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not-a-channel", message = "a test message"), mapOf())
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not-a-channel", message = "a test message"), TagStore())
 
         verify(mockEventDispatcher).fire(PrivateMessageEvent(user = Prefix(nick = "someone"), message = "a test message"))
     }
 
     @Test fun test_handle_NoSource_DoesNothing() {
-        handler.handle(PrivMsgMessage(source = null, target = "not-a-channel", message = "a test message"), mapOf())
+        handler.handle(PrivMsgMessage(source = null, target = "not-a-channel", message = "a test message"), TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
@@ -71,7 +72,7 @@ class PrivMsgHandlerTests {
 
         joinedChannelsState += channel
 
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "${CharacterCodes.CTCP}ACTION an action${CharacterCodes.CTCP}"), mapOf())
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "${CharacterCodes.CTCP}ACTION an action${CharacterCodes.CTCP}"), TagStore())
 
         verify(mockEventDispatcher).fire(ChannelActionEvent(user = generateUser("someone"), channel = channel, message = "an action"))
     }
@@ -82,19 +83,19 @@ class PrivMsgHandlerTests {
 
         joinedChannelsState += channel
 
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "${CharacterCodes.CTCP}UNKNOWN ${CharacterCodes.CTCP}"), mapOf())
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "${CharacterCodes.CTCP}UNKNOWN ${CharacterCodes.CTCP}"), TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
     @Test fun test_handle_PrivateMessage_Action_FiresEvent() {
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not a channel", message = "${CharacterCodes.CTCP}ACTION an action${CharacterCodes.CTCP}"), mapOf())
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not a channel", message = "${CharacterCodes.CTCP}ACTION an action${CharacterCodes.CTCP}"), TagStore())
 
         verify(mockEventDispatcher).fire(PrivateActionEvent(user = Prefix(nick = "someone"), message = "an action"))
     }
 
     @Test fun test_handle_PrivateMessage_UnknownCtcp_DoesNotFireEvent() {
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not a channel", message = "${CharacterCodes.CTCP}UNKNOWN ${CharacterCodes.CTCP}"), mapOf())
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not a channel", message = "${CharacterCodes.CTCP}UNKNOWN ${CharacterCodes.CTCP}"), TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
