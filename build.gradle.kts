@@ -17,7 +17,7 @@ val kotlinVersion by project
 val projectTitle = "Warren"
 
 buildscript {
-    val buildscriptKotlinVersion = "1.1.0-beta-38"
+    val buildscriptKotlinVersion = "1.1.0-rc-91"
 
     repositories {
         maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }

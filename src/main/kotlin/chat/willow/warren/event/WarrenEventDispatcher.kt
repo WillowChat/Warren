@@ -45,7 +45,7 @@ class WarrenEventDispatcher : IWarrenEventDispatcher {
         onAnythingListeners.fireToAll(event)
 
         @Suppress("UNCHECKED_CAST")
-        val listenersWrapper = eventToListenersMap[event.javaClass] as? IEventListenersWrapper<T>
+        val listenersWrapper = eventToListenersMap[event::class.java] as? IEventListenersWrapper<T>
         listenersWrapper?.fireToAll(event)
     }
 

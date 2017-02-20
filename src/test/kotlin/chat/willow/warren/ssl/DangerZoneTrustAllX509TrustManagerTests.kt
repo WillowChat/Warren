@@ -1,6 +1,6 @@
 package chat.willow.warren.ssl
 
-import org.junit.Assert.assertEquals
+import org.junit.Assert.assertArrayEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,7 +28,7 @@ class DangerZoneTrustAllX509TrustManagerTests {
     }
 
     @Test fun test_getAcceptedIssuers_IsEmpty() {
-        assertEquals(emptyArray(), sut.acceptedIssuers)
+        assertArrayEquals(emptyArray(), sut.acceptedIssuers)
     }
 
 }
