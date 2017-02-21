@@ -40,7 +40,7 @@ apply {
 }
 
 jacoco {
-    toolVersion = "0.7.7.201606060606"
+    toolVersion = "0.7.9"
 }
 
 val jacocoTestReport = project.tasks.getByName("jacocoTestReport")

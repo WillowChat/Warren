@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e +o pipefail
 
-VERSION="31d77b9"
+VERSION="8e92d33"
 
 url="https://codecov.io"
 url_o=""
@@ -23,9 +23,11 @@ flags=""
 exit_with=0
 branch_o=""
 slug_o=""
+curlargs=""
 dump="0"
 clean="0"
 branch=""
+name="$CODECOV_NAME"
 commit=""
 include_cov=""
 exclude_cov=""
@@ -41,6 +43,7 @@ ft_fix="1"
 ft_search="1"
 ft_s3="1"
 ft_xcode="1"
+ft_network="1"
 _git_root=$(git rev-parse --show-toplevel 2>/dev/null || hg root 2>/dev/null || echo $PWD)
 git_root="$_git_root"
 remote_addr=""
@@ -65,6 +68,7 @@ cat << EOF
                 Codecov Bash $VERSION
 
           Global report uploading tool for Codecov
+       Documentation at https://docs.codecov.io/docs
     Contribute at https://github.com/codecov/codecov-bash
 
 
@@ -84,6 +88,8 @@ cat << EOF
                  -t @/path/to/token_file
                  -t uuid
 
+    -n NAME      Custom defined name of the upload. Visible in Codecov UI
+
     -e ENV       Specify environment variables to be included with this build
                  Also accepting environment variables: CODECOV_ENV=VAR,VAR2
 
@@ -96,6 +102,7 @@ cat << EOF
                  -X fix           Disable report fixing
                  -X search        Disable searching for reports
                  -X xcode         Disable xcode processing
+                 -X network       Disable uploading the file network
 
     -R root dir  Used when not in git/hg project to identify project root directory
     -F flag      Flag the upload to group coverage metrics
@@ -142,6 +149,7 @@ cat << EOF
                  (option) set in your codecov.yml "codecov.slug"
     -S PATH      File path to your cacert.pem file used to verify ssl with Codecov Enterprise (optional)
                  (option) Set environment variable: CODECOV_CA_BUNDLE="/path/to/ca.pem"
+    -U curlargs  Extra curl arguments. e.g., -U "--proxy http://http-proxy"
 
     -- Debugging --
     -d           Dont upload and dump to stdin
@@ -194,7 +202,7 @@ parse_yaml() {
       vname[indent] = $2;
       for (i in vname) {if (i > indent) {delete vname[i]}}
       if (length($3) > 0) {
-         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         vn=""; if (indent > 0) {vn=(vn)(vname[0])("_")}
          printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
       }
    }'
@@ -203,7 +211,7 @@ parse_yaml() {
 
 if [ $# != 0 ];
 then
-  while getopts "a:b:B:cC:dD:e:f:F:g:G:hJ:Kp:P:r:R:s:S:t:T:u:vx:X:Z" o
+  while getopts "a:b:B:cC:dD:e:f:F:g:G:hJ:Kn:p:P:r:R:s:S:t:T:u:U:vx:X:Z" o
   do
     case "$o" in
       "a")
@@ -283,6 +291,9 @@ $OPTARG"
         e=""
         x=""
         ;;
+      "n")
+        name="$OPTARG"
+        ;;
       "p")
         proj_root="$OPTARG"
         ;;
@@ -320,6 +331,9 @@ $OPTARG"
       "u")
         url_o=$(echo "$OPTARG" | sed -e 's/\/$//')
         ;;
+      "U")
+        curlargs="$OPTARG"
+        ;;
       "v")
         set -x
         ;;
@@ -330,10 +344,10 @@ $OPTARG"
         if [ "$OPTARG" = "gcov" ];
         then
           ft_gcov="0"
-        elif [ "$OPTARG" = "coveragepy" ];
+        elif [ "$OPTARG" = "coveragepy" ] || [ "$OPTARG" = "py" ];
         then
           ft_coveragepy="0"
-        elif [ "$OPTARG" = "fix" ];
+        elif [ "$OPTARG" = "fix" ] || [ "$OPTARG" = "fixes" ];
         then
           ft_fix="0"
         elif [ "$OPTARG" = "xcode" ];
@@ -342,6 +356,9 @@ $OPTARG"
         elif [ "$OPTARG" = "search" ];
         then
           ft_search="0"
+        elif [ "$OPTARG" = "network" ];
+        then
+          ft_network="0"
         fi
         ;;
       "Z")
@@ -388,6 +405,13 @@ then
   job="$TRAVIS_JOB_ID"
   slug="$TRAVIS_REPO_SLUG"
   tag="$TRAVIS_TAG"
+  env="$env,TRAVIS_OS_NAME"
+
+  language=$(printenv | grep "TRAVIS_.*_VERSION" | head -1)
+  if [ "$language" != "" ];
+  then
+    env="$env,${language%=*}"
+  fi
 
 elif [ "$CI" = "true" ] && [ "$CI_NAME" = "codeship" ];
 then
@@ -432,11 +456,12 @@ then
   # https://circleci.com/docs/environment-variables
   service="circleci"
   branch="$CIRCLE_BRANCH"
-  build="$CIRCLE_BUILD_NUM.$CIRCLE_NODE_INDEX"
+  build="$CIRCLE_BUILD_NUM"
+  job="$CIRCLE_NODE_INDEX"
   slug="$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
   pr="$CIRCLE_PR_NUMBER"
   commit="$CIRCLE_SHA1"
-  search_in="$search_in $CIRCLE_ARTIFACTS"
+  search_in="$search_in $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS"
 
 elif [ "$BUDDYBUILD_BRANCH" != "" ];
 then
@@ -465,13 +490,17 @@ then
 
 elif [ "$CI" = "true" ] && [ "$BITRISE_IO" = "true" ];
 then
+  # http://devcenter.bitrise.io/faq/available-environment-variables/
   say "$e==>$x Bitrise CI detected."
   service="bitrise"
   branch="$BITRISE_GIT_BRANCH"
   build="$BITRISE_BUILD_NUMBER"
   build_url=$(urlencode "$BITRISE_BUILD_URL")
   pr="$BITRISE_PULL_REQUEST"
-  commit=$([ "$BITRISE_GIT_COMMIT" != "" ] && echo "$BITRISE_GIT_COMMIT" || echo $(git rev-parse HEAD 2>/dev/null || hg id -i --debug 2>/dev/null | tr -d '+'))
+  if [ "$GIT_CLONE_COMMIT_HASH" != "" ];
+  then
+    commit="$GIT_CLONE_COMMIT_HASH"
+  fi
 
 elif [ "$CI" = "true" ] && [ "$SEMAPHORE" = "true" ];
 then
@@ -505,7 +534,6 @@ then
   branch="$DRONE_BRANCH"
   build="$DRONE_BUILD_NUMBER"
   build_url=$(urlencode "${DRONE_BUILD_URL:-$CI_BUILD_URL}")
-  commit=$(git rev-parse HEAD 2>/dev/null || hg id -i --debug 2>/dev/null | tr -d '+')
   pr="$DRONE_PULL_REQUEST"
   job="$DRONE_JOB_NUMBER"
   tag="$DRONE_TAG"
@@ -565,6 +593,16 @@ then
   slug="$REPO_FULL_NAME"
   commit="$COMMIT"
 
+elif [ "$TDDIUM" = "true" ];
+then
+  say "Solano CI detected."
+  # http://docs.solanolabs.com/Setup/tddium-set-environment-variables/
+  service="solano"
+  commit="$TDDIUM_CURRENT_COMMIT"
+  branch="$TDDIUM_CURRENT_BRANCH"
+  build="$TDDIUM_TID"
+  pr="$TDDIUM_PR_ID"
+
 elif [ "$GREENHOUSE" = "true" ];
 then
   say "$e==>$x Greenhouse CI detected."
@@ -589,6 +627,8 @@ then
 
 else
   say "${r}x>${x} No CI provider detected."
+  say "    Testing inside Docker? ${b}http://docs.codecov.io/docs/testing-with-docker${x}"
+  say "    Testing with Tox? ${b}https://docs.codecov.io/docs/python#section-testing-with-tox${x}"
 
   commit="$VCS_COMMIT_ID"
   branch="$VCS_BRANCH_NAME"
@@ -630,7 +670,7 @@ then
     commit="$GIT_COMMIT"
   elif [ "$commit" = "" ];
   then
-    commit=$(git rev-parse HEAD 2>/dev/null || hg id -i --debug 2>/dev/null | tr -d '+' || echo "")
+    commit=$(git log -1 --format="%H" 2>/dev/null || hg id -i --debug 2>/dev/null | tr -d '+' || echo "")
   fi
 else
   commit="$commit_o"
@@ -675,8 +715,10 @@ then
   fi
 fi
 
-
-yaml=$(cd "$proj_root" && git ls-files "*codecov.yml" 2>/dev/null || hg locate "*codecov.yml" 2>/dev/null || find . -name "*codecov.yml" 2>/dev/null || echo '')
+yaml=$(cd "$git_root" && \
+       git ls-files "*codecov.yml" "*codecov.yaml" 2>/dev/null \
+       || hg locate "*codecov.yml" "*codecov.yaml" 2>/dev/null \
+       || echo '')
 yaml=$(echo "$yaml" | head -1)
 
 if [ "$yaml" != "" ];
@@ -719,6 +761,7 @@ query="branch=$branch\
        &commit=$commit\
        &build=$([ "$build_o" = "" ] && echo "$build" || echo "$build_o")\
        &build_url=$build_url\
+       &name=$(urlencode "$name")\
        &tag=$([ "$tag_o" = "" ] && echo "$tag" || echo "$tag_o")\
        &slug=$([ "$slug_o" = "" ] && urlencode "$slug" || urlencode "$slug_o")\
        &yaml=$(urlencode "$yaml")\
@@ -727,72 +770,114 @@ query="branch=$branch\
        &pr=$([ "$pr_o" = "" ] && echo "$pr" || echo "$pr_o")\
        &job=$job"
 
-# detect bower comoponents location
-bower_components="bower_components"
-bower_rc=$(cd "$git_root" && cat .bowerrc 2>/dev/null || echo "")
-if [ "$bower_rc" != "" ];
-then
-  bower_components=$(echo "$bower_rc" | tr -d '\n' | grep '"directory"' | cut -d'"' -f4 | sed -e 's/\/$//')
-  if [ "$bower_components" = "" ];
-  then
-    bower_components="bower_components"
-  fi
-fi
-
-if [ "$ft_xcode" = "1" ] && [ -d "$ddp" ];
-then
-  say "${e}==>${x} Processing XCode reports"
-  say "    DerivedData folder: $ddp"
-  profdata_files=$(find "$ddp" -name '*.profdata' 2>/dev/null || echo '')
-  if [ "$profdata_files" != "" ];
-  then
-    # xcode via profdata
-    if [ "$xp" = "" ];
-    then
-      # xp=$(xcodebuild -showBuildSettings 2>/dev/null | grep -i "^\s*PRODUCT_NAME" | sed -e 's/.*= \(.*\)/\1/')
-      # say " ${e}->${x} Speed up XCode processing by adding ${e}-J '$xp'${x}"
-      say "    ${g}hint${x} Speed up Swift processing by using use -J 'AppName' (accepting regexp)"
-    fi
-    while read -r profdata;
-    do
-      if [ "$profdata" != "" ];
-      then
-        swiftcov "$profdata" "$xp"
-      fi
-    done <<< "$profdata_files"
-  else
-    say "    ${e}->${x} No Swift coverage found"
-  fi
-
-  if [ "$ft_gcov" = "1" ];
-  then
-    say "    ${e}->${x} Running $gcov_exe for Obj-C"
-    bash -c "find $ddp -type f -name '*.gcda' $gcov_include $gcov_ignore -exec $gcov_exe -pbcu $gcov_arg {} +" || true
-  fi
-fi
-
-if [ "$ft_gcov" = "1" ];
-then
-  say "${e}==>${x} Running gcov in $proj_root ${e}(disable via -X gcov)${x}"
-  bash -c "find $proj_root -type f -name '*.gcno' $gcov_include $gcov_ignore -exec $gcov_exe -pb $gcov_arg {} +" || true
-else
-  say "${e}==>${x} gcov disable"
-fi
-
-if [ "$search_in_o" != "" ];
-then
-  # location override
-  search_in="$search_in_o"
-fi
-
-say "$e==>$x Searching for coverage reports in:"
-for _path in $search_in
-do
-  say "    ${g}+${x} $_path"
-done
-
 if [ "$ft_search" = "1" ];
 then
+  # detect bower comoponents location
+  bower_components="bower_components"
+  bower_rc=$(cd "$git_root" && cat .bowerrc 2>/dev/null || echo "")
+  if [ "$bower_rc" != "" ];
+  then
+    bower_components=$(echo "$bower_rc" | tr -d '\n' | grep '"directory"' | cut -d'"' -f4 | sed -e 's/\/$//')
+    if [ "$bower_components" = "" ];
+    then
+      bower_components="bower_components"
+    fi
+  fi
+
+  # Swift Coverage
+  if [ "$ft_xcode" = "1" ] && [ -d "$ddp" ];
+  then
+    say "${e}==>${x} Processing Xcode reports"
+    say "    DerivedData folder: $ddp"
+    profdata_files=$(find "$ddp" -name '*.profdata' 2>/dev/null || echo '')
+    if [ "$profdata_files" != "" ];
+    then
+      # xcode via profdata
+      if [ "$xp" = "" ];
+      then
+        # xp=$(xcodebuild -showBuildSettings 2>/dev/null | grep -i "^\s*PRODUCT_NAME" | sed -e 's/.*= \(.*\)/\1/')
+        # say " ${e}->${x} Speed up Xcode processing by adding ${e}-J '$xp'${x}"
+        say "    ${g}hint${x} Speed up Swift processing by using use ${g}-J 'AppName'${x} (regexp accepted)"
+        say "    ${g}hint${x} This will remove Pods/ from your report. Also ${b}https://docs.codecov.io/docs/ignoring-paths${x}"
+      fi
+      while read -r profdata;
+      do
+        if [ "$profdata" != "" ];
+        then
+          swiftcov "$profdata" "$xp"
+        fi
+      done <<< "$profdata_files"
+    else
+      say "    ${e}->${x} No Swift coverage found"
+    fi
+
+    # Obj-C Gcov Coverage
+    if [ "$ft_gcov" = "1" ];
+    then
+      say "    ${e}->${x} Running $gcov_exe for Obj-C"
+      bash -c "find $ddp -type f -name '*.gcda' $gcov_include $gcov_ignore -exec $gcov_exe -pbcu $gcov_arg {} +" || true
+    fi
+  fi
+
+  # Gcov Coverage
+  if [ "$ft_gcov" = "1" ];
+  then
+    say "${e}==>${x} Running gcov in $proj_root ${e}(disable via -X gcov)${x}"
+    bash -c "find $proj_root -type f -name '*.gcno' $gcov_include $gcov_ignore -exec $gcov_exe -pb $gcov_arg {} +" || true
+  else
+    say "${e}==>${x} gcov disabled"
+  fi
+
+  # Python Coverage
+  if [ "$ft_coveragepy" = "1" ];
+  then
+    if [ ! -f coverage.xml ];
+    then
+      if which coverage >/dev/null 2>&1;
+      then
+        say "${e}==>${x} Python coveragepy exists ${e}disable via -X coveragepy${x}"
+
+        dotcoverage=$(find "$git_root" -name '.coverage' -or -name '.coverage.*' | head -1 || echo '')
+        if [ "$dotcoverage" != "" ];
+        then
+          cd "$(dirname "$dotcoverage")"
+          if [ ! -f .coverage ];
+          then
+            say "    ${e}->${x} Running coverage combine"
+            coverage combine
+          fi
+          say "    ${e}->${x} Running coverage xml"
+          if [ "$(coverage xml -i)" != "No data to report." ];
+          then
+            files="$files
+$PWD/coverage.xml"
+          else
+            say "    ${r}No data to report.${x}"
+          fi
+          cd "$proj_root"
+        else
+          say "    ${r}No .coverage file found.${x}"
+        fi
+      else
+        say "${e}==>${x} Python coveragepy not found"
+      fi
+    fi
+  else
+    say "${e}==>${x} Python coveragepy disabled"
+  fi
+
+  if [ "$search_in_o" != "" ];
+  then
+    # location override
+    search_in="$search_in_o"
+  fi
+
+  say "$e==>$x Searching for coverage reports in:"
+  for _path in $search_in
+  do
+    say "    ${g}+${x} $_path"
+  done
+
   patterns="find $search_in -type f \( -name '*coverage*.*' \
                      -or -name 'nosetests.xml' \
                      -or -name 'jacoco*.xml' \
@@ -808,6 +893,7 @@ then
                      -or -name 'lcov.info' \
                      -or -name 'lcov.dat' \
                      -or -name '*.lcov' \
+                     -or -name '*.clover' \
                      -or -name 'cover.out' \
                      -or -name 'gcov.info' \
                      -or -name '*.gcov' \
@@ -827,6 +913,7 @@ then
                     -not -name '*.ps1' \
                     -not -name '*.rst' \
                     -not -name '*.sbt' \
+                    -not -name '*.xcoverage.*' \
                     -not -name '*.gz' \
                     -not -name '*.conf' \
                     -not -name '*.p12' \
@@ -866,6 +953,7 @@ then
                     -not -name '*.ru' \
                     -not -name '*.css' \
                     -not -name '*.less' \
+                    -not -name '*.pyo' \
                     -not -name '*.whl' \
                     -not -name '*.html' \
                     -not -name '*.ftl' \
@@ -885,9 +973,9 @@ then
                     -not -name 'createdFiles.lst' \
                     -not -name 'scoverage.measurements.*' \
                     -not -name 'test_*_coverage.txt' \
+                    -not -name 'testrunner-coverage*' \
                     -not -path '*/vendor/*' \
                     -not -path '*/htmlcov/*' \
-                    -not -path '*/home/cainus/*' \
                     -not -path '*/virtualenv/*' \
                     -not -path '*/js/generated/coverage/*' \
                     -not -path '*/.virtualenv/*' \
@@ -922,44 +1010,6 @@ then
   say "    ${e}->${x} Found $num_of_files reports"
 fi
 
-# Python coveragepy generation
-if [ "$ft_coveragepy" = "1" ];
-then
-  if [ ! -f coverage.xml ];
-  then
-    if which coverage >/dev/null 2>&1;
-    then
-      say "${e}==>${x} Python coveragepy exists ${e}disable via -X coveragepy${x}"
-
-      dotcoverage=$(find "$git_root" -name '.coverage' -or -name '.coverage.*' | head -1 || echo '')
-      if [ "$dotcoverage" != "" ];
-      then
-        cd "$(dirname "$dotcoverage")"
-        if [ ! -f .coverage ];
-        then
-          say "    ${e}->${x} Running coverage combine"
-          coverage combine
-        fi
-        say "    ${e}->${x} Running coverage xml"
-        if [ "$(coverage xml -i)" != "No data to report." ];
-        then
-          files="$files
-$PWD/coverage.xml"
-        else
-          say "    ${r}No data to report.${x}"
-        fi
-        cd "$proj_root"
-      else
-        say "    ${r}No .coverage file found.${x}"
-      fi
-    else
-      say "${e}==>${x} Python coveragepy not found"
-    fi
-  fi
-else
-  say "${e}==>${x} Python coveragepy disabled"
-fi
-
 # no files found
 if [ "$files" = "" ];
 then
@@ -968,37 +1018,40 @@ then
   exit ${exit_with};
 fi
 
-say "${e}==>${x} Detecting git/mercurial file structure"
-network=$(cd "$git_root" && git ls-files 2>/dev/null || hg locate 2>/dev/null || echo "")
-if [ "$network" = "" ];
+if [ "$ft_network" == "1" ];
 then
-  network=$(find "$git_root" -type f \
-                 -not -path '*/virtualenv/*' \
-                 -not -path '*/.virtualenv/*' \
-                 -not -path '*/virtualenvs/*' \
-                 -not -path '*/.virtualenvs/*' \
-                 -not -path '*.png' \
-                 -not -path '*.gif' \
-                 -not -path '*.jpg' \
-                 -not -path '*.jpeg' \
-                 -not -path '*.md' \
-                 -not -path '*/.env/*' \
-                 -not -path '*/.envs/*' \
-                 -not -path '*/env/*' \
-                 -not -path '*/envs/*' \
-                 -not -path '*/.venv/*' \
-                 -not -path '*/.venvs/*' \
-                 -not -path '*/venv/*' \
-                 -not -path '*/venvs/*' \
-                 -not -path '*/build/lib/*' \
-                 -not -path '*/.git/*' \
-                 -not -path '*/.egg-info/*' \
-                 -not -path '*/shunit2-2.1.6/*' \
-                 -not -path '*/vendor/*' \
-                 -not -path '*/js/generated/coverage/*' \
-                 -not -path '*/__pycache__/*' \
-                 -not -path '*/node_modules/*' \
-                 -not -path "*/$bower_components/*" 2>/dev/null || echo '')
+  say "${e}==>${x} Detecting git/mercurial file structure"
+  network=$(cd "$git_root" && git ls-files 2>/dev/null || hg locate 2>/dev/null || echo "")
+  if [ "$network" = "" ];
+  then
+    network=$(find "$git_root" -type f \
+                   -not -path '*/virtualenv/*' \
+                   -not -path '*/.virtualenv/*' \
+                   -not -path '*/virtualenvs/*' \
+                   -not -path '*/.virtualenvs/*' \
+                   -not -path '*.png' \
+                   -not -path '*.gif' \
+                   -not -path '*.jpg' \
+                   -not -path '*.jpeg' \
+                   -not -path '*.md' \
+                   -not -path '*/.env/*' \
+                   -not -path '*/.envs/*' \
+                   -not -path '*/env/*' \
+                   -not -path '*/envs/*' \
+                   -not -path '*/.venv/*' \
+                   -not -path '*/.venvs/*' \
+                   -not -path '*/venv/*' \
+                   -not -path '*/venvs/*' \
+                   -not -path '*/build/lib/*' \
+                   -not -path '*/.git/*' \
+                   -not -path '*/.egg-info/*' \
+                   -not -path '*/shunit2-2.1.6/*' \
+                   -not -path '*/vendor/*' \
+                   -not -path '*/js/generated/coverage/*' \
+                   -not -path '*/__pycache__/*' \
+                   -not -path '*/node_modules/*' \
+                   -not -path "*/$bower_components/*" 2>/dev/null || echo '')
+  fi
 fi
 
 upload_file=`mktemp /tmp/codecov.XXXXXX`
@@ -1026,8 +1079,11 @@ then
 echo "$inc_env<<<<<< ENV" >> $upload_file
 fi
 
-echo "$network
-<<<<<< network" > $upload_file
+if [ "$ft_network" == "1" ];
+then
+  echo "$network
+<<<<<< network" >> $upload_file
+fi
 
 fr=0
 say "${e}==>${x} Reading reports"
@@ -1070,58 +1126,91 @@ fi
 
 if [ "$ft_fix" = "1" ];
 then
-  if [ "$(find "$git_root" -name '*.go' -or -name '*.php' -or -name '*.kt' -or -name '*.swift' -or -name '*.m' -or -name '*.jsx' -or -name '*.cpp' -or -name '*.h' -or -name '*.cxx' -or -name '*.c' -or -name '*.hpp' 2>/dev/null || echo '')" != "" ];
+  say "${e}==>${x} Appending adjustments"
+  say "    ${b}http://docs.codecov.io/docs/fixing-reports${x}"
+  adjustments=""
+
+  if echo "$network" | grep -m1 '.kt$' 1>/dev/null;
   then
-    say "${e}==>${x} Appending adjustments"
-    say "    ${b}http://docs.codecov.io/docs/fixing-reports${x}"
-    adjustments=""
-    if [[ $(echo "$network" | grep '.kt$') != '' ]];
-    then
-      adjustments="$adjustments
-$(find "$git_root" -type f -name '*.kt' -exec wc -l {} \; | while read l; do echo "EOF: $l"; done 2>/dev/null || echo '')
-$(find "$git_root" -type f -name '*.kt' -exec grep -nIH '^/\*' {} \; 2>/dev/null || echo '')"
-    fi
-    if [[ $(echo "$network" | grep '.go$') != '' ]];
-    then
-      adjustments="$adjustments
-$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.go' -exec grep -nIH '^[[:space:]]*$' {} \; 2>/dev/null || echo '')
-$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.go' -exec grep -nIH '^[[:space:]]*//.*' {} \; 2>/dev/null || echo '')
-$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.go' -exec grep -nIH '^[[:space:]]*/\*' {} \; 2>/dev/null || echo '')
-$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.go' -exec grep -nIH '^[[:space:]]*\*/' {} \; 2>/dev/null || echo '')
-$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.go' -exec grep -nIH '^[[:space:]]*}$' {} \; 2>/dev/null || echo '')"
-    fi
-    if [[ $(echo "$network" | grep '.jsx$') != '' ]];
-    then
-      adjustments="$adjustments
-$(find "$git_root" -type f -name '*.jsx' -exec grep -nIH '^[[:space:]]*$' {} \; 2>/dev/null || echo '')
-$(find "$git_root" -type f -name '*.jsx' -exec grep -nIH '^[[:space:]]*//.*' {} \; 2>/dev/null || echo '')
-$(find "$git_root" -type f -name '*.jsx' -exec grep -nIH '^[[:space:]]*/\*' {} \; 2>/dev/null || echo '')
-$(find "$git_root" -type f -name '*.jsx' -exec grep -nIH '^[[:space:]]*\*/' {} \; 2>/dev/null || echo '')
-$(find "$git_root" -type f -name '*.jsx' -exec grep -nIH '^[[:space:]]*}$' {} \; 2>/dev/null || echo '')"
-    fi
-    if [[ $(echo "$network" | grep '.php$') != '' ]];
-    then
-      adjustments="$adjustments
-$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.php' -exec grep -nIH '^[[:space:]]*[\{\}\\[][[:space:]]*$' {} \; 2>/dev/null || echo '')
-$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.php' -exec grep -nIH '^[[:space:]]*);[[:space:]]*$' {} \; 2>/dev/null || echo '')
-$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.php' -exec grep -nIH '^[[:space:]]*][[:space:]]*$' {} \; 2>/dev/null || echo '')"
-    fi
-    if [[ $(echo "$network" | grep '\(.cpp\|.h\|.cxx\|.c\|.hpp\|.m\)$') != '' ]];
-    then
-      adjustments="$adjustments
-$(find "$git_root" -type f \( -name '*.h' -or -name '*.cpp' -or -name '*.cxx' -or -name '*.m' -or -name '*.c' -or -name '*.hpp' \) -exec grep -nIH '^[[:space:]]*}' {} \; 2>/dev/null || echo '')
+    # skip brackets and comments
+    adjustments="$adjustments
+$(find "$git_root" -type f -name '*.kt' -exec grep -nIH '^[[:space:]]*}$' {} \; | cut -f1-2 -d: 2>/dev/null || echo '')
+$(find "$git_root" -type f -name '*.kt' -exec grep -nIH '^/\*' {} \; | cut -f1-2 -d: 2>/dev/null || echo '')"
+  fi
+
+  if echo "$network" | grep -m1 '.go$' 1>/dev/null;
+  then
+    # skip empty lines, comments, and brackets
+    adjustments="$adjustments
+$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.go' -exec grep -nIH \
+      -e '^[[:space:]]*$' \
+      -e '^[[:space:]]*//.*' \
+      -e '^[[:space:]]*/\*' \
+      -e '^[[:space:]]*\*/' \
+      -e '^[[:space:]]*}$' \
+      {} \; | cut -f1-2 -d: 2>/dev/null || echo '')"
+  fi
+
+  if echo "$network" | grep -m1 '.jsx$' 1>/dev/null;
+  then
+    # skip empty lines, comments, and brackets
+    adjustments="$adjustments
+$(find "$git_root" -type f -name '*.jsx' -exec grep -nIH \
+      -e '^[[:space:]]*$' \
+      -e '^[[:space:]]*//.*' \
+      -e '^[[:space:]]*/\*' \
+      -e '^[[:space:]]*\*/' \
+      -e '^[[:space:]]*}$' \
+      {} \; | cut -f1-2 -d: 2>/dev/null || echo '')"
+  fi
+
+  if echo "$network" | grep -m1 '.php$' 1>/dev/null;
+  then
+    # skip empty lines, comments, and brackets
+    adjustments="$adjustments
+$(find "$git_root" -type f -not -path '*/vendor/*' -name '*.php' -exec grep -nIH \
+      -e '^[[:space:]]*[\{\}\\[][[:space:]]*$' \
+      -e '^[[:space:]]*);[[:space:]]*$' \
+      -e '^[[:space:]]*][[:space:]]*$' \
+      {} \; | cut -f1-2 -d: 2>/dev/null || echo '')"
+  fi
+
+  if echo "$network" | grep -m1 '\(.cpp\|.h\|.cxx\|.c\|.hpp\|.m\)$' 1>/dev/null;
+  then
+    # skip brackets
+    adjustments="$adjustments
+$(find "$git_root" -type f \( -name '*.h' -or -name '*.cpp' -or -name '*.cxx' -or -name '*.m' -or -name '*.c' -or -name '*.hpp' \) -exec grep -nIH '^[[:space:]]*}' {} \; | cut -f1-2 -d: 2>/dev/null || echo '')"
+  fi
+
+  # join files into single line
+  found=$(echo "$adjustments" | wc -l | tr -d ' ')
+  adjustments=$(echo "$adjustments" | awk 'BEGIN { FS=":" }
+                                           $1!=key { if (key!="") print out ; key=$1 ; out=$0 ; next }
+                                           { out=out","$2 }
+                                           END { print out }')
+
+  if echo "$network" | grep -m1 '\(.cpp\|.h\|.cxx\|.c\|.hpp\|.m\)$' 1>/dev/null;
+  then
+    # skip LCOV_EXCL
+    adjustments="$adjustments
 $(find "$git_root" -type f \( -name '*.h' -or -name '*.cpp' -or -name '*.cxx' -or -name '*.m' -or -name '*.c' -or -name '*.hpp' \) -exec grep -nIH '// LCOV_EXCL' {} \; 2>/dev/null || echo '')"
-    fi
-    found=$(echo "$adjustments" | wc -l | tr -d ' ')
-    if [ "$found" != "1" ];
-    then
-      say "    ${g}+${x} Found $found adjustments"
-      echo "# path=fixes
+  fi
+
+  if echo "$network" | grep -m1 '.kt$' 1>/dev/null;
+  then
+    # last line in file
+    adjustments="$adjustments
+$(find "$git_root" -type f -name '*.kt' -exec wc -l {} \; | while read l; do echo "EOF: $l"; done 2>/dev/null || echo '')"
+  fi
+
+  if [ "$found" != "1" ];
+  then
+    say "    ${g}+${x} Found $found adjustments"
+    echo "# path=fixes
 $adjustments
 <<<<<< EOF" >> $upload_file
-    else
-      say "    ${e}->${x} Found 0 adjustments"
-    fi
+  else
+    say "    ${e}->${x} Found 0 adjustments"
   fi
 fi
 
@@ -1148,7 +1237,7 @@ else
   if [ "$ft_s3" = "1" ];
   then
     say "    ${e}->${x} Pinging Codecov"
-    res=$(curl -sX $cacert POST "$url/upload/v4?$query" -H 'Accept: text/plain' || true)
+    res=$(curl -sX $curlargs $cacert POST "$url/upload/v4?$query" -H 'Accept: text/plain' || true)
     # a good replay is "https://codecov.io" + "\n" + "https://codecov.s3.amazonaws.com/..."
     status=$(echo "$res" | head -1 | grep 'HTTP ' | cut -d' ' -f2)
     if [ "$status" = "" ];
@@ -1181,7 +1270,7 @@ else
   do
     i=$[$i+1]
 
-    res=$(curl -sX POST $cacert --data-binary @$upload_file "$url/upload/v2?$query" -H 'Accept: text/plain' || echo 'HTTP 500')
+    res=$(curl -sX POST $curlargs $cacert --data-binary @$upload_file "$url/upload/v2?$query" -H 'Accept: text/plain' || echo 'HTTP 500')
     # HTTP 200
     # http://....
     status=$(echo "$res" | head -1 | cut -d' ' -f2)
