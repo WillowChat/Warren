@@ -10,7 +10,7 @@ import java.security.cert.CertificateException
 
 class DangerZoneTrustAllX509TrustManagerTests {
 
-    @Rule @JvmField val exception = ExpectedException.none()
+    @Rule @JvmField val exception = ExpectedException.none()!!
     private lateinit var sut: DangerZoneTrustAllX509TrustManager
 
     @Before fun setUp() {

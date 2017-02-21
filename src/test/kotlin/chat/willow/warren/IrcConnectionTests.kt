@@ -124,7 +124,7 @@ class IrcRunnerTests {
 
     private inline fun <reified T: IKaleHandler<*>> arrayContainsHandlerOfType(iterable: Iterable<*>): Boolean {
         return iterable.any {
-            it?.javaClass?.isAssignableFrom(T::class.java) ?: false
+            it!!::class.java.isAssignableFrom(T::class.java)
         }
     }
 
