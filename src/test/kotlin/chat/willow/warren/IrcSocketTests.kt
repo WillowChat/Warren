@@ -134,7 +134,7 @@ class IrcSocketTests {
     @Test fun test_write_AsksSerialiserToSerialiseMessage() {
         sut.setUp()
         val message = IrcMessage(command = "TEST")
-        whenever(mockKale.serialise(any())).thenReturn(message)
+        whenever(mockKale.serialise(any<Any>())).thenReturn(message)
 
         sut.write(Any())
 
@@ -144,7 +144,7 @@ class IrcSocketTests {
     @Test fun test_write_MessageSerialised_WriteStringWithFlush_IncludingNewlines_AsUTF8() {
         sut.setUp()
         val message = "TEST MESSAGE"
-        whenever(mockKale.serialise(any())).thenReturn(IrcMessage(command = ""))
+        whenever(mockKale.serialise(any<Any>())).thenReturn(IrcMessage(command = ""))
         whenever(mockSerialiser.serialise(any())).thenReturn(message)
 
         sut.write(Any())

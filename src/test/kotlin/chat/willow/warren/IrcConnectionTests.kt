@@ -406,7 +406,7 @@ class MockKale : IKale {
         throw UnsupportedOperationException()
     }
 
-    override fun serialise(message: Any): IrcMessage? {
+    override fun <M: Any> serialise(message: M): IrcMessage? {
         throw UnsupportedOperationException()
     }
 
