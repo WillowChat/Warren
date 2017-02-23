@@ -8,6 +8,7 @@ import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.extension.account_notify.AccountNotifyExtension
 import chat.willow.warren.extension.away_notify.AwayNotifyExtension
 import chat.willow.warren.extension.cap.handler.*
+import chat.willow.warren.extension.chghost.ChgHostExtension
 import chat.willow.warren.extension.extended_join.ExtendedJoinExtension
 import chat.willow.warren.extension.invite_notify.InviteNotifyExtension
 import chat.willow.warren.extension.monitor.MonitorExtension
@@ -46,6 +47,7 @@ enum class CapKeys(val key: String) {
     USERHOST_IN_NAMES("userhost-in-names"),
     INVITE_NOTIFY("invite-notify"),
     MONITOR("monitor"),
+    CHGHOST("chghost"),
 }
 
 class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager, eventDispatcher: IWarrenEventDispatcher) : ICapManager, ICapExtension, IRegistrationExtension {
@@ -70,7 +72,8 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
             CapKeys.AWAY_NOTIFY.key to AwayNotifyExtension(kale, channelsState.joined),
             CapKeys.EXTENDED_JOIN.key to ExtendedJoinExtension(kale, channelsState, caseMappingState),
             CapKeys.INVITE_NOTIFY.key to InviteNotifyExtension(kale, eventDispatcher),
-            CapKeys.MONITOR.key to monitor
+            CapKeys.MONITOR.key to monitor,
+            CapKeys.CHGHOST.key to ChgHostExtension(kale, channelsState.joined)
     )
 
     override fun captureStateSnapshot() {

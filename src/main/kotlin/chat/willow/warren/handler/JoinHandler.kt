@@ -32,7 +32,7 @@ class JoinHandler(val connectionState: ConnectionState, val joiningChannelsState
                 if (!joinedChannelsState.contains(channelName)) {
                     LOGGER.trace("adding $channelName to joined channels with 0 users")
 
-                    joinedChannelsState += ChannelState(channelName, users = generateUsers(mappingState = caseMappingState))
+                    joinedChannelsState += emptyChannel(name = channelName, mappingState = caseMappingState)
                 } else {
                     LOGGER.trace("we're already in $channelName - not adding it again")
                 }

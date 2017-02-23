@@ -21,8 +21,8 @@ class AwayHandlerTests {
     }
 
     @Test fun test_handle_TrackedUser_AwayMessageSet_UpdatedInAllChannels() {
-        channelsState["#channel"] = ChannelState("#channel", users = generateUsers("test-user"), topic = null)
-        channelsState["#channel2"] = ChannelState("#channel2", users = generateUsers("test-user"), topic = null)
+        channelsState["#channel"] = ChannelState("#channel", users = generateUsersFromNicks(listOf("test-user")), topic = null)
+        channelsState["#channel2"] = ChannelState("#channel2", users = generateUsersFromNicks(listOf("test-user")), topic = null)
 
         val message = AwayMessage(source = Prefix(nick = "test-user"), message = "away message")
 
@@ -44,8 +44,8 @@ class AwayHandlerTests {
     }
 
     @Test fun test_handle_TrackedUser_AwayMessageRemoved_UpdatedInAllChannels() {
-        channelsState["#channel"] = ChannelState("#channel", users = generateUsers("test-user"), topic = null)
-        channelsState["#channel2"] = ChannelState("#channel2", users = generateUsers("test-user"), topic = null)
+        channelsState["#channel"] = ChannelState("#channel", users = generateUsersFromNicks(listOf("test-user")), topic = null)
+        channelsState["#channel2"] = ChannelState("#channel2", users = generateUsersFromNicks(listOf("test-user")), topic = null)
 
         val message = AwayMessage(source = Prefix(nick = "test-user"), message = null)
 

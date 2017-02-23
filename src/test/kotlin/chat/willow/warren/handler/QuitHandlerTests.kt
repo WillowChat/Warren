@@ -34,24 +34,24 @@ class QuitHandlerTests {
     }
 
     @Test fun test_handle_SourceIsNull_DoesNothing() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", mappingState = caseMappingState))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone", "someone-else"), mappingState = caseMappingState))
 
         handler.handle(QuitMessage(), TagStore())
 
-        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("someone", "someone-else", mappingState = caseMappingState))
+        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone", "someone-else"), mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
 
         assertEquals(channelsState, expectedChannelsState)
     }
 
     @Test fun test_handle_SourceIsSelf_ChangesConnectionStateToDisconnected() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick", "someone-else", mappingState = caseMappingState))
-        channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick", "someone-else"), mappingState = caseMappingState))
+        channelsState.joined += ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
 
         handler.handle(QuitMessage(source = Prefix(nick = "test-nick")), TagStore())
 
-        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("test-nick", "someone-else", mappingState = caseMappingState))
-        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
+        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick", "someone-else"), mappingState = caseMappingState))
+        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState, expectedChannelTwoState), caseMappingState)
 
         assertEquals(channelsState, expectedChannelsState)
@@ -65,13 +65,13 @@ class QuitHandlerTests {
     }
 
     @Test fun test_handle_SourceIsOther_RemovesUserFromChannels() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsers("test-nick", "someone-else", mappingState = caseMappingState))
-        channelsState.joined += ChannelState(name = "#channel2", users = generateUsers("another-person", "someone-else", mappingState = caseMappingState))
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick", "someone-else"), mappingState = caseMappingState))
+        channelsState.joined += ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
 
         handler.handle(QuitMessage(source = Prefix(nick = "someone-else")), TagStore())
 
-        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsers("test-nick", mappingState = caseMappingState))
-        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsers("another-person", mappingState = caseMappingState))
+        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState))
+        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person"), mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState, expectedChannelTwoState), caseMappingState)
 
         assertEquals(channelsState, expectedChannelsState)

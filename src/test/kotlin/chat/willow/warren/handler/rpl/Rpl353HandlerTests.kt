@@ -22,7 +22,7 @@ class Rpl353HandlerTests {
     }
 
     @Test fun test_handle_WellFormed_AddsCorrectNicksToChannel() {
-        channelsState.joined += ChannelState("#channel", users = generateUsers(mappingState = caseMappingState))
+        channelsState.joined += ChannelState("#channel", users = generateUsersFromNicks(listOf(), mappingState = caseMappingState))
 
         handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@test-nick@somewhere", "+another-person", "someone-else!realname@somewhere_else")), TagStore())
 
@@ -30,7 +30,7 @@ class Rpl353HandlerTests {
     }
 
     @Test fun test_handle_MalformedUserNick_ProcessesTheRestAnyway() {
-        channelsState.joined += ChannelState("#channel", users = generateUsers(mappingState = caseMappingState))
+        channelsState.joined += ChannelState("#channel", users = generateUsersFromNicks(listOf(), mappingState = caseMappingState))
 
         handler.handle(Rpl353Message(source = "test.server", target = "test-nick", visibility = "=", channel = "#channel", names = listOf("@", "+another-person", "someone-else")), TagStore())
 

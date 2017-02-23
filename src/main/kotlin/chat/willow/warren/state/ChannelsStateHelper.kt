@@ -3,11 +3,15 @@ package chat.willow.warren.state
 import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
 
-fun generateUsers(vararg nicks: String, mappingState: CaseMappingState = CaseMappingState(CaseMapping.RFC1459)): ChannelUsersState {
+fun generateUsersFromNicks(nicks: List<String>, mappingState: CaseMappingState = CaseMappingState(CaseMapping.RFC1459)): ChannelUsersState {
+    return generateUsersFromPrefixes(prefixes = nicks.map { Prefix(nick = it) })
+}
+
+fun generateUsersFromPrefixes(prefixes: List<Prefix>, mappingState: CaseMappingState = CaseMappingState(CaseMapping.RFC1459)): ChannelUsersState {
     val users = ChannelUsersState(mappingState)
 
-    for (nick in nicks) {
-        users += generateUser(nick)
+    for (prefix in prefixes) {
+        users += ChannelUserState(prefix)
     }
 
     return users
@@ -21,10 +25,6 @@ fun generateUsersWithModes(vararg nicks: Pair<String, Set<Char>>, mappingState: 
     }
 
     return users
-}
-
-fun generateUser(nick: String): ChannelUserState {
-    return ChannelUserState(Prefix(nick = nick))
 }
 
 fun generateUser(nick: String, modes: Set<Char>): ChannelUserState {
@@ -66,5 +66,5 @@ fun joiningChannelsStateWith(joining: Collection<JoiningChannelState>, mappingSt
 }
 
 fun emptyChannel(name: String, mappingState: CaseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)): ChannelState {
-    return ChannelState(name = name, users = generateUsers(mappingState = mappingState))
+    return ChannelState(name = name, users = generateUsersFromNicks(nicks = listOf(), mappingState = mappingState))
 }

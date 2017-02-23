@@ -21,8 +21,8 @@ class AccountHandlerTests {
     }
 
     @Test fun test_handle_TrackedUser_LoggedOut_UpdatesUserInAllChannels() {
-        channelsState["#channel"] = ChannelState("#channel", users = generateUsers("test-user"), topic = null)
-        channelsState["#channel2"] = ChannelState("#channel2", users = generateUsers("test-user"), topic = null)
+        channelsState["#channel"] = ChannelState("#channel", users = generateUsersFromNicks(listOf("test-user")), topic = null)
+        channelsState["#channel2"] = ChannelState("#channel2", users = generateUsersFromNicks(listOf("test-user")), topic = null)
 
         val message = AccountMessage(source = Prefix(nick = "test-user"), account = "*")
 
@@ -33,8 +33,8 @@ class AccountHandlerTests {
     }
 
     @Test fun test_handle_TrackedUser_LoggedIn_UpdatesUserInAllChannels() {
-        channelsState["#channel"] = ChannelState("#channel", users = generateUsers("test-user"), topic = null)
-        channelsState["#channel2"] = ChannelState("#channel2", users = generateUsers("test-user"), topic = null)
+        channelsState["#channel"] = ChannelState("#channel", users = generateUsersFromNicks(listOf("test-user")), topic = null)
+        channelsState["#channel2"] = ChannelState("#channel2", users = generateUsersFromNicks(listOf("test-user")), topic = null)
 
         val message = AccountMessage(source = Prefix(nick = "test-user"), account = "test-account")
 
