@@ -1,6 +1,5 @@
 package chat.willow.warren.extension.cap.handler
 
-import chat.willow.kale.irc.message.extension.cap.CapLsMessage
 import chat.willow.kale.irc.message.extension.cap.CapNewMessage
 import chat.willow.kale.irc.message.extension.cap.CapReqMessage
 import chat.willow.kale.irc.tag.TagStore
@@ -8,7 +7,6 @@ import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.ICapManager
-import chat.willow.warren.extension.cap.handler.CapNewHandler
 import com.nhaarman.mockito_kotlin.*
 import org.junit.Before
 import org.junit.Test

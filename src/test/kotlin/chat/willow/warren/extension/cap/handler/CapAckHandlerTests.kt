@@ -1,7 +1,6 @@
 package chat.willow.warren.extension.cap.handler
 
 import chat.willow.kale.irc.message.extension.cap.CapAckMessage
-import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle

@@ -2,7 +2,6 @@ package chat.willow.warren.extension.cap.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.extension.cap.CapAckMessage
-import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
 import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
@@ -10,7 +9,6 @@ import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.ICapManager
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.loggerFor
-import chat.willow.warren.state.AuthLifecycle
 
 class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapAckMessage> {
 

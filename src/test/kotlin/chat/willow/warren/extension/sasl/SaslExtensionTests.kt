@@ -1,18 +1,16 @@
 package chat.willow.warren.extension.sasl
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
 import chat.willow.kale.IKale
-import chat.willow.kale.irc.message.extension.cap.CapAckMessage
 import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
-import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.ICapManager
 import chat.willow.warren.state.AuthLifecycle
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.never
+import com.nhaarman.mockito_kotlin.verify
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Before

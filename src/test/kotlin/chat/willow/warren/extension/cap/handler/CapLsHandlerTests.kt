@@ -8,8 +8,6 @@ import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.ICapManager
-import chat.willow.warren.extension.sasl.SaslState
-import chat.willow.warren.state.AuthLifecycle
 import com.nhaarman.mockito_kotlin.*
 import org.junit.Assert.assertEquals
 import org.junit.Before

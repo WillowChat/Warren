@@ -7,9 +7,7 @@ import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
-import chat.willow.warren.extension.cap.ICapExtension
 import chat.willow.warren.extension.cap.ICapManager
-import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.loggerFor
 
 class CapLsHandler(val capState: CapState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapLsMessage> {
