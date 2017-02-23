@@ -5,9 +5,10 @@ import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.*
 
 class AccountHandlerTests {
 

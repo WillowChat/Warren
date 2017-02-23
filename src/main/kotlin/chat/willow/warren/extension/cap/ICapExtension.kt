@@ -4,5 +4,6 @@ interface ICapExtension {
 
     fun setUp()
     fun tearDown()
+    fun valueSet(value: String?) = Unit
 
 }

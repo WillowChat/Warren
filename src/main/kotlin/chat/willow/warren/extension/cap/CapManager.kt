@@ -31,6 +31,7 @@ interface ICapManager : IStateCapturing<CapState> {
 
     fun capEnabled(name: String)
     fun capDisabled(name: String)
+    fun capValueSet(name: String, value: String?)
     fun onRegistrationStateChanged()
     val sasl: IStateCapturing<SaslState>
     val monitor: IStateCapturing<MonitorState>
@@ -47,7 +48,7 @@ enum class CapKeys(val key: String) {
     USERHOST_IN_NAMES("userhost-in-names"),
     INVITE_NOTIFY("invite-notify"),
     MONITOR("monitor"),
-    CHGHOST("chghost"),
+    CHGHOST("chghost")
 }
 
 class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager, eventDispatcher: IWarrenEventDispatcher) : ICapManager, ICapExtension, IRegistrationExtension {
@@ -60,10 +61,10 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
     override val sasl = SaslExtension(initialSaslState, kale, this, sink)
     override val monitor = MonitorExtension(initialMonitorState, kale, sink, eventDispatcher)
 
-    private val capLsHandler: CapLsHandler by lazy { CapLsHandler(internalState, sasl.internalState, sink, this) }
+    private val capLsHandler: CapLsHandler by lazy { CapLsHandler(internalState, sink, this) }
     private val capAckHandler: CapAckHandler by lazy { CapAckHandler(internalState, sasl.internalState, sink, this) }
     private val capNakHandler: CapNakHandler by lazy { CapNakHandler(internalState, sasl.internalState, sink, this) }
-    private val capNewHandler: CapNewHandler by lazy { CapNewHandler(internalState, sink) }
+    private val capNewHandler: CapNewHandler by lazy { CapNewHandler(internalState, sink, this) }
     private val capDelHandler: CapDelHandler by lazy { CapDelHandler(internalState, sink, this) }
 
     private val capExtensions = mapOf(
@@ -89,6 +90,10 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
 
     override fun capDisabled(name: String) {
         capExtensions[name]?.tearDown()
+    }
+
+    override fun capValueSet(name: String, value: String?) {
+        capExtensions[name]?.valueSet(value)
     }
 
     override fun onRegistrationStateChanged() {

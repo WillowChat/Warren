@@ -40,7 +40,7 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         val lifecycleState = LifecycleState.CONNECTING
 
         val capLifecycleState = CapLifecycle.NEGOTIATING
-        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(CapKeys.CAP_NOTIFY.key, CapKeys.MULTI_PREFIX.key, CapKeys.SASL.key, CapKeys.ACCOUNT_NOTIFY.key, CapKeys.AWAY_NOTIFY.key, CapKeys.EXTENDED_JOIN.key, CapKeys.USERHOST_IN_NAMES.key, CapKeys.INVITE_NOTIFY.key), server = mapOf(), accepted = setOf(), rejected = setOf())
+        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(CapKeys.CAP_NOTIFY.key, CapKeys.MULTI_PREFIX.key, CapKeys.SASL.key, CapKeys.ACCOUNT_NOTIFY.key, CapKeys.AWAY_NOTIFY.key, CapKeys.EXTENDED_JOIN.key, CapKeys.USERHOST_IN_NAMES.key, CapKeys.INVITE_NOTIFY.key, CapKeys.CHGHOST.key), server = mapOf(), accepted = setOf(), rejected = setOf())
 
         val saslState = if (user.sasl != null) {
             val credentials = AuthCredentials(account = user.sasl.account, password = user.sasl.password)

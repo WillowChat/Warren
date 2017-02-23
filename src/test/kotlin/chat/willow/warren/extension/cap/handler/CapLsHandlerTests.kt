@@ -10,10 +10,7 @@ import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.ICapManager
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.state.AuthLifecycle
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -22,18 +19,16 @@ class CapLsHandlerTests {
 
     lateinit var handler: CapLsHandler
     lateinit var capState: CapState
-    lateinit var saslState: SaslState
     lateinit var mockSink: IMessageSink
     lateinit var mockCapManager: ICapManager
 
     @Before fun setUp() {
         val capLifecycleState = CapLifecycle.NEGOTIATING
         capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
-        saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.AUTH_FAILED, credentials = null)
         mockSink = mock()
         mockCapManager = mock()
 
-        handler = CapLsHandler(capState, saslState, mockSink, mockCapManager)
+        handler = CapLsHandler(capState, mockSink, mockCapManager)
     }
 
     @Test fun test_handle_AddsCapsToStateList() {
@@ -86,6 +81,17 @@ class CapLsHandlerTests {
         handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to null)), TagStore())
 
         verify(mockSink, never()).write(any<IMessage>())
+    }
+
+    @Test fun test_handle_Negotiating_TellsCapManagerCapValuesChanged() {
+        capState.lifecycle = CapLifecycle.NEGOTIATING
+
+        handler.handle(CapLsMessage(caps = mapOf("cap1" to null, "cap2" to "value2"), isMultiline = false), TagStore())
+
+        inOrder(mockCapManager) {
+            verify(mockCapManager).capValueSet("cap1", value = null)
+            verify(mockCapManager).capValueSet("cap2", value = "value2")
+        }
     }
 
 }

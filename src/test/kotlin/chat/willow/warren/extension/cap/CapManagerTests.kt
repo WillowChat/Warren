@@ -98,4 +98,6 @@ class CapManagerTests {
         verify(mockRegistrationManager).onExtensionFailure(sut)
     }
 
+    // TODO: capEnabled, capDisabled and capValueSet
+
 }

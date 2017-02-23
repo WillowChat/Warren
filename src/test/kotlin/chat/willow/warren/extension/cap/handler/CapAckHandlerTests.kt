@@ -52,29 +52,12 @@ class CapAckHandlerTests {
         verify(mockCapManager).onRegistrationStateChanged()
     }
 
-    @Test fun test_handle_ACKedSasl_ShouldAuth_ChangesSaslLifecycleToAuthing() {
-        saslState.shouldAuth = true
-
-        handler.handle(CapAckMessage(caps = listOf("sasl")), TagStore())
-
-        assertEquals(AuthLifecycle.AUTHING, saslState.lifecycle)
-    }
-
     @Test fun test_handle_ACKedSasl_NoAuth_DoesNotWriteAuthenticateMessage() {
         saslState.shouldAuth = false
 
         handler.handle(CapAckMessage(caps = listOf("sasl")), TagStore())
 
         verify(mockSink, never()).write(any())
-    }
-
-    @Test fun test_handle_ACKedSasl_ShouldAuth_WriteAuthenticatePlainMessage() {
-        state.negotiate = setOf("sasl")
-        saslState.shouldAuth = true
-
-        handler.handle(CapAckMessage(caps = listOf("sasl")), TagStore())
-
-        verify(mockSink).write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
     }
 
     @Test fun test_handle_ServerACKedCapThatWeDidntNegotiate_DoesNotAcceptIt() {

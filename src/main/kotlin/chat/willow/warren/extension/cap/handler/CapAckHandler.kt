@@ -40,22 +40,8 @@ class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: 
             capManager.capEnabled(cap)
         }
 
-        when (lifecycle) {
-            CapLifecycle.NEGOTIATING -> {
-                LOGGER.trace("server ACKed some caps, checked if it's the last reply")
-
-                if (caps.contains("sasl") && saslState.shouldAuth) {
-                    LOGGER.trace("server acked sasl - starting authentication for user: ${saslState.credentials?.account}")
-
-                    saslState.lifecycle = AuthLifecycle.AUTHING
-
-                    sink.write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
-                }
-
-                capManager.onRegistrationStateChanged()
-            }
-
-            else -> Unit
+        if (lifecycle == CapLifecycle.NEGOTIATING) {
+            capManager.onRegistrationStateChanged()
         }
     }
 

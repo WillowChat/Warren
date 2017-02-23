@@ -7,11 +7,12 @@ import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
+import chat.willow.warren.extension.cap.ICapExtension
 import chat.willow.warren.extension.cap.ICapManager
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.loggerFor
 
-class CapLsHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapLsMessage> {
+class CapLsHandler(val capState: CapState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapLsMessage> {
 
     private val LOGGER = loggerFor<CapLsHandler>()
 
@@ -43,6 +44,8 @@ class CapLsHandler(val capState: CapState, val saslState: SaslState, val sink: I
                 } else {
                     LOGGER.trace("server gave us a multiline cap ls, expecting more caps before ending")
                 }
+
+                message.caps.forEach { capManager.capValueSet(it.key, it.value) }
             }
 
             else -> LOGGER.trace("server told us about caps but we don't think we're negotiating")

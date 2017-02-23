@@ -8,12 +8,14 @@ import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
+import chat.willow.warren.extension.cap.ICapExtension
 import chat.willow.warren.extension.cap.ICapManager
+import chat.willow.warren.extension.sasl.SaslExtension
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.AuthLifecycle
 
-class CapNewHandler(val capState: CapState, val sink: IMessageSink) : IKaleHandler<CapNewMessage> {
+class CapNewHandler(val capState: CapState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapNewMessage> {
 
     private val LOGGER = loggerFor<CapNewHandler>()
 
@@ -29,6 +31,8 @@ class CapNewHandler(val capState: CapState, val sink: IMessageSink) : IKaleHandl
             LOGGER.trace("REQing newly advertised caps $reqCaps")
             sink.write(CapReqMessage(caps = reqCaps))
         }
+
+        message.caps.forEach { capManager.capValueSet(it.key, it.value) }
     }
 
 }
