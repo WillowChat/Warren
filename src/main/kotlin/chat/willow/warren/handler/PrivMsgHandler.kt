@@ -53,13 +53,13 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsSt
 
             when (ctcp) {
                 CtcpEnum.NONE -> {
-                    eventDispatcher.fire(ChannelMessageEvent(user = user, channel = channel, message = messageContents))
+                    eventDispatcher.fire(ChannelMessageEvent(user = user, channel = channel, message = messageContents, metadata = tags))
 
                     LOGGER.debug("$target <${source.nick}> $messageContents")
                 }
 
                 CtcpEnum.ACTION -> {
-                    eventDispatcher.fire(ChannelActionEvent(user = user, channel = channel, message = messageContents))
+                    eventDispatcher.fire(ChannelActionEvent(user = user, channel = channel, message = messageContents, metadata = tags))
 
                     LOGGER.debug("$target ${source.nick} * $messageContents")
                 }
@@ -71,13 +71,13 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsSt
 
             when (ctcp) {
                 CtcpEnum.NONE -> {
-                    eventDispatcher.fire(PrivateMessageEvent(user = source, message = messageContents))
+                    eventDispatcher.fire(PrivateMessageEvent(user = source, message = messageContents, metadata = tags))
 
                     LOGGER.debug("PM: <${source.nick}> $messageContents")
                 }
 
                 CtcpEnum.ACTION -> {
-                    eventDispatcher.fire(PrivateActionEvent(user = source, message = messageContents))
+                    eventDispatcher.fire(PrivateActionEvent(user = source, message = messageContents, metadata = tags))
 
                     LOGGER.debug("PM: ${source.nick} * $messageContents")
                 }

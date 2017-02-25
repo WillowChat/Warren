@@ -19,7 +19,7 @@ class InviteHandler(val eventDispatcher: IWarrenEventDispatcher) : IKaleHandler<
             return
         }
 
-        eventDispatcher.fire(InvitedToChannelEvent(source = source, channel = message.channel))
+        eventDispatcher.fire(InvitedToChannelEvent(source = source, channel = message.channel, metadata = tags))
     }
 
 }

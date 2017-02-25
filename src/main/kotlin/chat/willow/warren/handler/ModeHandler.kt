@@ -59,7 +59,7 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
                     LOGGER.debug("user mode state changed: $user")
                 }
 
-                eventDispatcher.fire(ChannelModeEvent(user = message.source, channel = channel, modifier = modifier))
+                eventDispatcher.fire(ChannelModeEvent(user = message.source, channel = channel, modifier = modifier, metadata = tags))
             }
         } else {
             // User mode
@@ -67,7 +67,7 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
             LOGGER.info("user changed modes: $message")
 
             for (modifier in message.modifiers) {
-                eventDispatcher.fire(UserModeEvent(user = target, modifier = modifier))
+                eventDispatcher.fire(UserModeEvent(user = target, modifier = modifier, metadata = tags))
             }
         }
     }

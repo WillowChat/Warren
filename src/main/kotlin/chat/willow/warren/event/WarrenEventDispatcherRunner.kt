@@ -1,6 +1,7 @@
 package chat.willow.warren.event
 
 import chat.willow.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.LifecycleState
 import chat.willow.warren.state.emptyChannel
 import chat.willow.warren.state.generateUser
@@ -21,8 +22,8 @@ object WarrenEventDispatcherRunner {
             println("private message listener 2: $it")
         }
 
-        eventDispatcher.fire(ChannelMessageEvent(user = generateUser("someone"), channel = emptyChannel("#channel"), message = "something"))
-        eventDispatcher.fire(PrivateMessageEvent(user = Prefix(nick = "someone"), message = "something"))
+        eventDispatcher.fire(ChannelMessageEvent(user = generateUser("someone"), channel = emptyChannel("#channel"), message = "something", metadata = TagStore()))
+        eventDispatcher.fire(PrivateMessageEvent(user = Prefix(nick = "someone"), message = "something", metadata = TagStore()))
         eventDispatcher.fire(ConnectionLifecycleEvent(lifecycle = LifecycleState.CONNECTED))
     }
 }
