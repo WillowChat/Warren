@@ -6,6 +6,8 @@ import chat.willow.kale.irc.message.IrcMessageSerialiser
 import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
 import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.tag.KaleTagRouter
+import chat.willow.kale.irc.tag.extension.AccountTag
+import chat.willow.kale.irc.tag.extension.ServerTimeTag
 import chat.willow.warren.event.ChannelMessageEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.WarrenEventDispatcher
@@ -40,7 +42,8 @@ class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration
         val lifecycleState = LifecycleState.CONNECTING
 
         val capLifecycleState = CapLifecycle.NEGOTIATING
-        val capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(CapKeys.CAP_NOTIFY.key, CapKeys.MULTI_PREFIX.key, CapKeys.SASL.key, CapKeys.ACCOUNT_NOTIFY.key, CapKeys.AWAY_NOTIFY.key, CapKeys.EXTENDED_JOIN.key, CapKeys.USERHOST_IN_NAMES.key, CapKeys.INVITE_NOTIFY.key, CapKeys.CHGHOST.key), server = mapOf(), accepted = setOf(), rejected = setOf())
+        val caps = CapKeys.values(). map { it.key }.toSet()
+        val capState = CapState(lifecycle = capLifecycleState, negotiate = caps, server = mapOf(), accepted = setOf(), rejected = setOf())
 
         val saslState = if (user.sasl != null) {
             val credentials = AuthCredentials(account = user.sasl.account, password = user.sasl.password)
@@ -130,7 +133,7 @@ object WarrenRunner {
 
         val server = ServerConfiguration(host, port, useTLS)
         val user = UserConfiguration(nickname, sasl = sasl)
-        val channels = ChannelsConfiguration(mapOf("#carrot" to null, "#botdev" to null))
+        val channels = ChannelsConfiguration(mapOf("#carrot" to "butts", "#botdev" to null))
         val eventsConfig = EventConfiguration(events, fireIncomingLineEvent = true)
         val extensions = ExtensionsConfiguration(MonitorExtensionConfiguration(users = listOf("carrot")))
 
@@ -139,7 +142,12 @@ object WarrenRunner {
         events.on(ChannelMessageEvent::class) {
             LOGGER.info("channel message: $it")
 
-            if (it.user.prefix.nick == "carrot" && it.message.equals("rabbit party", ignoreCase = true)) {
+            val account = it.metadata[AccountTag::class]?.account
+
+            val saidRabbitParty by lazy { it.message.equals("rabbit party", ignoreCase = true) }
+            if (account == "carrot" && saidRabbitParty) {
+                connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel.name, message = "🐰🎉✨"), connection.sink))
+            } else if (it.user.prefix.nick == "carrot" && saidRabbitParty) {
                 connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel.name, message = "🐰🎉"), connection.sink))
             }
         }

@@ -48,7 +48,9 @@ enum class CapKeys(val key: String) {
     USERHOST_IN_NAMES("userhost-in-names"),
     INVITE_NOTIFY("invite-notify"),
     MONITOR("monitor"),
-    CHGHOST("chghost")
+    CHGHOST("chghost"),
+    SERVER_TIME("server-time"),
+    ACCOUNT_TAG("account-tag")
 }
 
 class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager, eventDispatcher: IWarrenEventDispatcher) : ICapManager, ICapExtension, IRegistrationExtension {
