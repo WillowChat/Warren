@@ -56,9 +56,9 @@ object WarrenRunner {
             val userIsOp by lazy { 'o' in it.user.modes }
 
             if (accountIsCarrot && saidRabbitParty) {
-                it.channel.send("🐰🎉✨")
+                it.user.send("🐰🎉✨")
             } else if (nickIsCarrot && saidRabbitParty) {
-                it.channel.send("🐰🎉")
+                it.user.send("🐰🎉")
             }
 
             if (!userIsOp || !nickIsCarrot) {
