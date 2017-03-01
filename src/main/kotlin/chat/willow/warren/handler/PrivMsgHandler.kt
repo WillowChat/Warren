@@ -3,12 +3,16 @@ package chat.willow.warren.handler
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
 import chat.willow.kale.irc.tag.ITagStore
+import chat.willow.warren.IClientMessageSending
+import chat.willow.warren.IWarrenClient
+import chat.willow.warren.WarrenChannel
+import chat.willow.warren.WarrenChannelUser
 import chat.willow.warren.event.*
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.ChannelTypesState
 import chat.willow.warren.state.JoinedChannelsState
 
-class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsState: JoinedChannelsState, val channelTypesState: ChannelTypesState) : IKaleHandler<PrivMsgMessage> {
+class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IClientMessageSending, val channelsState: JoinedChannelsState, val channelTypesState: ChannelTypesState) : IKaleHandler<PrivMsgMessage> {
 
     private val LOGGER = loggerFor<PrivMsgHandler>()
 
@@ -39,17 +43,20 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val channelsSt
         if (channelTypesState.types.any { char -> target.startsWith(char) }) {
             // Channel message
 
-            val channel = channelsState[target]
-            if (channel == null) {
+            val channelState = channelsState[target]
+            if (channelState == null) {
                 LOGGER.warn("got a privmsg for a channel we don't think we're in, bailing: $message")
                 return
             }
 
-            val user = channel.users[source.nick]
-            if (user == null) {
+            val userState = channelState.users[source.nick]
+            if (userState == null) {
                 LOGGER.warn("got a privmsg for a user we don't think's in the channel, bailing: $message")
                 return
             }
+
+            val channel = WarrenChannel(state = channelState, client = client)
+            val user = WarrenChannelUser(state = userState, channel = channel)
 
             when (ctcp) {
                 CtcpEnum.NONE -> {

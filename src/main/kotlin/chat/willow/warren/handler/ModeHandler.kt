@@ -3,6 +3,8 @@ package chat.willow.warren.handler
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.ModeMessage
 import chat.willow.kale.irc.tag.ITagStore
+import chat.willow.warren.IClientMessageSending
+import chat.willow.warren.WarrenChannel
 import chat.willow.warren.event.ChannelModeEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.UserModeEvent
@@ -12,7 +14,7 @@ import chat.willow.warren.state.ChannelTypesState
 import chat.willow.warren.state.JoinedChannelsState
 import chat.willow.warren.state.UserPrefixesState
 
-class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesState: ChannelTypesState, val channelsState: JoinedChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : IKaleHandler<ModeMessage> {
+class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IClientMessageSending, val channelTypesState: ChannelTypesState, val channelsState: JoinedChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : IKaleHandler<ModeMessage> {
 
     private val LOGGER = loggerFor<ModeHandler>()
 
@@ -24,8 +26,8 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
         if (channelTypesState.types.any { char -> target.startsWith(char) }) {
             // Channel mode
 
-            val channel = channelsState[target]
-            if (channel == null) {
+            val channelState = channelsState[target]
+            if (channelState == null) {
                 LOGGER.warn("user mode changed for a channel we don't think we're in, bailing: $message")
                 return
             }
@@ -40,7 +42,7 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
                         continue
                     }
 
-                    val user = channel.users[nick]
+                    val user = channelState.users[nick]
                     if (user == null) {
                         LOGGER.warn("user mode changed but not tracking that user, bailing: $message")
                         continue
@@ -59,6 +61,7 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val channelTypesS
                     LOGGER.debug("user mode state changed: $user")
                 }
 
+                val channel = WarrenChannel(state = channelState, client = client)
                 eventDispatcher.fire(ChannelModeEvent(user = message.source, channel = channel, modifier = modifier, metadata = tags))
             }
         } else {

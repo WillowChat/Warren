@@ -8,6 +8,8 @@ import chat.willow.kale.irc.message.rfc1459.ModeMessage
 import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.tag.TagStore
+import chat.willow.warren.IClientMessageSending
+import chat.willow.warren.WarrenChannel
 import chat.willow.warren.event.ChannelModeEvent
 import chat.willow.warren.event.IWarrenEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
@@ -22,6 +24,8 @@ class ModeHandlerTests {
     lateinit var handler: ModeHandler
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
     lateinit var channelsState: ChannelsState
+    lateinit var mockClientMessaging: IClientMessageSending
+
     val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
 
     @Before fun setUp() {
@@ -29,31 +33,37 @@ class ModeHandlerTests {
         val channelTypes = ChannelTypesState(types = setOf('#'))
         channelsState = emptyChannelsState(caseMappingState)
         val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('+' to 'v', '@' to 'o'))
-        handler = ModeHandler(mockEventDispatcher, channelTypes, channelsState.joined, userPrefixesState, caseMappingState)
+        mockClientMessaging = mock()
+
+        handler = ModeHandler(mockEventDispatcher, mockClientMessaging, channelTypes, channelsState.joined, userPrefixesState, caseMappingState)
     }
 
     @Test fun test_handle_ChannelModeChange_NoPrefix_FiresEvents() {
         val firstExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'x', parameter = "someone")
         val secondExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'y')
 
-        channelsState.joined += emptyChannel("#channel")
+        val channelState = emptyChannel("#channel")
+        channelsState.joined += channelState
 
         handler.handle(ModeMessage(source = null, target = "#channel", modifiers = listOf(firstExpectedModifier, secondExpectedModifier)), TagStore())
 
-        verify(mockEventDispatcher).fire(ChannelModeEvent(user = null, channel = emptyChannel("#channel"), modifier = firstExpectedModifier))
-        verify(mockEventDispatcher).fire(ChannelModeEvent(user = null, channel = emptyChannel("#channel"), modifier = secondExpectedModifier))
+        val channel = WarrenChannel(state = channelState, client = mockClientMessaging)
+        verify(mockEventDispatcher).fire(ChannelModeEvent(user = null, channel = channel, modifier = firstExpectedModifier))
+        verify(mockEventDispatcher).fire(ChannelModeEvent(user = null, channel = channel, modifier = secondExpectedModifier))
     }
 
     @Test fun test_handle_ChannelModeChange_WithPrefix_FiresEvents() {
         val firstExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'x', parameter = "someone")
         val secondExpectedModifier = ModeMessage.ModeModifier(type = '+', mode = 'y')
 
-        channelsState.joined += emptyChannel("#channel")
+        val channelState = emptyChannel("#channel")
+        channelsState.joined += channelState
 
         handler.handle(ModeMessage(source = Prefix(nick = "admin"), target = "#channel", modifiers = listOf(firstExpectedModifier, secondExpectedModifier)), TagStore())
 
-        verify(mockEventDispatcher).fire(ChannelModeEvent(user = Prefix(nick = "admin"), channel = emptyChannel("#channel"), modifier = firstExpectedModifier))
-        verify(mockEventDispatcher).fire(ChannelModeEvent(user = Prefix(nick = "admin"), channel = emptyChannel("#channel"), modifier = secondExpectedModifier))
+        val channel = WarrenChannel(state = channelState, client = mockClientMessaging)
+        verify(mockEventDispatcher).fire(ChannelModeEvent(user = Prefix(nick = "admin"), channel = channel, modifier = firstExpectedModifier))
+        verify(mockEventDispatcher).fire(ChannelModeEvent(user = Prefix(nick = "admin"), channel = channel, modifier = secondExpectedModifier))
     }
 
     @Test fun test_handle_ChannelModeChange_ForChannelNotIn_DoesNothing() {

@@ -33,7 +33,7 @@ interface IWarrenEventDispatcher {
 
     fun <T : IWarrenEvent> on(eventClass: KClass<T>, listener: (T) -> Unit)
 
-    fun onAnything(listener: (Any) -> Unit)
+    fun onAny(listener: (Any) -> Unit)
 }
 
 class WarrenEventDispatcher : IWarrenEventDispatcher {
@@ -57,7 +57,7 @@ class WarrenEventDispatcher : IWarrenEventDispatcher {
         typedWrapper += listener
     }
 
-    override fun onAnything(listener: (Any) -> Unit) {
+    override fun onAny(listener: (Any) -> Unit) {
         onAnythingListeners += listener
     }
 

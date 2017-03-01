@@ -1,162 +1,96 @@
 package chat.willow.warren
 
-import chat.willow.kale.Kale
-import chat.willow.kale.KaleRouter
-import chat.willow.kale.irc.message.IrcMessageSerialiser
-import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
-import chat.willow.kale.irc.message.utility.CaseMapping
-import chat.willow.kale.irc.tag.KaleTagRouter
 import chat.willow.kale.irc.tag.extension.AccountTag
-import chat.willow.kale.irc.tag.extension.ServerTimeTag
 import chat.willow.warren.event.ChannelMessageEvent
-import chat.willow.warren.event.IWarrenEventDispatcher
-import chat.willow.warren.event.WarrenEventDispatcher
-import chat.willow.warren.event.internal.NewLineWarrenEventGenerator
-import chat.willow.warren.event.internal.SendSomethingEvent
-import chat.willow.warren.event.internal.WarrenInternalEventQueue
 import chat.willow.warren.extension.cap.CapKeys
-import chat.willow.warren.extension.cap.CapLifecycle
-import chat.willow.warren.extension.cap.CapState
-import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.extension.monitor.UserOnlineEvent
-import chat.willow.warren.extension.sasl.SaslState
-import chat.willow.warren.helper.ThreadSleeper
-import chat.willow.warren.helper.ThreadedExecutionContext
 import chat.willow.warren.helper.loggerFor
-import chat.willow.warren.registration.RegistrationManager
-import chat.willow.warren.state.*
-
-data class ServerConfiguration(val server: String, val port: Int = 6697, val useTLS: Boolean = true, val fingerprints: Set<String>? = null, val password: String? = null)
-data class UserConfiguration(val nickname: String, val user: String = nickname, val sasl: SaslConfiguration? = null, val nickserv: NickServConfiguration? = null)
-data class SaslConfiguration(val account: String, val password: String)
-data class NickServConfiguration(val account: String, val password: String, val channelJoinWaitSeconds: Int = 5)
-data class ChannelsConfiguration(val channels: Map<String, String?> = mapOf())
-data class EventConfiguration(val dispatcher: IWarrenEventDispatcher, val fireIncomingLineEvent: Boolean = false)
-data class ExtensionsConfiguration(val monitor: MonitorExtensionConfiguration)
-
-data class MonitorExtensionConfiguration(val users: List<String>)
-
-class WarrenFactory(val server: ServerConfiguration, val user: UserConfiguration, val channels: ChannelsConfiguration, val events: EventConfiguration, val extensions: ExtensionsConfiguration) {
-
-    fun create(): IrcConnection {
-        val lifecycleState = LifecycleState.CONNECTING
-
-        val capLifecycleState = CapLifecycle.NEGOTIATING
-        val caps = CapKeys.values(). map { it.key }.toSet()
-        val capState = CapState(lifecycle = capLifecycleState, negotiate = caps, server = mapOf(), accepted = setOf(), rejected = setOf())
-
-        val saslState = if (user.sasl != null) {
-            val credentials = AuthCredentials(account = user.sasl.account, password = user.sasl.password)
-
-            SaslState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = credentials)
-        } else {
-            SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
-        }
-
-        val nickServState = if (user.nickserv != null) {
-            val credentials = AuthCredentials(account = user.nickserv.account, password = user.nickserv.password)
-
-            NickServState(shouldAuth = true, lifecycle = AuthLifecycle.AUTHING, credentials = credentials, channelJoinWaitSeconds = user.nickserv.channelJoinWaitSeconds)
-        } else {
-            NickServState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null, channelJoinWaitSeconds = 5)
-        }
-
-        val connectionState = ConnectionState(server = server.server, port = server.port, nickname = user.nickname, user = user.user,
-                lifecycle = lifecycleState, nickServ = nickServState, password = server.password)
-
-        val kale = Kale(KaleRouter().useDefaults(), KaleTagRouter().useDefaults())
-        val serialiser = IrcMessageSerialiser
-
-        val socketFactory = if (server.useTLS) {
-            TLSSocketFactory(connectionState.server, connectionState.port, server.fingerprints)
-        } else {
-            PlaintextSocketFactory(connectionState.server, connectionState.port)
-        }
-
-        val socket = IrcSocket(socketFactory, kale, serialiser)
-
-        val userPrefixesState = UserPrefixesState(prefixesToModes = mapOf('@' to 'o', '+' to 'v'))
-        val channelModesState = ChannelModesState(typeA = setOf('e', 'I', 'b'), typeB = setOf('k'), typeC = setOf('l'), typeD = setOf('i', 'm', 'n', 'p', 's', 't', 'S', 'r'))
-        val channelPrefixesState = ChannelTypesState(types = setOf('#', '&'))
-        val caseMappingState = CaseMappingState(mapping = CaseMapping.RFC1459)
-        val parsingState = ParsingState(userPrefixesState, channelModesState, channelPrefixesState, caseMappingState)
-
-        val joiningState = JoiningChannelsState(caseMappingState)
-        for ((name, key) in channels.channels) {
-            joiningState += JoiningChannelState(name, key, status = JoiningChannelLifecycle.JOINING)
-        }
-
-        val channelsState = ChannelsState(joining = joiningState, joined = JoinedChannelsState(caseMappingState))
-
-        val initialMonitorState = MonitorState(maxCount = 0, users = extensions.monitor.users)
-
-        val initialState = IrcState(connectionState, parsingState, channelsState)
-
-        val internalEventQueue = WarrenInternalEventQueue()
-        val newLineGenerator = NewLineWarrenEventGenerator(internalEventQueue, kale, lineSource = socket, fireIncomingLineEvent = events.fireIncomingLineEvent, warrenEventDispatcher = events.dispatcher)
-
-        val registrationManager = RegistrationManager()
-
-        val pingExecutionContext = ThreadedExecutionContext(name = "ping context")
-        val newLineExecutionContext = ThreadedExecutionContext(name = "new line context")
-
-        val runner = IrcConnection(eventDispatcher = events.dispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState, initialCapState = capState, initialSaslState = saslState, initialMonitorState = initialMonitorState, registrationManager = registrationManager, sleeper = ThreadSleeper, pingGeneratorExecutionContext = pingExecutionContext, lineGeneratorExecutionContext = newLineExecutionContext)
-
-        registrationManager.listener = runner
-
-        return runner
-    }
-
-}
 
 object WarrenRunner {
 
     private val LOGGER = loggerFor<WarrenRunner>()
 
     @JvmStatic fun main(args: Array<String>) {
-        val host = args[0]
-        val port = args[1].toInt()
-        val useTLS = (port != 6667)
-        val nickname = args[2]
-        val password = args.getOrNull(3)
+        val argHost = args[0]
+        val argPort = args[1].toInt()
+        val argNickname = args[2]
+        val argPassword = args.getOrNull(3)
 
-        val events = WarrenEventDispatcher()
-        events.onAnything {
+        val client = WarrenClient.build {
+            server(argHost) {
+                port = argPort
+                useTLS = (port != 6667)
+            }
+
+            user(argNickname) {
+                if (argPassword != null) {
+                    sasl(argNickname to argPassword)
+                }
+            }
+
+            channel("#carrot" to "butts")
+            channel("#botdev")
+
+            events {
+                fireIncomingLineEvent = true
+            }
+
+            extensions {
+                monitor("carrot", "someone-else")
+                disable(CapKeys.CHGHOST, CapKeys.AWAY_NOTIFY)
+            }
+        }
+
+        client.events.onAny {
             LOGGER.info("event: $it")
         }
 
-        val sasl = if (password != null) {
-            SaslConfiguration(account = nickname, password = password)
-        } else {
-            null
-        }
-
-        val server = ServerConfiguration(host, port, useTLS)
-        val user = UserConfiguration(nickname, sasl = sasl)
-        val channels = ChannelsConfiguration(mapOf("#carrot" to "butts", "#botdev" to null))
-        val eventsConfig = EventConfiguration(events, fireIncomingLineEvent = true)
-        val extensions = ExtensionsConfiguration(MonitorExtensionConfiguration(users = listOf("carrot")))
-
-        val connection = WarrenFactory(server, user, channels, eventsConfig, extensions).create()
-
-        events.on(ChannelMessageEvent::class) {
+        client.events.on(ChannelMessageEvent::class) {
             LOGGER.info("channel message: $it")
 
             val account = it.metadata[AccountTag::class]?.account
 
             val saidRabbitParty by lazy { it.message.equals("rabbit party", ignoreCase = true) }
-            if (account == "carrot" && saidRabbitParty) {
-                connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel.name, message = "🐰🎉✨"), connection.sink))
-            } else if (it.user.prefix.nick == "carrot" && saidRabbitParty) {
-                connection.eventSink.add(SendSomethingEvent(PrivMsgMessage(target = it.channel.name, message = "🐰🎉"), connection.sink))
+            val accountIsCarrot by lazy { account == "carrot" }
+            val nickIsCarrot by lazy { it.user.nick == "carrot" }
+            val userIsOp by lazy { 'o' in it.user.modes }
+
+            if (accountIsCarrot && saidRabbitParty) {
+                it.channel.send("🐰🎉✨")
+            } else if (nickIsCarrot && saidRabbitParty) {
+                it.channel.send("🐰🎉")
+            }
+
+            if (!userIsOp || !nickIsCarrot) {
+                return@on
+            }
+
+            if (!it.message.startsWith("🥕")) {
+                return@on
+            }
+
+            val splitMessage = it.message.split(" ", limit = 2)
+
+            val command = splitMessage.getOrNull(0)?.removePrefix("🥕")
+            if (command != null) {
+                when (command) {
+                    null -> Unit
+
+                    "ping" -> it.channel.send("pong")
+
+                    "say" -> {
+                        val message = splitMessage.getOrNull(1) ?: "nothing to say"
+                        it.channel.send(message)
+                    }
+                }
             }
         }
 
-        events.on(UserOnlineEvent::class) {
+        client.events.on(UserOnlineEvent::class) {
             LOGGER.info("user online: ${it.prefix.nick}")
         }
 
-        connection.run()
+        client.start()
     }
 
 }

@@ -91,7 +91,7 @@ class IrcRunnerTests {
     @Test fun test_run_RegistersBaseHandlers() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         assertEquals(24, mockKale.spyRegisterHandlers.size)
 
@@ -131,7 +131,7 @@ class IrcRunnerTests {
     @Test fun test_run_startsRegistration() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         verify(mockRegistrationManager).startRegistration()
     }
@@ -139,7 +139,7 @@ class IrcRunnerTests {
     @Test fun test_run_UsesPingExecutionContext() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         verify(mockPingExecutionContext, times(1)).execute(any())
     }
@@ -147,7 +147,7 @@ class IrcRunnerTests {
     @Test fun test_run_UsesLineExecutionContext() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         verify(mockLineExecutionContext, times(1)).execute(any())
     }
@@ -155,7 +155,7 @@ class IrcRunnerTests {
     @Test fun test_run_TearsDownSink() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         verify(mockSink).tearDown()
     }
@@ -163,7 +163,7 @@ class IrcRunnerTests {
     @Test fun test_run_TearsDownPingExecutionContext() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         verify(mockPingExecutionContext).tearDown()
     }
@@ -171,7 +171,7 @@ class IrcRunnerTests {
     @Test fun test_run_TearsDownLineExecutionContext() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         verify(mockLineExecutionContext).tearDown()
     }
@@ -179,7 +179,7 @@ class IrcRunnerTests {
     @Test fun test_run_PingBlock_SleepsForTenSecondsFirst() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         whenever(mockSleeper.sleep(any()))
                 .thenReturn(true)
@@ -205,7 +205,7 @@ class IrcRunnerTests {
     @Test fun test_run_PingBlock_LifecycleNotConnected_DoesNotWriteAnything() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         whenever(mockSleeper.sleep(any()))
                 .thenReturn(true)
@@ -228,7 +228,7 @@ class IrcRunnerTests {
     @Test fun test_run_PingBlock_LifecycleConnected_ReadyForPing_SendsPing() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         // FIXME: Relies on internal implementation too much
         whenever(mockSleeper.sleep(any())).then {
@@ -246,7 +246,7 @@ class IrcRunnerTests {
     @Test fun test_run_LineBlock_TellsNewLineGeneratorToRun() {
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         captureAndInvokeBlockFromContext(mockLineExecutionContext)
 
@@ -257,7 +257,7 @@ class IrcRunnerTests {
         whenever(mockSink.setUp()).thenReturn(true)
         whenever(mockNewLineGenerator.run()).then { /* NO-OP */ }
 
-        connection.run()
+        connection.start()
 
         captureAndInvokeBlockFromContext(mockLineExecutionContext)
 
@@ -268,7 +268,7 @@ class IrcRunnerTests {
         whenever(mockSink.setUp()).thenReturn(true)
         whenever(mockNewLineGenerator.run()).then { /* NO-OP */ }
 
-        connection.run()
+        connection.start()
 
         captureAndInvokeBlockFromContext(mockLineExecutionContext)
         captureAndInvokeBlockFromEventQueue()

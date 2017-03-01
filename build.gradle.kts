@@ -17,10 +17,9 @@ val kotlinVersion by project
 val projectTitle = "Warren"
 
 buildscript {
-    val buildscriptKotlinVersion = "1.1.0-rc-91"
+    val buildscriptKotlinVersion = "1.1.0"
 
     repositories {
-        maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
         gradleScriptKotlin()
         jcenter()
     }
@@ -67,9 +66,8 @@ compileJava {
 }
 
 repositories {
-    maven { setUrl("http://dl.bintray.com/kotlin/kotlin-eap-1.1") }
-    gradleScriptKotlin()
     mavenCentral()
+    gradleScriptKotlin()
     maven { setUrl("https://maven.ci.carrot.codes") }
 }
 

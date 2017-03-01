@@ -129,7 +129,7 @@ class SanityCheckIntegrationTests {
 
         whenever(mockSink.setUp()).thenReturn(true)
 
-        connection.run()
+        connection.start()
 
         assertEquals(LifecycleState.CONNECTED, connection.state.connection.lifecycle)
         assertEquals(setOf("multi-prefix"), connection.caps.state.accepted)

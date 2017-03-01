@@ -41,7 +41,7 @@ class WarrenEventDispatcherTests {
         val firstEvent = object : IWarrenEvent { }
         val secondEvent = object : IWarrenEvent { }
         val listener: (Any) -> Unit = mock()
-        sut.onAnything(listener)
+        sut.onAny(listener)
 
         sut.fire(firstEvent)
         sut.fire(secondEvent)
