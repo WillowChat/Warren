@@ -30,7 +30,7 @@ import chat.willow.warren.state.IStateCapturing
 import chat.willow.warren.state.IrcState
 import chat.willow.warren.state.LifecycleState
 
-interface IIrcConnection : IStateCapturing<IrcState>, IClientMessageSending {
+interface IIrcConnection : IStateCapturing<IrcState>, IClientMessageSending, IStringMessageSending {
 
     val caps: IStateCapturing<CapState>
 
@@ -78,6 +78,12 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
         registrationManager.startRegistration()
 
         runEventLoop()
+    }
+
+    override fun send(message: String) {
+        internalEventQueue.add {
+            sink.writeRaw(message)
+        }
     }
 
     override fun <M : IMessage> send(message: M) {
