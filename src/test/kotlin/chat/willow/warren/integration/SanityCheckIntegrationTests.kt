@@ -4,10 +4,13 @@ import chat.willow.kale.IKale
 import chat.willow.kale.Kale
 import chat.willow.kale.KaleRouter
 import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.tag.KaleTagRouter
-import chat.willow.warren.ILineSource
-import chat.willow.warren.IMessageSink
-import chat.willow.warren.IrcConnection
+import chat.willow.kale.irc.tag.TagStore
+import chat.willow.warren.*
+import chat.willow.warren.event.ChannelMessageEvent
+import chat.willow.warren.event.ConnectionLifecycleEvent
+import chat.willow.warren.event.IWarrenEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.internal.IWarrenInternalEvent
 import chat.willow.warren.event.internal.IWarrenInternalEventGenerator
@@ -19,10 +22,10 @@ import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.IExecutionContext
 import chat.willow.warren.helper.ISleeper
+import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.registration.RegistrationManager
 import chat.willow.warren.state.*
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockito_kotlin.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -124,7 +127,8 @@ class SanityCheckIntegrationTests {
                 ":test-nick JOIN #channel1",
                 ":test-nick JOIN #channel2",
                 ":someone JOIN #channel1",
-                ":someone JOIN #channel2"
+                ":someone JOIN #channel2",
+                ":someone PRIVMSG #channel2 :hello, world!"
         )
 
         whenever(mockSink.setUp()).thenReturn(true)
@@ -133,6 +137,20 @@ class SanityCheckIntegrationTests {
 
         assertEquals(LifecycleState.CONNECTED, connection.state.connection.lifecycle)
         assertEquals(setOf("multi-prefix"), connection.caps.state.accepted)
+
+        val clientMessageSending: IClientMessageSending = mock()
+        val channelTwo = emptyChannel("#channel2")
+        channelTwo.users += generateUser("someone")
+        val channel = WarrenChannel(channelTwo, clientMessageSending)
+        val userState = ChannelUserState(prefix = Prefix(nick = "someone"))
+        val user = WarrenChannelUser(state = userState, channel = channel)
+
+        inOrder(mockEventDispatcher) {
+            verify(mockEventDispatcher).fire(ConnectionLifecycleEvent(lifecycle = LifecycleState.REGISTERING))
+            verify(mockEventDispatcher).fire(ConnectionLifecycleEvent(lifecycle = LifecycleState.CONNECTED))
+            verify(mockEventDispatcher).fire(ChannelMessageEvent(user = user, channel = channel, message = "hello, world!", metadata = TagStore()))
+        }
+
     }
 
 }

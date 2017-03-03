@@ -56,6 +56,15 @@ data class WarrenChannelUserModes(private val state: Set<Char>, private val user
         channel.removeMode(mode, user.nick)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other !is WarrenChannelUserModes) return false
+        return state == other.state && user == other.user
+    }
+
+    override fun hashCode(): Int {
+        return state.hashCode() + 31 * user.hashCode()
+    }
+
 }
 
 data class WarrenChannelUser(private val state: ChannelUserState, private val channel: IWarrenChannel): IStringMessageSending {
@@ -120,6 +129,14 @@ data class WarrenChannel(private val state: ChannelState, private val client: IC
         client.send(InviteMessage(user = user, channel = name))
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other !is WarrenChannel) return false
+        return state == other.state
+    }
+
+    override fun hashCode(): Int {
+        return state.hashCode()
+    }
 }
 
 interface IWarrenChannels {
@@ -137,6 +154,15 @@ data class WarrenChannels(private val state: JoinedChannelsState, private val cl
         val channelState = state[channel] ?: return null
 
         return WarrenChannel(channelState, client = client)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is WarrenChannels) return false
+        return state == other.state
+    }
+
+    override fun hashCode(): Int {
+        return state.hashCode()
     }
 
 }
