@@ -8,7 +8,7 @@ import chat.willow.warren.event.WarrenEventDispatcher
 import chat.willow.warren.extension.cap.CapKeys
 import chat.willow.warren.state.*
 
-interface IWarrenClient: IClientMessageSending {
+interface IWarrenClient: IClientMessageSending, IStringMessageSending {
 
     val state: IrcState
     val events: IWarrenEventDispatcher
@@ -189,16 +189,16 @@ class WarrenClient constructor(private val connection: IIrcConnection, override 
         connection.send(PartMessage(channels = listOf(channel)))
     }
 
-    override fun send(raw: String) {
-        connection.send(raw)
-    }
-
     override fun <M : IMessage> send(message: M) {
         connection.send(message)
     }
 
     override fun send(message: String, target: String) {
         connection.send(message, target)
+    }
+
+    override fun send(message: String) {
+        connection.send(message)
     }
 
     companion object {
