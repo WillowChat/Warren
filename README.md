@@ -18,6 +18,11 @@ Warren and Kale have a few interesting features:
 
 Planned releases (and their features) are tracked in [Projects](https://github.com/WillowChat/Warren/projects).
 
+## Support
+
+<a href="https://patreon.com/carrotcodes"><img src="https://s3.amazonaws.com/patreon_public_assets/toolbox/patreon.png" align="left" width="160" ></a>
+If you use this library and you'd like to support my open-source work, please consider tipping through [Patreon](https://patreon.com/carrotcodes).
+
 ## Example usage
 
 The project includes a simple [example runner](https://github.com/WillowChat/Warren/blob/develop/src/main/kotlin/chat/willow/warren/WarrenRunner.kt) that prints out events as they happen, logs in using SASL and replies to me saying `rabbit party` in a channel.
