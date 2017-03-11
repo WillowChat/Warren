@@ -32,6 +32,14 @@ class JoinHandlerTests {
         assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsersFromNicks(nicks = listOf(), mappingState = caseMappingState))), caseMappingState), channelsState)
     }
 
+    @Test fun test_handle_SourceIsSelf_DifferingCase_JoinsCorrectChannel() {
+        channelsState.joining += JoiningChannelState("#channel", status = JoiningChannelLifecycle.JOINING)
+
+        handler.handle(JoinMessage(source = Prefix(nick = "Test-Nick"), channels = listOf("#channel")), TagStore())
+
+        assertEquals(channelsStateWith(listOf(ChannelState(name = "#channel", users = generateUsersFromNicks(nicks = listOf(), mappingState = caseMappingState))), caseMappingState), channelsState)
+    }
+
     @Test fun test_handle_SourceIsSelf_AlreadyInChannel() {
         channelsState.joined += ChannelState("#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState))
 

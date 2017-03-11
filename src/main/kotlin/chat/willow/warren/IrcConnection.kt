@@ -98,7 +98,7 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
         kale.register(JoinHandler(internalState.connection, internalState.channels.joining, internalState.channels.joined, internalState.parsing.caseMapping))
         kale.register(KickHandler(internalState.connection, internalState.channels.joined, internalState.parsing.caseMapping))
         kale.register(ModeHandler(eventDispatcher, this, internalState.parsing.channelTypes, internalState.channels.joined, internalState.parsing.userPrefixes, internalState.parsing.caseMapping))
-        kale.register(NickHandler(internalState.connection, internalState.channels.joined))
+        kale.register(NickHandler(internalState.connection, internalState.channels.joined, internalState.parsing.caseMapping))
         kale.register(NoticeHandler(internalState.parsing.channelTypes))
         kale.register(PartHandler(internalState.connection, internalState.channels.joined, internalState.parsing.caseMapping))
         kale.register(PingHandler(sink, internalState.connection))

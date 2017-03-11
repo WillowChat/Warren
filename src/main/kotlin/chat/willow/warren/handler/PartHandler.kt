@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.PartMessage
+import chat.willow.kale.irc.message.utility.equalsIgnoreCase
 import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
@@ -25,7 +26,7 @@ class PartHandler(val connectionState: ConnectionState, val channelsState: Joine
 
         val nick = source.nick
 
-        if (nick == connectionState.nickname) {
+        if (equalsIgnoreCase(caseMappingState.mapping, nick, connectionState.nickname)) {
             // Us parting a channel
 
             LOGGER.debug("we parted channels: ${message.channels}")

@@ -32,6 +32,14 @@ class PartHandlerTests {
         assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
 
+    @Test fun test_handle_SourceIsSelf_DifferingCase_WellFormed_PartsCorrectChannel() {
+        channelsState.joined += ChannelState("#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState))
+
+        handler.handle(PartMessage(source = Prefix(nick = "Test-Nick"), channels = listOf("#channel")), TagStore())
+
+        assertEquals(emptyChannelsState(caseMappingState), channelsState)
+    }
+
     @Test fun test_handle_SourceIsSelf_NotInChannel() {
         handler.handle(PartMessage(source = Prefix(nick = "test-nick"), channels = listOf("#channel")), TagStore())
 

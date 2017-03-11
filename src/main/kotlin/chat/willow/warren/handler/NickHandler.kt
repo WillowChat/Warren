@@ -2,12 +2,14 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.NickMessage
+import chat.willow.kale.irc.message.utility.equalsIgnoreCase
 import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
+import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.ConnectionState
 import chat.willow.warren.state.JoinedChannelsState
 
-class NickHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState) : IKaleHandler<NickMessage> {
+class NickHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<NickMessage> {
 
     private val LOGGER = loggerFor<NickHandler>()
 
@@ -22,7 +24,7 @@ class NickHandler(val connectionState: ConnectionState, val channelsState: Joine
             return
         }
 
-        if (from.nick == connectionState.nickname) {
+        if (equalsIgnoreCase(caseMappingState.mapping, from.nick, connectionState.nickname)) {
             // We were forcibly renamed by the server
 
             connectionState.nickname = from.nick

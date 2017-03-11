@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.JoinMessage
+import chat.willow.kale.irc.message.utility.equalsIgnoreCase
 import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.*
@@ -23,7 +24,7 @@ class JoinHandler(val connectionState: ConnectionState, val joiningChannelsState
 
         val nick = source.nick
 
-        if (nick == connectionState.nickname) {
+        if (equalsIgnoreCase(caseMappingState.mapping, nick, connectionState.nickname)) {
             // Us joining a channel
 
             LOGGER.debug("we joined channels: ${message.channels}")

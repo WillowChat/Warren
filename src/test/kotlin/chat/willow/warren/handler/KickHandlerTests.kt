@@ -68,4 +68,14 @@ class KickHandlerTests {
         assertEquals(channelsState, expectedChannelsState)
     }
 
+    @Test fun test_handle_KickSelf_DifferingCase_LeavesChannel() {
+        channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState))
+
+        handler.handle(KickMessage(users = listOf("Test-Nick"), channels = listOf("#Channel")), TagStore())
+
+        val expectedChannelsState = emptyChannelsState(caseMappingState)
+
+        assertEquals(channelsState, expectedChannelsState)
+    }
+
 }

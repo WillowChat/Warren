@@ -2,6 +2,7 @@ package chat.willow.warren.handler
 
 import chat.willow.kale.IKaleHandler
 import chat.willow.kale.irc.message.rfc1459.KickMessage
+import chat.willow.kale.irc.message.utility.equalsIgnoreCase
 import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
@@ -19,7 +20,7 @@ class KickHandler(val connectionState: ConnectionState, val channelsState: Joine
         val channels = message.channels
 
         for (kickedNick in kickedNicks) {
-            if (kickedNick == connectionState.nickname) {
+            if (equalsIgnoreCase(caseMappingState.mapping, kickedNick, connectionState.nickname)) {
                 // We were forcibly kicked
 
                 val removedChannels = channels.map { channel -> channelsState.remove(channel) }
