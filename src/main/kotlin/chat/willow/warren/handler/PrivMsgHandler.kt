@@ -11,6 +11,7 @@ import chat.willow.warren.event.*
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.ChannelTypesState
 import chat.willow.warren.state.JoinedChannelsState
+import chat.willow.warren.state.generateUser
 
 class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IClientMessageSending, val channelsState: JoinedChannelsState, val channelTypesState: ChannelTypesState) : IKaleHandler<PrivMsgMessage> {
 
@@ -49,10 +50,11 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IC
                 return
             }
 
-            val userState = channelState.users[source.nick]
+            var userState = channelState.users[source.nick]
             if (userState == null) {
-                LOGGER.warn("got a privmsg for a user we don't think's in the channel, bailing: $message")
-                return
+                userState = generateUser(nick = source.nick)
+
+                LOGGER.debug("got a privmsg for a user we don't think's in the channel, making a fake user $userState: $message")
             }
 
             val channel = WarrenChannel(state = channelState, client = client)

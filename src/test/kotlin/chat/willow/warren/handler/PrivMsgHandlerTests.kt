@@ -63,6 +63,20 @@ class PrivMsgHandlerTests {
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
+    @Test fun test_handle_ChannelMessage_UserNotInChannel_StillFiresEvent() {
+        val channelState = emptyChannel("&channel")
+        val userState = generateUser("someone")
+        channelState.users += userState
+
+        joinedChannelsState += channelState
+
+        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone-else"), target = "&channel", message = "a test message"), TagStore())
+
+        val channel = WarrenChannel(state = channelState, client = mockClientMessageSending)
+        val user = WarrenChannelUser(state = generateUser("someone-else"), channel = channel)
+        verify(mockEventDispatcher).fire(ChannelMessageEvent(user = user, channel = channel, message = "a test message"))
+    }
+
     @Test fun test_handle_PrivateMessage_FiresEvent() {
         handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not-a-channel", message = "a test message"), TagStore())
 
