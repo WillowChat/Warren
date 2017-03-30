@@ -20,6 +20,7 @@ object WarrenRunner {
             server(argHost) {
                 port = argPort
                 useTLS = (port != 6667)
+                password = argPassword
             }
 
             user(argNickname) {
@@ -52,7 +53,7 @@ object WarrenRunner {
 
             val saidRabbitParty by lazy { it.message.equals("rabbit party", ignoreCase = true) }
             val accountIsCarrot by lazy { account == "carrot" }
-            val nickIsCarrot by lazy { it.user.nick == "carrot" }
+            val nickIsCarrot by lazy { it.user.nick.startsWith("carrot", ignoreCase = true) }
             val userIsOp by lazy { 'o' in it.user.modes }
 
             if (accountIsCarrot && saidRabbitParty) {

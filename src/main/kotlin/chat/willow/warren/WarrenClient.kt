@@ -1,7 +1,6 @@
 package chat.willow.warren
 
 import chat.willow.kale.irc.CharacterCodes
-import chat.willow.kale.irc.message.IMessage
 import chat.willow.kale.irc.message.rfc1459.*
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.WarrenEventDispatcher
@@ -36,7 +35,7 @@ interface ITargetedMessageSending {
 
 interface ITypedMessageSending {
 
-    fun <M: IMessage> send(message: M)
+    fun <M: Any> send(message: M)
 
 }
 
@@ -113,20 +112,20 @@ data class WarrenChannel(private val state: ChannelState, private val client: IC
 
     override fun addMode(mode: Char, user: String) {
         val modifier = ModeMessage.ModeModifier(type = CharacterCodes.PLUS, mode = mode, parameter = user)
-        client.send(ModeMessage(target = name, modifiers = listOf(modifier)))
+        client.send(ModeMessage.Command(target = name, modifiers = listOf(modifier)))
     }
 
     override fun removeMode(mode: Char, user: String) {
         val modifier = ModeMessage.ModeModifier(type = CharacterCodes.MINUS, mode = mode, parameter = user)
-        client.send(ModeMessage(target = name, modifiers = listOf(modifier)))
+        client.send(ModeMessage.Command(target = name, modifiers = listOf(modifier)))
     }
 
     override fun kick(user: String) {
-        client.send(KickMessage(users = listOf(user), channels = listOf(name)))
+        client.send(KickMessage.Command(users = listOf(user), channels = listOf(name)))
     }
 
     override fun invite(user: String) {
-        client.send(InviteMessage(user = user, channel = name))
+        client.send(InviteMessage.Command(user = user, channel = name))
     }
 
     override fun equals(other: Any?): Boolean {
@@ -178,18 +177,18 @@ class WarrenClient constructor(private val connection: IIrcConnection, override 
     }
 
     override fun join(channel: String) {
-        connection.send(JoinMessage(channels = listOf(channel)))
+        connection.send(JoinMessage.Command(channels = listOf(channel)))
     }
 
     override fun join(channel: String, key: String) {
-        connection.send(JoinMessage(channels = listOf(channel), keys = listOf(key)))
+        connection.send(JoinMessage.Command(channels = listOf(channel), keys = listOf(key)))
     }
 
     override fun leave(channel: String) {
-        connection.send(PartMessage(channels = listOf(channel)))
+        connection.send(PartMessage.Command(channels = listOf(channel)))
     }
 
-    override fun <M : IMessage> send(message: M) {
+    override fun <M : Any> send(message: M) {
         connection.send(message)
     }
 

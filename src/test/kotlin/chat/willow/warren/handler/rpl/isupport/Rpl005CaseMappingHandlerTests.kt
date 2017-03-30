@@ -1,6 +1,6 @@
 package chat.willow.warren.handler.rpl.isupport
 
-import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.ChannelUsersState
 import chat.willow.warren.state.JoinedChannelsState
@@ -53,9 +53,9 @@ class Rpl005CaseMappingHandlerTests {
     @Test fun test_handle_ChannelsStateCaseMappingIsAlsoUpdated() {
         handler.handle("ascii", caseMappingState)
 
-        assertEquals(CaseMappingState(mapping = CaseMapping.ASCII), joinedChannelsState.mappingState)
-        assertEquals(CaseMappingState(mapping = CaseMapping.ASCII), joiningChannelsState.mappingState)
-        assertEquals(CaseMappingState(mapping = CaseMapping.ASCII), channelUsersState.mappingState)
+        assertEquals(CaseMapping.ASCII, joinedChannelsState.mapper.current)
+        assertEquals(CaseMapping.ASCII, joiningChannelsState.mapper.current)
+        assertEquals(CaseMapping.ASCII, channelUsersState.mapper.current)
     }
 
 }

@@ -1,9 +1,5 @@
 package chat.willow.warren.extension.sasl.handler
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
 import chat.willow.kale.irc.message.IMessage
 import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
 import chat.willow.kale.irc.tag.TagStore
@@ -12,6 +8,10 @@ import chat.willow.warren.extension.sasl.AuthenticateHandler
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.state.AuthCredentials
 import chat.willow.warren.state.AuthLifecycle
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.never
+import com.nhaarman.mockito_kotlin.verify
 import org.junit.Before
 import org.junit.Test
 
@@ -31,7 +31,7 @@ class AuthenticateHandlerTests {
     @Test fun test_handle_NotAuthing_DoesNothing() {
         state.lifecycle = AuthLifecycle.NO_AUTH
 
-        handler.handle(AuthenticateMessage(payload = "+", isEmpty = true), TagStore())
+        handler.handle(AuthenticateMessage.Message(payload = "+", isEmpty = true), TagStore())
 
         verify(sink, never()).write(any<IMessage>())
     }
@@ -40,7 +40,7 @@ class AuthenticateHandlerTests {
         state.lifecycle = AuthLifecycle.NO_AUTH
         state.credentials = null
 
-        handler.handle(AuthenticateMessage(payload = "+", isEmpty = true), TagStore())
+        handler.handle(AuthenticateMessage.Message(payload = "+", isEmpty = true), TagStore())
 
         verify(sink, never()).write(any<IMessage>())
     }
@@ -49,9 +49,9 @@ class AuthenticateHandlerTests {
         state.lifecycle = AuthLifecycle.AUTHING
         state.credentials = AuthCredentials(account = "test-nick", password = "test-password")
 
-        handler.handle(AuthenticateMessage(payload = "+", isEmpty = true), TagStore())
+        handler.handle(AuthenticateMessage.Message(payload = "+", isEmpty = true), TagStore())
 
-        verify(sink).write(AuthenticateMessage(payload = "dGVzdC1uaWNrAHRlc3QtbmljawB0ZXN0LXBhc3N3b3Jk", isEmpty = false))
+        verify(sink).write(AuthenticateMessage.Command(payload = "dGVzdC1uaWNrAHRlc3QtbmljawB0ZXN0LXBhc3N3b3Jk"))
     }
 
 }

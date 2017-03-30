@@ -1,6 +1,6 @@
 package chat.willow.warren.state
 
-import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
 
 fun generateUsersFromNicks(nicks: List<String>, mappingState: CaseMappingState = CaseMappingState(CaseMapping.RFC1459)): ChannelUsersState {

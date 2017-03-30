@@ -1,20 +1,17 @@
 package chat.willow.warren.handler.rpl
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
-import chat.willow.kale.irc.message.rfc1459.JoinMessage
-import chat.willow.kale.irc.message.rfc1459.rpl.Rpl376Message
+import chat.willow.kale.irc.message.rfc1459.rpl.Rpl376MessageType
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
-import chat.willow.warren.event.ConnectionLifecycleEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.registration.IRegistrationExtension
-import chat.willow.warren.state.*
-import org.junit.Assert.assertEquals
+import chat.willow.warren.state.ConnectionState
+import chat.willow.warren.state.LifecycleState
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.never
+import com.nhaarman.mockito_kotlin.verify
 import org.junit.Before
 import org.junit.Test
 
@@ -42,7 +39,7 @@ class Rpl376HandlerTests {
     }
 
     @Test fun test_handle_TellsRFC1459RegistrationExtension_Succeeded() {
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), TagStore())
+        handler.handle(Rpl376MessageType(source = "test.source", target = "test-user", contents = "end of motd"), TagStore())
 
         verify(mockRFC1459RegistrationExtension).onRegistrationSucceeded()
     }
@@ -50,7 +47,7 @@ class Rpl376HandlerTests {
     @Test fun test_handle_CapLifecycleIsNegotiating_TellsCapRegistrationExtension_Failure() {
         capState.lifecycle = CapLifecycle.NEGOTIATING
 
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), TagStore())
+        handler.handle(Rpl376MessageType(source = "test.source", target = "test-user", contents = "end of motd"), TagStore())
 
         verify(mockCapRegistrationExtension).onRegistrationFailed()
     }
@@ -58,7 +55,7 @@ class Rpl376HandlerTests {
     @Test fun test_handle_CapLifecycleIsNegotiated_DoesNotNotifyCapRegistrationExtension() {
         capState.lifecycle = CapLifecycle.NEGOTIATED
 
-        handler.handle(Rpl376Message(source = "test.source", target = "test-user", contents = "end of motd"), TagStore())
+        handler.handle(Rpl376MessageType(source = "test.source", target = "test-user", contents = "end of motd"), TagStore())
 
         verify(mockCapRegistrationExtension, never()).onRegistrationFailed()
     }

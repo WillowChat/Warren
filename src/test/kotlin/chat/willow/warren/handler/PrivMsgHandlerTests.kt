@@ -1,12 +1,8 @@
 package chat.willow.warren.handler
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.kale.irc.CharacterCodes
 import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
-import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IClientMessageSending
@@ -14,6 +10,10 @@ import chat.willow.warren.WarrenChannel
 import chat.willow.warren.WarrenChannelUser
 import chat.willow.warren.event.*
 import chat.willow.warren.state.*
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.never
+import com.nhaarman.mockito_kotlin.verify
 import org.junit.Before
 import org.junit.Test
 
@@ -41,7 +41,7 @@ class PrivMsgHandlerTests {
 
         joinedChannelsState += channelState
 
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "a test message"), TagStore())
+        handler.handle(PrivMsgMessage.Message(source = Prefix(nick = "someone"), target = "&channel", message = "a test message"), TagStore())
 
         val channel = WarrenChannel(state = channelState, client = mockClientMessageSending)
         val user = WarrenChannelUser(state = userState, channel = channel)
@@ -52,13 +52,13 @@ class PrivMsgHandlerTests {
         val channel = emptyChannel("&channel")
 
         joinedChannelsState += channel
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&notInChannel", message = "a test message"), TagStore())
+        handler.handle(PrivMsgMessage.Message(source = Prefix(nick = "someone"), target = "&notInChannel", message = "a test message"), TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
     @Test fun test_handle_ChannelMessage_MissingUser_DoesNothing() {
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&notInChannel", message = "a test message"), TagStore())
+        handler.handle(PrivMsgMessage.Message(source = Prefix(nick = "someone"), target = "&notInChannel", message = "a test message"), TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
@@ -70,7 +70,7 @@ class PrivMsgHandlerTests {
 
         joinedChannelsState += channelState
 
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone-else"), target = "&channel", message = "a test message"), TagStore())
+        handler.handle(PrivMsgMessage.Message(source = Prefix(nick = "someone-else"), target = "&channel", message = "a test message"), TagStore())
 
         val channel = WarrenChannel(state = channelState, client = mockClientMessageSending)
         val user = WarrenChannelUser(state = generateUser("someone-else"), channel = channel)
@@ -78,15 +78,9 @@ class PrivMsgHandlerTests {
     }
 
     @Test fun test_handle_PrivateMessage_FiresEvent() {
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not-a-channel", message = "a test message"), TagStore())
+        handler.handle(PrivMsgMessage.Message(source = Prefix(nick = "someone"), target = "not-a-channel", message = "a test message"), TagStore())
 
         verify(mockEventDispatcher).fire(PrivateMessageEvent(user = Prefix(nick = "someone"), message = "a test message"))
-    }
-
-    @Test fun test_handle_NoSource_DoesNothing() {
-        handler.handle(PrivMsgMessage(source = null, target = "not-a-channel", message = "a test message"), TagStore())
-
-        verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
     @Test fun test_handle_ChannelMessage_Action_FiresEvent() {
@@ -96,7 +90,7 @@ class PrivMsgHandlerTests {
 
         joinedChannelsState += channelState
 
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "${CharacterCodes.CTCP}ACTION an action${CharacterCodes.CTCP}"), TagStore())
+        handler.handle(PrivMsgMessage.Message(source = Prefix(nick = "someone"), target = "&channel", message = "${CharacterCodes.CTCP}ACTION an action${CharacterCodes.CTCP}"), TagStore())
 
         val channel = WarrenChannel(state = channelState, client = mockClientMessageSending)
         val user = WarrenChannelUser(state = userState, channel = channel)
@@ -109,19 +103,19 @@ class PrivMsgHandlerTests {
 
         joinedChannelsState += channel
 
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "&channel", message = "${CharacterCodes.CTCP}UNKNOWN ${CharacterCodes.CTCP}"), TagStore())
+        handler.handle(PrivMsgMessage.Message(source = Prefix(nick = "someone"), target = "&channel", message = "${CharacterCodes.CTCP}UNKNOWN ${CharacterCodes.CTCP}"), TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
 
     @Test fun test_handle_PrivateMessage_Action_FiresEvent() {
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not a channel", message = "${CharacterCodes.CTCP}ACTION an action${CharacterCodes.CTCP}"), TagStore())
+        handler.handle(PrivMsgMessage.Message(source = Prefix(nick = "someone"), target = "not a channel", message = "${CharacterCodes.CTCP}ACTION an action${CharacterCodes.CTCP}"), TagStore())
 
         verify(mockEventDispatcher).fire(PrivateActionEvent(user = Prefix(nick = "someone"), message = "an action"))
     }
 
     @Test fun test_handle_PrivateMessage_UnknownCtcp_DoesNotFireEvent() {
-        handler.handle(PrivMsgMessage(source = Prefix(nick = "someone"), target = "not a channel", message = "${CharacterCodes.CTCP}UNKNOWN ${CharacterCodes.CTCP}"), TagStore())
+        handler.handle(PrivMsgMessage.Message(source = Prefix(nick = "someone"), target = "not a channel", message = "${CharacterCodes.CTCP}UNKNOWN ${CharacterCodes.CTCP}"), TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }

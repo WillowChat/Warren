@@ -1,21 +1,20 @@
 package chat.willow.warren.handler
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
+import chat.willow.kale.helper.equalsIgnoreCase
 import chat.willow.kale.irc.message.rfc1459.KickMessage
-import chat.willow.kale.irc.message.utility.equalsIgnoreCase
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.ConnectionState
 import chat.willow.warren.state.JoinedChannelsState
 
-class KickHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<KickMessage> {
+class KickHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : KaleHandler<KickMessage.Message>(KickMessage.Message.Parser) {
 
     private val LOGGER = loggerFor<KickHandler>()
 
-    override val messageType = KickMessage::class.java
 
-    override fun handle(message: KickMessage, tags: ITagStore) {
+    override fun handle(message: KickMessage.Message, metadata: IMetadataStore) {
         val kickedNicks = message.users
         val channels = message.channels
 

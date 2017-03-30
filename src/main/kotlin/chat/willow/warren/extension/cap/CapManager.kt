@@ -1,8 +1,9 @@
 package chat.willow.warren.extension.cap
 
-import chat.willow.kale.IKale
-import chat.willow.kale.irc.message.extension.cap.CapEndMessage
-import chat.willow.kale.irc.message.extension.cap.CapLsMessage
+import chat.willow.kale.IKaleIrcMessageHandler
+import chat.willow.kale.IKaleRouter
+import chat.willow.kale.KaleSubcommandHandler
+import chat.willow.kale.irc.message.extension.cap.CapMessage
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.extension.account_notify.AccountNotifyExtension
@@ -53,15 +54,15 @@ enum class CapKeys(val key: String) {
     ACCOUNT_TAG("account-tag")
 }
 
-class CapManager(initialState: CapState, private val kale: IKale, channelsState: ChannelsState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager, eventDispatcher: IWarrenEventDispatcher) : ICapManager, ICapExtension, IRegistrationExtension {
+class CapManager(initialState: CapState, private val kaleRouter: IKaleRouter<IKaleIrcMessageHandler>, channelsState: ChannelsState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val sink: IMessageSink, caseMappingState: CaseMappingState, private val registrationManager: IRegistrationManager, eventDispatcher: IWarrenEventDispatcher) : ICapManager, ICapExtension, IRegistrationExtension {
 
     private val LOGGER = loggerFor<CapManager>()
 
     internal var internalState: CapState = initialState
     @Volatile override var state: CapState = initialState.copy()
 
-    override val sasl = SaslExtension(initialSaslState, kale, this, sink)
-    override val monitor = MonitorExtension(initialMonitorState, kale, sink, eventDispatcher)
+    override val sasl = SaslExtension(initialSaslState, kaleRouter, this, sink)
+    override val monitor = MonitorExtension(initialMonitorState, kaleRouter, sink, eventDispatcher)
 
     private val capLsHandler: CapLsHandler by lazy { CapLsHandler(internalState, sink, this) }
     private val capAckHandler: CapAckHandler by lazy { CapAckHandler(internalState, sasl.internalState, sink, this) }
@@ -69,14 +70,24 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
     private val capNewHandler: CapNewHandler by lazy { CapNewHandler(internalState, sink, this) }
     private val capDelHandler: CapDelHandler by lazy { CapDelHandler(internalState, sink, this) }
 
+    val capsToHandlers = mapOf(
+            CapMessage.Ls.subcommand to capLsHandler,
+            CapMessage.Ack.subcommand to capAckHandler,
+            CapMessage.Nak.subcommand to capNakHandler,
+            CapMessage.New.subcommand to capNewHandler,
+            CapMessage.Del.subcommand to capDelHandler
+    )
+
+    private val capHandler = KaleSubcommandHandler(capsToHandlers, subcommandPosition = 1)
+
     private val capExtensions = mapOf(
             CapKeys.SASL.key to sasl,
-            CapKeys.ACCOUNT_NOTIFY.key to AccountNotifyExtension(kale, channelsState.joined),
-            CapKeys.AWAY_NOTIFY.key to AwayNotifyExtension(kale, channelsState.joined),
-            CapKeys.EXTENDED_JOIN.key to ExtendedJoinExtension(kale, channelsState, caseMappingState),
-            CapKeys.INVITE_NOTIFY.key to InviteNotifyExtension(kale, eventDispatcher),
+            CapKeys.ACCOUNT_NOTIFY.key to AccountNotifyExtension(kaleRouter, channelsState.joined),
+            CapKeys.AWAY_NOTIFY.key to AwayNotifyExtension(kaleRouter, channelsState.joined),
+            CapKeys.EXTENDED_JOIN.key to ExtendedJoinExtension(kaleRouter, channelsState, caseMappingState),
+            CapKeys.INVITE_NOTIFY.key to InviteNotifyExtension(kaleRouter, eventDispatcher),
             CapKeys.MONITOR.key to monitor,
-            CapKeys.CHGHOST.key to ChgHostExtension(kale, channelsState.joined)
+            CapKeys.CHGHOST.key to ChgHostExtension(kaleRouter, channelsState.joined)
     )
 
     override fun captureStateSnapshot() {
@@ -128,30 +139,22 @@ class CapManager(initialState: CapState, private val kale: IKale, channelsState:
 
         LOGGER.debug("ending cap negotiation with state: $internalState")
 
-        sink.write(CapEndMessage())
+        sink.write(CapMessage.End.Command)
     }
 
 
     override fun setUp() {
-        kale.register(capLsHandler)
-        kale.register(capAckHandler)
-        kale.register(capNakHandler)
-        kale.register(capNewHandler)
-        kale.register(capDelHandler)
+        kaleRouter.register(CapMessage.command, capHandler)
     }
 
     override fun tearDown() {
-        kale.unregister(capLsHandler)
-        kale.unregister(capAckHandler)
-        kale.unregister(capNakHandler)
-        kale.unregister(capNewHandler)
-        kale.unregister(capDelHandler)
+        kaleRouter.unregister(CapMessage.command)
     }
 
     // IRegistrationExtension
 
     override fun startRegistration() {
-        sink.write(CapLsMessage(caps = mapOf()))
+        sink.write(CapMessage.Ls.Command(version = "302"))
     }
 
     override fun onRegistrationSucceeded() {

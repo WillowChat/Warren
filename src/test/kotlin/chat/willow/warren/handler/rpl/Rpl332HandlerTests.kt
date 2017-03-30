@@ -1,7 +1,7 @@
 package chat.willow.warren.handler.rpl
 
-import chat.willow.kale.irc.message.rfc1459.rpl.Rpl332Message
-import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.helper.CaseMapping
+import chat.willow.kale.irc.message.rfc1459.rpl.Rpl332MessageType
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
 import org.junit.Assert.assertEquals
@@ -22,7 +22,7 @@ class Rpl332HandlerTests {
     @Test fun test_handle_NonexistentChannel_DoesNothing() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState))
 
-        handler.handle(Rpl332Message(source = "", target = "", channel = "#somewhere", topic = "test topic"), TagStore())
+        handler.handle(Rpl332MessageType(source = "", target = "", channel = "#somewhere", content = "test topic"), TagStore())
 
         val expectedChannelState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState))
 
@@ -32,7 +32,7 @@ class Rpl332HandlerTests {
     @Test fun test_handle_ValidChannel_SetsTopic() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState))
 
-        handler.handle(Rpl332Message(source = "", target = "", channel = "#channel", topic = "test topic"), TagStore())
+        handler.handle(Rpl332MessageType(source = "", target = "", channel = "#channel", content = "test topic"), TagStore())
 
         val expectedChannelState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState), topic = "test topic")
 

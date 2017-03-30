@@ -1,7 +1,8 @@
 package chat.willow.warren.handler
 
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.kale.irc.message.rfc1459.KickMessage
-import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.irc.prefix.prefix
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
 import org.junit.Assert.assertEquals
@@ -27,7 +28,7 @@ class KickHandlerTests {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone", "someone-else"), mappingState = caseMappingState))
         channelsState.joined += ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
 
-        handler.handle(KickMessage(users = listOf("someone"), channels = listOf("#channel", "#channel2")), TagStore())
+        handler.handle(KickMessage.Message(users = listOf("someone"), channels = listOf("#channel", "#channel2"), source = prefix("")), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone-else"), mappingState = caseMappingState))
         val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
@@ -39,7 +40,7 @@ class KickHandlerTests {
     @Test fun test_handle_MultipleNicks_NotSelf_RemovesFromChannel() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone", "someone-else", "last-person"), mappingState = caseMappingState))
 
-        handler.handle(KickMessage(users = listOf("someone", "someone-else"), channels = listOf("#channel")), TagStore())
+        handler.handle(KickMessage.Message(users = listOf("someone", "someone-else"), channels = listOf("#channel"), source = prefix("")), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("last-person"), mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
@@ -50,7 +51,7 @@ class KickHandlerTests {
     @Test fun test_handle_UserNotInChannel_DoesNothing() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone"), mappingState = caseMappingState))
 
-        handler.handle(KickMessage(users = listOf("nonexistent-user"), channels = listOf("#channel")), TagStore())
+        handler.handle(KickMessage.Message(users = listOf("nonexistent-user"), channels = listOf("#channel"), source = prefix("")), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone"), mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
@@ -61,7 +62,7 @@ class KickHandlerTests {
     @Test fun test_handle_KickSelf_LeavesChannel() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState))
 
-        handler.handle(KickMessage(users = listOf("test-nick"), channels = listOf("#channel")), TagStore())
+        handler.handle(KickMessage.Message(users = listOf("test-nick"), channels = listOf("#channel"), source = prefix("")), TagStore())
 
         val expectedChannelsState = emptyChannelsState(caseMappingState)
 
@@ -71,7 +72,7 @@ class KickHandlerTests {
     @Test fun test_handle_KickSelf_DifferingCase_LeavesChannel() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState))
 
-        handler.handle(KickMessage(users = listOf("Test-Nick"), channels = listOf("#Channel")), TagStore())
+        handler.handle(KickMessage.Message(users = listOf("Test-Nick"), channels = listOf("#Channel"), source = prefix("")), TagStore())
 
         val expectedChannelsState = emptyChannelsState(caseMappingState)
 

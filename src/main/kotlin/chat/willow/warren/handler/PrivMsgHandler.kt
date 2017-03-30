@@ -1,10 +1,8 @@
 package chat.willow.warren.handler
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.KaleHandler
 import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IClientMessageSending
-import chat.willow.warren.IWarrenClient
 import chat.willow.warren.WarrenChannel
 import chat.willow.warren.WarrenChannelUser
 import chat.willow.warren.event.*
@@ -13,21 +11,15 @@ import chat.willow.warren.state.ChannelTypesState
 import chat.willow.warren.state.JoinedChannelsState
 import chat.willow.warren.state.generateUser
 
-class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IClientMessageSending, val channelsState: JoinedChannelsState, val channelTypesState: ChannelTypesState) : IKaleHandler<PrivMsgMessage> {
+class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IClientMessageSending, val channelsState: JoinedChannelsState, val channelTypesState: ChannelTypesState) : KaleHandler<PrivMsgMessage.Message>(PrivMsgMessage.Message.Parser) {
 
     private val LOGGER = loggerFor<PrivMsgHandler>()
 
-    override val messageType = PrivMsgMessage::class.java
 
-    override fun handle(message: PrivMsgMessage, tags: ITagStore) {
+    override fun handle(message: PrivMsgMessage.Message, metadata: IMetadataStore) {
         val source = message.source
         val target = message.target
         var messageContents = message.message
-
-        if (source == null) {
-            LOGGER.warn("got a PrivMsg but the source was missing - bailing: $message")
-            return
-        }
 
         var ctcp = CtcpEnum.NONE
 
@@ -62,13 +54,13 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IC
 
             when (ctcp) {
                 CtcpEnum.NONE -> {
-                    eventDispatcher.fire(ChannelMessageEvent(user = user, channel = channel, message = messageContents, metadata = tags))
+                    eventDispatcher.fire(ChannelMessageEvent(user = user, channel = channel, message = messageContents, metadata = metadata))
 
                     LOGGER.debug("$target <${source.nick}> $messageContents")
                 }
 
                 CtcpEnum.ACTION -> {
-                    eventDispatcher.fire(ChannelActionEvent(user = user, channel = channel, message = messageContents, metadata = tags))
+                    eventDispatcher.fire(ChannelActionEvent(user = user, channel = channel, message = messageContents, metadata = metadata))
 
                     LOGGER.debug("$target ${source.nick} * $messageContents")
                 }
@@ -80,13 +72,13 @@ class PrivMsgHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IC
 
             when (ctcp) {
                 CtcpEnum.NONE -> {
-                    eventDispatcher.fire(PrivateMessageEvent(user = source, message = messageContents, metadata = tags))
+                    eventDispatcher.fire(PrivateMessageEvent(user = source, message = messageContents, metadata = metadata))
 
                     LOGGER.debug("PM: <${source.nick}> $messageContents")
                 }
 
                 CtcpEnum.ACTION -> {
-                    eventDispatcher.fire(PrivateActionEvent(user = source, message = messageContents, metadata = tags))
+                    eventDispatcher.fire(PrivateActionEvent(user = source, message = messageContents, metadata = metadata))
 
                     LOGGER.debug("PM: ${source.nick} * $messageContents")
                 }

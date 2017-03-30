@@ -1,6 +1,6 @@
 package chat.willow.warren.handler.rpl.isupport
 
-import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 

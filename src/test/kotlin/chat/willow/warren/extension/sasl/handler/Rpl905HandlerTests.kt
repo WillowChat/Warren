@@ -1,21 +1,15 @@
 package chat.willow.warren.extension.sasl.handler
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
-import chat.willow.kale.irc.message.IMessage
-import chat.willow.kale.irc.message.extension.cap.CapEndMessage
-import chat.willow.kale.irc.message.extension.sasl.Rpl903Message
-import chat.willow.kale.irc.message.extension.sasl.Rpl905Message
+import chat.willow.kale.irc.message.extension.sasl.rpl.Rpl905MessageType
 import chat.willow.kale.irc.tag.TagStore
-import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.ICapManager
 import chat.willow.warren.extension.sasl.Rpl905Handler
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.state.AuthLifecycle
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -37,13 +31,13 @@ class Rpl905HandlerTests {
     }
 
     @Test fun test_handle_LifecycleSetToAuthFailed() {
-        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth failed"), TagStore())
+        handler.handle(Rpl905MessageType(source = "", target = "", contents = "SASL auth failed"), TagStore())
 
         assertEquals(AuthLifecycle.AUTH_FAILED, saslState.lifecycle)
     }
 
     @Test fun test_handle_TellsCapManagerRegistrationStateChanged() {
-        handler.handle(Rpl905Message(source = "", target = "", contents = "SASL auth failed"), TagStore())
+        handler.handle(Rpl905MessageType(source = "", target = "", contents = "SASL auth failed"), TagStore())
 
         verify(mockCapManager).onRegistrationStateChanged()
     }

@@ -1,20 +1,19 @@
 package chat.willow.warren.extension.cap.handler
 
-import chat.willow.kale.IKaleHandler
-import chat.willow.kale.irc.message.extension.cap.CapDelMessage
-import chat.willow.kale.irc.tag.ITagStore
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
+import chat.willow.kale.irc.message.extension.cap.CapMessage
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.ICapManager
 import chat.willow.warren.helper.loggerFor
 
-class CapDelHandler(val capState: CapState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapDelMessage> {
+class CapDelHandler(val capState: CapState, val sink: IMessageSink, val capManager: ICapManager) : KaleHandler<CapMessage.Del.Message>(CapMessage.Del.Message.Parser) {
 
     private val LOGGER = loggerFor<CapDelHandler>()
 
-    override val messageType = CapDelMessage::class.java
 
-    override fun handle(message: CapDelMessage, tags: ITagStore) {
+    override fun handle(message: CapMessage.Del.Message, metadata: IMetadataStore) {
         val caps = message.caps
 
         LOGGER.trace("server NEWed following caps: $caps")

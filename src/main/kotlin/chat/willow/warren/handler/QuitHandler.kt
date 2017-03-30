@@ -1,8 +1,8 @@
 package chat.willow.warren.handler
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
 import chat.willow.kale.irc.message.rfc1459.QuitMessage
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.event.ConnectionLifecycleEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.helper.loggerFor
@@ -10,19 +10,13 @@ import chat.willow.warren.state.ConnectionState
 import chat.willow.warren.state.JoinedChannelsState
 import chat.willow.warren.state.LifecycleState
 
-class QuitHandler(val eventDispatcher: IWarrenEventDispatcher, val connectionState: ConnectionState, val channelsState: JoinedChannelsState) : IKaleHandler<QuitMessage> {
+class QuitHandler(val eventDispatcher: IWarrenEventDispatcher, val connectionState: ConnectionState, val channelsState: JoinedChannelsState) : KaleHandler<QuitMessage.Message>(QuitMessage.Message.Parser) {
 
     private val LOGGER = loggerFor<QuitHandler>()
 
-    override val messageType = QuitMessage::class.java
 
-    override fun handle(message: QuitMessage, tags: ITagStore) {
-        val from = message.source?.nick
-
-        if (from == null) {
-            LOGGER.warn("from nick was missing, not doing anything: $message")
-            return
-        }
+    override fun handle(message: QuitMessage.Message, metadata: IMetadataStore) {
+        val from = message.source.nick
 
         if (from == connectionState.nickname) {
             // We quit the server

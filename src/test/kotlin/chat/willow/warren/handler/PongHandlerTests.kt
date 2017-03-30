@@ -1,11 +1,11 @@
 package chat.willow.warren.handler
 
-import com.nhaarman.mockito_kotlin.mock
 import chat.willow.kale.irc.message.rfc1459.PongMessage
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.state.ConnectionState
 import chat.willow.warren.state.LifecycleState
+import com.nhaarman.mockito_kotlin.mock
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -28,7 +28,7 @@ class PongHandlerTests {
         val expectedTime = System.currentTimeMillis()
         val tolerance = 1000
 
-        handler.handle(PongMessage(token = "TestToken"), TagStore())
+        handler.handle(PongMessage.Message(token = "TestToken"), TagStore())
 
         assertTrue(connectionState.lastPingOrPong > tolerance)
         assertTrue(connectionState.lastPingOrPong > expectedTime - tolerance)

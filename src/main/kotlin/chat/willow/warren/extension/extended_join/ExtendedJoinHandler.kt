@@ -1,20 +1,20 @@
 package chat.willow.warren.extension.extended_join
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IKaleMessageHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
 import chat.willow.kale.irc.message.extension.extended_join.ExtendedJoinMessage
 import chat.willow.kale.irc.message.rfc1459.JoinMessage
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.ChannelsState
 
-class ExtendedJoinHandler(val joinHandler: IKaleHandler<JoinMessage>, val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<ExtendedJoinMessage> {
+class ExtendedJoinHandler(val joinHandler: IKaleMessageHandler<JoinMessage.Message>?, val channelsState: ChannelsState, val caseMappingState: CaseMappingState) : KaleHandler<ExtendedJoinMessage.Message>(ExtendedJoinMessage.Message.Parser) {
 
     private val LOGGER = loggerFor<ExtendedJoinHandler>()
-    override val messageType = ExtendedJoinMessage::class.java
 
-    override fun handle(message: ExtendedJoinMessage, tags: ITagStore) {
-        joinHandler.handle(JoinMessage(source = message.source, channels = listOf(message.channel)), tags = tags)
+    override fun handle(message: ExtendedJoinMessage.Message, metadata: IMetadataStore) {
+        joinHandler?.handle(JoinMessage.Message(source = message.source, channels = listOf(message.channel)), metadata = metadata)
 
         val nick = message.source.nick
         val channelName = message.channel

@@ -1,6 +1,6 @@
 package chat.willow.warren.extension.cap.handler
 
-import chat.willow.kale.irc.message.extension.cap.CapAckMessage
+import chat.willow.kale.irc.message.extension.cap.CapMessage
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
@@ -38,7 +38,7 @@ class CapAckHandlerTests {
     @Test fun test_handle_AddsAckedCapsToStateList() {
         state.negotiate = setOf("cap1", "cap2", "cap3")
 
-        handler.handle(CapAckMessage(caps = listOf("cap1", "cap2")), TagStore())
+        handler.handle(CapMessage.Ack.Message(caps = listOf("cap1", "cap2"), target = ""), TagStore())
 
         assertEquals(setOf("cap1", "cap2"), state.accepted)
     }
@@ -46,7 +46,7 @@ class CapAckHandlerTests {
     @Test fun test_handle_Negotiating_TellsCapManagerRegistrationStateChanged() {
         state.lifecycle = CapLifecycle.NEGOTIATING
 
-        handler.handle(CapAckMessage(caps = listOf("cap 1", "cap 2")), TagStore())
+        handler.handle(CapMessage.Ack.Message(caps = listOf("cap 1", "cap 2"), target = ""), TagStore())
 
         verify(mockCapManager).onRegistrationStateChanged()
     }
@@ -54,7 +54,7 @@ class CapAckHandlerTests {
     @Test fun test_handle_ACKedSasl_NoAuth_DoesNotWriteAuthenticateMessage() {
         saslState.shouldAuth = false
 
-        handler.handle(CapAckMessage(caps = listOf("sasl")), TagStore())
+        handler.handle(CapMessage.Ack.Message(caps = listOf("sasl"), target = ""), TagStore())
 
         verify(mockSink, never()).write(any())
     }
@@ -62,7 +62,7 @@ class CapAckHandlerTests {
     @Test fun test_handle_ServerACKedCapThatWeDidntNegotiate_DoesNotAcceptIt() {
         state.negotiate = setOf("cap1", "cap2")
 
-        handler.handle(CapAckMessage(caps = listOf("cap3")), TagStore())
+        handler.handle(CapMessage.Ack.Message(caps = listOf("cap3"), target = ""), TagStore())
 
         assertFalse(state.accepted.contains("cap3"))
         verify(mockCapManager, never()).capEnabled("cap3")

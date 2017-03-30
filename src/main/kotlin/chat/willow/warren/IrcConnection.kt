@@ -1,11 +1,11 @@
 package chat.willow.warren
 
 import chat.willow.kale.IKale
+import chat.willow.kale.IKaleIrcMessageHandler
 import chat.willow.kale.IKaleParsingStateDelegate
-import chat.willow.kale.irc.message.IMessage
-import chat.willow.kale.irc.message.rfc1459.JoinMessage
-import chat.willow.kale.irc.message.rfc1459.PingMessage
-import chat.willow.kale.irc.message.rfc1459.PrivMsgMessage
+import chat.willow.kale.IKaleRouter
+import chat.willow.kale.irc.message.rfc1459.*
+import chat.willow.kale.irc.message.rfc1459.rpl.*
 import chat.willow.warren.event.ConnectionLifecycleEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.internal.IWarrenInternalEventGenerator
@@ -38,7 +38,7 @@ interface IIrcConnection : IStateCapturing<IrcState>, IClientMessageSending, ISt
 
 }
 
-class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val sink: IMessageSink, initialState: IrcState, initialCapState: CapState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val registrationManager: IRegistrationManager, private val sleeper: ISleeper, private val pingGeneratorExecutionContext: IExecutionContext, private val lineGeneratorExecutionContext: IExecutionContext) : IIrcConnection, IKaleParsingStateDelegate, IRegistrationListener {
+class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val internalEventQueue: IWarrenInternalEventQueue, val newLineGenerator: IWarrenInternalEventGenerator, val kale: IKale, val kaleRouter: IKaleRouter<IKaleIrcMessageHandler>, val sink: IMessageSink, initialState: IrcState, initialCapState: CapState, initialSaslState: SaslState, initialMonitorState: MonitorState, private val registrationManager: IRegistrationManager, private val sleeper: ISleeper, private val pingGeneratorExecutionContext: IExecutionContext, private val lineGeneratorExecutionContext: IExecutionContext) : IIrcConnection, IKaleParsingStateDelegate, IRegistrationListener {
 
     private val LOGGER = loggerFor<IrcConnection>()
 
@@ -47,7 +47,7 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
 
     private val PONG_TIMER_MS: Long = 30 * 1000
 
-    override val caps = CapManager(initialCapState, kale, internalState.channels, initialSaslState, initialMonitorState, sink, internalState.parsing.caseMapping, registrationManager, eventDispatcher)
+    override val caps = CapManager(initialCapState, kaleRouter, internalState.channels, initialSaslState, initialMonitorState, sink, internalState.parsing.caseMapping, registrationManager, eventDispatcher)
     private lateinit var rfc1459RegistrationExtension: IRegistrationExtension
 
     override fun captureStateSnapshot() {
@@ -86,34 +86,34 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
         }
     }
 
-    override fun <M : IMessage> send(message: M) {
+    override fun <M : Any> send(message: M) {
         internalEventQueue.add(SendSomethingEvent(message, sink = sink))
     }
 
     override fun send(message: String, target: String) {
-        send(PrivMsgMessage(target = target, message = message))
+        send(PrivMsgMessage.Command(target = target, message = message))
     }
 
     private fun registerRFC1459Handlers() {
-        kale.register(JoinHandler(internalState.connection, internalState.channels.joining, internalState.channels.joined, internalState.parsing.caseMapping))
-        kale.register(KickHandler(internalState.connection, internalState.channels.joined, internalState.parsing.caseMapping))
-        kale.register(ModeHandler(eventDispatcher, this, internalState.parsing.channelTypes, internalState.channels.joined, internalState.parsing.userPrefixes, internalState.parsing.caseMapping))
-        kale.register(NickHandler(internalState.connection, internalState.channels.joined, internalState.parsing.caseMapping))
-        kale.register(NoticeHandler(internalState.parsing.channelTypes))
-        kale.register(PartHandler(internalState.connection, internalState.channels.joined, internalState.parsing.caseMapping))
-        kale.register(PingHandler(sink, internalState.connection))
-        kale.register(PongHandler(sink, internalState.connection))
-        kale.register(PrivMsgHandler(eventDispatcher, this, internalState.channels.joined, internalState.parsing.channelTypes))
-        kale.register(QuitHandler(eventDispatcher, internalState.connection, internalState.channels.joined))
-        kale.register(TopicHandler(internalState.channels.joined, internalState.parsing.caseMapping))
-        kale.register(Rpl005Handler(internalState.parsing, caps.monitor.internalState, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler, Rpl005CaseMappingHandler, Rpl005MonitorHandler(caps)))
-        kale.register(Rpl332Handler(internalState.channels.joined, internalState.parsing.caseMapping))
-        kale.register(Rpl353Handler(internalState.channels.joined, internalState.parsing.userPrefixes, internalState.parsing.caseMapping))
-        kale.register(Rpl376Handler(sink, caps.internalState, rfc1459RegistrationExtension, caps))
-        kale.register(Rpl471Handler(internalState.channels.joining, internalState.parsing.caseMapping))
-        kale.register(Rpl473Handler(internalState.channels.joining, internalState.parsing.caseMapping))
-        kale.register(Rpl474Handler(internalState.channels.joining, internalState.parsing.caseMapping))
-        kale.register(Rpl475Handler(internalState.channels.joining, internalState.parsing.caseMapping))
+        kaleRouter.register(JoinMessage.command, JoinHandler(internalState.connection, internalState.channels.joining, internalState.channels.joined, internalState.parsing.caseMapping))
+        kaleRouter.register(KickMessage.command, KickHandler(internalState.connection, internalState.channels.joined, internalState.parsing.caseMapping))
+        kaleRouter.register(ModeMessage.command, ModeHandler(eventDispatcher, this, internalState.parsing.channelTypes, internalState.channels.joined, internalState.parsing.userPrefixes, internalState.parsing.caseMapping))
+        kaleRouter.register(NickMessage.command, NickHandler(internalState.connection, internalState.channels.joined, internalState.parsing.caseMapping))
+        kaleRouter.register(NoticeMessage.command, NoticeHandler(internalState.parsing.channelTypes))
+        kaleRouter.register(PartMessage.command, PartHandler(internalState.connection, internalState.channels.joined, internalState.parsing.caseMapping))
+        kaleRouter.register(PingMessage.command, PingHandler(sink, internalState.connection))
+        kaleRouter.register(PongMessage.command, PongHandler(sink, internalState.connection))
+        kaleRouter.register(PrivMsgMessage.command, PrivMsgHandler(eventDispatcher, this, internalState.channels.joined, internalState.parsing.channelTypes))
+        kaleRouter.register(QuitMessage.command, QuitHandler(eventDispatcher, internalState.connection, internalState.channels.joined))
+        kaleRouter.register(TopicMessage.command, TopicHandler(internalState.channels.joined, internalState.parsing.caseMapping))
+        kaleRouter.register(Rpl005Message.command, Rpl005Handler(internalState.parsing, caps.monitor.internalState, Rpl005PrefixHandler, Rpl005ChanModesHandler, Rpl005ChanTypesHandler, Rpl005CaseMappingHandler, Rpl005MonitorHandler(caps)))
+        kaleRouter.register(Rpl332Message.command, Rpl332Handler(internalState.channels.joined, internalState.parsing.caseMapping))
+        kaleRouter.register(Rpl353Message.command, Rpl353Handler(internalState.channels.joined, internalState.parsing.userPrefixes, internalState.parsing.caseMapping))
+        kaleRouter.register(Rpl376Message.command, Rpl376Handler(sink, caps.internalState, rfc1459RegistrationExtension, caps))
+        kaleRouter.register(Rpl471Message.command, Rpl471Handler(internalState.channels.joining, internalState.parsing.caseMapping))
+        kaleRouter.register(Rpl473Message.command, Rpl473Handler(internalState.channels.joining, internalState.parsing.caseMapping))
+        kaleRouter.register(Rpl474Message.command, Rpl474Handler(internalState.channels.joining, internalState.parsing.caseMapping))
+        kaleRouter.register(Rpl475Message.command, Rpl475Handler(internalState.channels.joining, internalState.parsing.caseMapping))
     }
 
     override fun onRegistrationEnded() {
@@ -169,9 +169,9 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
     private fun join(channelsWithKeys: Map<String, String?>, sink: IMessageSink) {
         for ((channel, key) in channelsWithKeys) {
             if (key != null) {
-                sink.write(JoinMessage(channels = listOf(channel), keys = listOf(key)))
+                sink.write(JoinMessage.Command(channels = listOf(channel), keys = listOf(key)))
             } else {
-                sink.write(JoinMessage(channels = listOf(channel)))
+                sink.write(JoinMessage.Command(channels = listOf(channel)))
             }
         }
     }
@@ -245,7 +245,7 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
 
                         val msSinceLastPing = currentTime - state.connection.lastPingOrPong
                         if (msSinceLastPing > PONG_TIMER_MS) {
-                            sink.write(PingMessage(token = "$currentTime"))
+                            sink.write(PingMessage.Command(token = "$currentTime"))
                         }
                     }
                 }

@@ -1,9 +1,10 @@
 package chat.willow.warren
 
 import chat.willow.kale.Kale
-import chat.willow.kale.KaleRouter
+import chat.willow.kale.KaleClientRouter
+import chat.willow.kale.KaleMetadataFactory
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.kale.irc.message.IrcMessageSerialiser
-import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.tag.KaleTagRouter
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.internal.NewLineWarrenEventGenerator
@@ -64,7 +65,7 @@ object WarrenFactory: IWarrenFactory {
         val connectionState = ConnectionState(server = server.server, port = server.port, nickname = user.nickname, user = user.user,
                 lifecycle = lifecycleState, nickServ = nickServState, password = server.password)
 
-        val kale = Kale(KaleRouter().useDefaults(), KaleTagRouter().useDefaults())
+        val kale = Kale(KaleClientRouter(), KaleMetadataFactory(KaleTagRouter()))
         val serialiser = IrcMessageSerialiser
 
         val socketFactory = if (server.useTLS) {
@@ -100,7 +101,7 @@ object WarrenFactory: IWarrenFactory {
         val pingExecutionContext = ThreadedExecutionContext(name = "ping context")
         val newLineExecutionContext = ThreadedExecutionContext(name = "new line context")
 
-        val runner = IrcConnection(eventDispatcher = eventDispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, sink = socket, initialState = initialState, initialCapState = capState, initialSaslState = saslState, initialMonitorState = initialMonitorState, registrationManager = registrationManager, sleeper = ThreadSleeper, pingGeneratorExecutionContext = pingExecutionContext, lineGeneratorExecutionContext = newLineExecutionContext)
+        val runner = IrcConnection(eventDispatcher = eventDispatcher, internalEventQueue = internalEventQueue, newLineGenerator = newLineGenerator, kale = kale, kaleRouter = kale.router, sink = socket, initialState = initialState, initialCapState = capState, initialSaslState = saslState, initialMonitorState = initialMonitorState, registrationManager = registrationManager, sleeper = ThreadSleeper, pingGeneratorExecutionContext = pingExecutionContext, lineGeneratorExecutionContext = newLineExecutionContext)
 
         registrationManager.listener = runner
 

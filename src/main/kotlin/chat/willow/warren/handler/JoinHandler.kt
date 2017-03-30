@@ -1,26 +1,20 @@
 package chat.willow.warren.handler
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
+import chat.willow.kale.helper.equalsIgnoreCase
 import chat.willow.kale.irc.message.rfc1459.JoinMessage
-import chat.willow.kale.irc.message.utility.equalsIgnoreCase
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.*
 
-class JoinHandler(val connectionState: ConnectionState, val joiningChannelsState: JoiningChannelsState, val joinedChannelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<JoinMessage> {
+class JoinHandler(val connectionState: ConnectionState, val joiningChannelsState: JoiningChannelsState, val joinedChannelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : KaleHandler<JoinMessage.Message>(JoinMessage.Message.Parser) {
 
     private val LOGGER = loggerFor<JoinHandler>()
 
-    override val messageType = JoinMessage::class.java
 
-    override fun handle(message: JoinMessage, tags: ITagStore) {
+    override fun handle(message: JoinMessage.Message, metadata: IMetadataStore) {
         val channelNames = message.channels
         val source = message.source
-
-        if (source == null) {
-            LOGGER.trace("got a JOIN but the source was null - not doing anything with it")
-            return
-        }
 
         val nick = source.nick
 

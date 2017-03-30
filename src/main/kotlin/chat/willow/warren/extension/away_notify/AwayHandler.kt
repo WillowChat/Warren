@@ -1,17 +1,16 @@
 package chat.willow.warren.extension.away_notify
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
 import chat.willow.kale.irc.message.extension.away_notify.AwayMessage
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.JoinedChannelsState
 
-class AwayHandler(val channelsState: JoinedChannelsState) : IKaleHandler<AwayMessage> {
+class AwayHandler(val channelsState: JoinedChannelsState) : KaleHandler<AwayMessage.Message>(AwayMessage.Message.Parser) {
 
     private val LOGGER = loggerFor<AwayHandler>()
-    override val messageType = AwayMessage::class.java
 
-    override fun handle(message: AwayMessage, tags: ITagStore) {
+    override fun handle(message: AwayMessage.Message, metadata: IMetadataStore) {
         val nick = message.source.nick
         val awayMessage = message.message
 

@@ -1,7 +1,9 @@
 package chat.willow.warren.extension.monitor
 
-import chat.willow.kale.IKale
-import chat.willow.kale.irc.message.extension.monitor.MonitorAddMessage
+import chat.willow.kale.IKaleIrcMessageHandler
+import chat.willow.kale.IKaleRouter
+import chat.willow.kale.irc.message.extension.monitor.MonitorMessage
+import chat.willow.kale.irc.message.extension.monitor.rpl.*
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.event.IWarrenEvent
@@ -16,7 +18,7 @@ data class MonitorState(var maxCount: Int, var users: List<String> = listOf())
 data class UserOnlineEvent(val prefix: Prefix) : IWarrenEvent
 data class UserOfflineEvent(val prefix: Prefix) : IWarrenEvent
 
-class MonitorExtension(initialState: MonitorState, private val kale: IKale, private val sink: IMessageSink, private val eventDispatcher: IWarrenEventDispatcher) : ICapExtension, IStateCapturing<MonitorState> {
+class MonitorExtension(initialState: MonitorState, private val kaleRouter: IKaleRouter<IKaleIrcMessageHandler>, private val sink: IMessageSink, private val eventDispatcher: IWarrenEventDispatcher) : ICapExtension, IStateCapturing<MonitorState> {
 
     private val LOGGER = loggerFor<MonitorExtension>()
 
@@ -34,26 +36,26 @@ class MonitorExtension(initialState: MonitorState, private val kale: IKale, priv
     }
 
     override fun setUp() {
-        kale.register(onlineHandler)
-        kale.register(offlineHandler)
-        kale.register(listHandler)
-        kale.register(endOfListHandler)
-        kale.register(listFullHandler)
+        kaleRouter.register(RplMonOnline.command, onlineHandler)
+        kaleRouter.register(RplMonOffline.command, offlineHandler)
+        kaleRouter.register(RplMonList.command, listHandler)
+        kaleRouter.register(RplEndOfMonList.command, endOfListHandler)
+        kaleRouter.register(RplMonListIsFull.command, listFullHandler)
 
         if (internalState.users.isEmpty()) {
             return
         }
 
         // TODO: Message splitting
-        sink.write(MonitorAddMessage(internalState.users))
+        sink.write(MonitorMessage.Add.Command(internalState.users))
     }
 
     override fun tearDown() {
-        kale.unregister(onlineHandler)
-        kale.unregister(offlineHandler)
-        kale.unregister(listHandler)
-        kale.unregister(endOfListHandler)
-        kale.unregister(listFullHandler)
+        kaleRouter.unregister(RplMonOnline.command)
+        kaleRouter.unregister(RplMonOffline.command)
+        kaleRouter.unregister(RplMonList.command)
+        kaleRouter.unregister(RplEndOfMonList.command)
+        kaleRouter.unregister(RplMonListIsFull.command)
     }
 
 }

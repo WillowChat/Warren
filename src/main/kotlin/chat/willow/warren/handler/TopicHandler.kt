@@ -1,19 +1,18 @@
 package chat.willow.warren.handler
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
 import chat.willow.kale.irc.message.rfc1459.TopicMessage
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.JoinedChannelsState
 
-class TopicHandler(val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<TopicMessage> {
+class TopicHandler(val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : KaleHandler<TopicMessage.Message>(TopicMessage.Message.Parser) {
 
     private val LOGGER = loggerFor<TopicHandler>()
 
-    override val messageType = TopicMessage::class.java
 
-    override fun handle(message: TopicMessage, tags: ITagStore) {
+    override fun handle(message: TopicMessage.Message, metadata: IMetadataStore) {
         val channel = channelsState[message.channel]
         val topic = message.topic
 

@@ -1,20 +1,18 @@
 package chat.willow.warren
 
 import chat.willow.kale.IKale
-import chat.willow.kale.IKaleHandler
-import chat.willow.kale.IKaleParsingStateDelegate
-import chat.willow.kale.irc.message.IMessage
-import chat.willow.kale.irc.message.IrcMessage
+import chat.willow.kale.IKaleIrcMessageHandler
+import chat.willow.kale.IKaleRouter
+import chat.willow.kale.KaleSubcommandHandler
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.kale.irc.message.rfc1459.JoinMessage
 import chat.willow.kale.irc.message.rfc1459.PingMessage
-import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.event.ConnectionLifecycleEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.internal.IWarrenInternalEventGenerator
 import chat.willow.warren.event.internal.IWarrenInternalEventQueue
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
-import chat.willow.warren.extension.cap.handler.*
 import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.handler.*
@@ -43,7 +41,8 @@ class IrcRunnerTests {
     lateinit var mockEventDispatcher: IWarrenEventDispatcher
     lateinit var mockInternalEventQueue: IWarrenInternalEventQueue
     lateinit var mockNewLineGenerator: IWarrenInternalEventGenerator
-    lateinit var mockKale: MockKale
+    lateinit var mockKale: IKale
+    lateinit var mockKaleRouter: IKaleRouter<IKaleIrcMessageHandler>
     lateinit var mockSink: IMessageSink
     lateinit var mockLineSource: ILineSource
     lateinit var mockRegistrationManager: IRegistrationManager
@@ -72,7 +71,8 @@ class IrcRunnerTests {
         mockEventDispatcher = mock()
         mockInternalEventQueue = mock()
         mockNewLineGenerator = mock()
-        mockKale = MockKale()
+        mockKale = mock()
+        mockKaleRouter = mock()
 
         mockSink = mock()
         mockLineSource = mock()
@@ -85,7 +85,7 @@ class IrcRunnerTests {
 
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        connection = IrcConnection(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockSink, initialState, initialCapState = capState, initialSaslState = saslState, initialMonitorState = monitorState, registrationManager = mockRegistrationManager, sleeper = mockSleeper, pingGeneratorExecutionContext = mockPingExecutionContext, lineGeneratorExecutionContext = mockLineExecutionContext)
+        connection = IrcConnection(mockEventDispatcher, mockInternalEventQueue, mockNewLineGenerator, mockKale, mockKaleRouter, mockSink, initialState, initialCapState = capState, initialSaslState = saslState, initialMonitorState = monitorState, registrationManager = mockRegistrationManager, sleeper = mockSleeper, pingGeneratorExecutionContext = mockPingExecutionContext, lineGeneratorExecutionContext = mockLineExecutionContext)
     }
 
     @Test fun test_run_RegistersBaseHandlers() {
@@ -93,39 +93,29 @@ class IrcRunnerTests {
 
         connection.start()
 
-        assertEquals(24, mockKale.spyRegisterHandlers.size)
+        verify(mockKaleRouter, times(20)).register(any(), any())
 
-        assertTrue(arrayContainsHandlerOfType<CapLsHandler>(mockKale.spyRegisterHandlers)) // FIXME: move to other test
-        assertTrue(arrayContainsHandlerOfType<CapAckHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<CapNakHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<CapNewHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<CapDelHandler>(mockKale.spyRegisterHandlers))
+        verify(mockKaleRouter).register(eq("CAP"), isA<KaleSubcommandHandler>())
+        verify(mockKaleRouter).register(eq("JOIN"), isA<JoinHandler>())
+        verify(mockKaleRouter).register(eq("KICK"), isA<KickHandler>())
+        verify(mockKaleRouter).register(eq("MODE"), isA<ModeHandler>())
+        verify(mockKaleRouter).register(eq("NICK"), isA<NickHandler>())
+        verify(mockKaleRouter).register(eq("NOTICE"), isA<NoticeHandler>())
+        verify(mockKaleRouter).register(eq("PART"), isA<PartHandler>())
+        verify(mockKaleRouter).register(eq("PING"), isA<PingHandler>())
+        verify(mockKaleRouter).register(eq("PONG"), isA<PongHandler>())
+        verify(mockKaleRouter).register(eq("PRIVMSG"), isA<PrivMsgHandler>())
+        verify(mockKaleRouter).register(eq("QUIT"), isA<QuitHandler>())
+        verify(mockKaleRouter).register(eq("TOPIC"), isA<TopicHandler>())
 
-        assertTrue(arrayContainsHandlerOfType<JoinHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<KickHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<ModeHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<NickHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<NoticeHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<PartHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<PingHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<PongHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<PrivMsgHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<QuitHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<TopicHandler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl005Handler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl332Handler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl353Handler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl376Handler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl471Handler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl473Handler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl474Handler>(mockKale.spyRegisterHandlers))
-        assertTrue(arrayContainsHandlerOfType<Rpl475Handler>(mockKale.spyRegisterHandlers))
-    }
-
-    private inline fun <reified T: IKaleHandler<*>> arrayContainsHandlerOfType(iterable: Iterable<*>): Boolean {
-        return iterable.any {
-            it!!::class.java.isAssignableFrom(T::class.java)
-        }
+        verify(mockKaleRouter).register(eq("005"), isA<Rpl005Handler>())
+        verify(mockKaleRouter).register(eq("332"), isA<Rpl332Handler>())
+        verify(mockKaleRouter).register(eq("353"), isA<Rpl353Handler>())
+        verify(mockKaleRouter).register(eq("376"), isA<Rpl376Handler>())
+        verify(mockKaleRouter).register(eq("471"), isA<Rpl471Handler>())
+        verify(mockKaleRouter).register(eq("473"), isA<Rpl473Handler>())
+        verify(mockKaleRouter).register(eq("474"), isA<Rpl474Handler>())
+        verify(mockKaleRouter).register(eq("475"), isA<Rpl475Handler>())
     }
 
     @Test fun test_run_startsRegistration() {
@@ -240,7 +230,7 @@ class IrcRunnerTests {
         captureAndInvokeBlockFromContext(mockPingExecutionContext)
         captureAndInvokeBlockFromEventQueue()
 
-        verify(mockSink).write(any<PingMessage>())
+        verify(mockSink).write(any<PingMessage.Command>())
     }
 
     @Test fun test_run_LineBlock_TellsNewLineGeneratorToRun() {
@@ -362,8 +352,8 @@ class IrcRunnerTests {
         connection.onRegistrationEnded()
 
         inOrder(mockSink) {
-            verify(mockSink).write(JoinMessage(channels = listOf("#test")))
-            verify(mockSink).write(JoinMessage(channels = listOf("#test2"), keys = listOf("testpass")))
+            verify(mockSink).write(JoinMessage.Command(channels = listOf("#test")))
+            verify(mockSink).write(JoinMessage.Command(channels = listOf("#test2"), keys = listOf("testpass")))
         }
     }
 
@@ -387,33 +377,5 @@ class IrcRunnerTests {
 
         verify(mockEventDispatcher).fire(ConnectionLifecycleEvent(LifecycleState.CONNECTED))
     }
-
-}
-
-class MockKale : IKale {
-
-    var spyRegisterHandlers = mutableListOf<IKaleHandler<*>>()
-
-    override fun <T : IMessage> register(handler: IKaleHandler<T>) {
-        spyRegisterHandlers.add(handler)
-    }
-
-    override fun <T : IMessage> unregister(handler: IKaleHandler<T>) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun <M : IMessage> handlerFor(messageClass: Class<M>): IKaleHandler<M> {
-        throw UnsupportedOperationException()
-    }
-
-    override fun <M: Any> serialise(message: M): IrcMessage? {
-        throw UnsupportedOperationException()
-    }
-
-    override fun process(line: String) {
-        throw UnsupportedOperationException()
-    }
-
-    override var parsingStateDelegate: IKaleParsingStateDelegate? = null
 
 }

@@ -1,10 +1,10 @@
 package chat.willow.warren.event
 
-import chat.willow.kale.irc.message.IMessage
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.tag.TagStore
-import chat.willow.warren.*
-import chat.willow.warren.state.IrcState
+import chat.willow.warren.IClientMessageSending
+import chat.willow.warren.WarrenChannel
+import chat.willow.warren.WarrenChannelUser
 import chat.willow.warren.state.LifecycleState
 import chat.willow.warren.state.emptyChannel
 import chat.willow.warren.state.generateUser
@@ -36,7 +36,7 @@ object WarrenEventDispatcherRunner {
 }
 
 private class DummyMessageSending: IClientMessageSending {
-    override fun <M : IMessage> send(message: M) {
+    override fun <M : Any> send(message: M) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

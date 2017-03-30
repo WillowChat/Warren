@@ -1,9 +1,9 @@
 package chat.willow.warren.extension.cap
 
-import chat.willow.kale.IKale
-import chat.willow.kale.irc.message.extension.cap.CapEndMessage
-import chat.willow.kale.irc.message.extension.cap.CapLsMessage
-import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.IKaleIrcMessageHandler
+import chat.willow.kale.IKaleRouter
+import chat.willow.kale.helper.CaseMapping
+import chat.willow.kale.irc.message.extension.cap.CapMessage
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.extension.monitor.MonitorState
@@ -21,7 +21,7 @@ import org.mockito.Mockito.never
 class CapManagerTests {
 
     private lateinit var sut: CapManager
-    private lateinit var mockKale: IKale
+    private lateinit var mockKaleRouter: IKaleRouter<IKaleIrcMessageHandler>
     private lateinit var mockSink: IMessageSink
     private lateinit var mockRegistrationManager: IRegistrationManager
     private lateinit var mockEventDispatcher: IWarrenEventDispatcher
@@ -33,12 +33,12 @@ class CapManagerTests {
     private var initialMonitorState = MonitorState(maxCount = 0)
 
     @Before fun setUp() {
-        mockKale = mock()
+        mockKaleRouter = mock()
         mockSink = mock()
         mockRegistrationManager = mock()
         mockEventDispatcher = mock()
 
-        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
+        sut = CapManager(initialState, mockKaleRouter, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
     }
 
     @Test fun test_onRegistrationStateChanged_NotNegotiatingCaps_NoSasl_SendsCapEnd() {
@@ -47,11 +47,11 @@ class CapManagerTests {
         initialState.accepted = setOf("cap1")
         initialState.rejected = setOf("cap2")
 
-        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
+        sut = CapManager(initialState, mockKaleRouter, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
 
         sut.onRegistrationStateChanged()
 
-        verify(mockSink).write(CapEndMessage())
+        verify(mockSink).write(CapMessage.End.Command)
     }
 
     @Test fun test_onRegistrationStateChanged_NegotiatingCaps_NoSasl_DoesNotSendCapEnd() {
@@ -60,11 +60,11 @@ class CapManagerTests {
         initialState.accepted = setOf("cap1")
         initialState.rejected = setOf("cap2")
 
-        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
+        sut = CapManager(initialState, mockKaleRouter, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
 
         sut.onRegistrationStateChanged()
 
-        verify(mockSink, never()).write(CapEndMessage())
+        verify(mockSink, never()).write(CapMessage.End.Command)
     }
 
     @Test fun test_onRegistrationStateChanged_NotNegotatingCaps_WaitingForSasl_DoesNotSendCapEnd() {
@@ -73,17 +73,17 @@ class CapManagerTests {
         initialState.accepted = setOf("cap1", "sasl")
         initialState.rejected = setOf("cap2")
 
-        sut = CapManager(initialState, mockKale, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
+        sut = CapManager(initialState, mockKaleRouter, channelsState, initialSaslState, initialMonitorState, mockSink, caseMappingState, mockRegistrationManager, mockEventDispatcher)
 
         sut.onRegistrationStateChanged()
 
-        verify(mockSink, never()).write(CapEndMessage())
+        verify(mockSink, never()).write(CapMessage.End.Command)
     }
 
     @Test fun test_startRegistration_WritesCapLs() {
         sut.startRegistration()
 
-        verify(mockSink).write(CapLsMessage(caps = mapOf()))
+        verify(mockSink).write(CapMessage.Ls.Command(version = "302"))
     }
 
     @Test fun test_onRegistrationSucceeded_TellsRegistrationManager_Success() {

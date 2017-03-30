@@ -1,8 +1,8 @@
 package chat.willow.warren.handler
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
 import chat.willow.kale.irc.message.rfc1459.ModeMessage
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.IClientMessageSending
 import chat.willow.warren.WarrenChannel
 import chat.willow.warren.event.ChannelModeEvent
@@ -14,13 +14,17 @@ import chat.willow.warren.state.ChannelTypesState
 import chat.willow.warren.state.JoinedChannelsState
 import chat.willow.warren.state.UserPrefixesState
 
-class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IClientMessageSending, val channelTypesState: ChannelTypesState, val channelsState: JoinedChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : IKaleHandler<ModeMessage> {
+class ModeHandler(val eventDispatcher: IWarrenEventDispatcher,
+                  val client: IClientMessageSending,
+                  val channelTypesState: ChannelTypesState,
+                  val channelsState: JoinedChannelsState,
+                  val userPrefixesState: UserPrefixesState,
+                  val caseMappingState: CaseMappingState) : KaleHandler<ModeMessage.Message>(ModeMessage.Message.Parser) {
 
     private val LOGGER = loggerFor<ModeHandler>()
 
-    override val messageType = ModeMessage::class.java
 
-    override fun handle(message: ModeMessage, tags: ITagStore) {
+    override fun handle(message: ModeMessage.Message, metadata: IMetadataStore) {
         val target = message.target
 
         if (channelTypesState.types.any { char -> target.startsWith(char) }) {
@@ -62,7 +66,7 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IClie
                 }
 
                 val channel = WarrenChannel(state = channelState, client = client)
-                eventDispatcher.fire(ChannelModeEvent(user = message.source, channel = channel, modifier = modifier, metadata = tags))
+                eventDispatcher.fire(ChannelModeEvent(user = message.source, channel = channel, modifier = modifier, metadata = metadata))
             }
         } else {
             // User mode
@@ -70,7 +74,7 @@ class ModeHandler(val eventDispatcher: IWarrenEventDispatcher, val client: IClie
             LOGGER.info("user changed modes: $message")
 
             for (modifier in message.modifiers) {
-                eventDispatcher.fire(UserModeEvent(user = target, modifier = modifier, metadata = tags))
+                eventDispatcher.fire(UserModeEvent(user = target, modifier = modifier, metadata = metadata))
             }
         }
     }

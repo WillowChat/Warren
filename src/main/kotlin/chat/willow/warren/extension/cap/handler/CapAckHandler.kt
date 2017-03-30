@@ -1,8 +1,8 @@
 package chat.willow.warren.extension.cap.handler
 
-import chat.willow.kale.IKaleHandler
-import chat.willow.kale.irc.message.extension.cap.CapAckMessage
-import chat.willow.kale.irc.tag.ITagStore
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
+import chat.willow.kale.irc.message.extension.cap.CapMessage
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
@@ -10,13 +10,15 @@ import chat.willow.warren.extension.cap.ICapManager
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.loggerFor
 
-class CapAckHandler(val capState: CapState, val saslState: SaslState, val sink: IMessageSink, val capManager: ICapManager) : IKaleHandler<CapAckMessage> {
+class CapAckHandler(val capState: CapState,
+                    val saslState: SaslState,
+                    val sink: IMessageSink,
+                    val capManager: ICapManager) : KaleHandler<CapMessage.Ack.Message>(CapMessage.Ack.Message.Parser) {
 
     private val LOGGER = loggerFor<CapAckHandler>()
 
-    override val messageType = CapAckMessage::class.java
 
-    override fun handle(message: CapAckMessage, tags: ITagStore) {
+    override fun handle(message: CapMessage.Ack.Message, metadata: IMetadataStore) {
         val caps = message.caps
         val lifecycle = capState.lifecycle
 

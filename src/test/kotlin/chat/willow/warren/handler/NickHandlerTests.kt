@@ -1,7 +1,7 @@
 package chat.willow.warren.handler
 
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.kale.irc.message.rfc1459.NickMessage
-import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
@@ -24,24 +24,11 @@ class NickHandlerTests {
         handler = NickHandler(connectionState, channelsState.joined, caseMappingState)
     }
 
-    @Test fun test_handle_FromIsNull_DoesNothing() {
-        channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone", "someone-else"), mappingState = caseMappingState))
-        channelsState.joined += ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
-
-        handler.handle(NickMessage(nickname = "someone-else-2"), TagStore())
-
-        val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone", "someone-else"), mappingState = caseMappingState))
-        val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
-        val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState, expectedChannelTwoState), caseMappingState)
-
-        assertEquals(channelsState, expectedChannelsState)
-    }
-
     @Test fun test_handle_FromIsSelf_RenamesSelf() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick", "someone-else"), mappingState = caseMappingState))
         channelsState.joined += ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
 
-        handler.handle(NickMessage(source = Prefix(nick = "test-nick"), nickname = "test-new-nick"), TagStore())
+        handler.handle(NickMessage.Message(source = Prefix(nick = "test-nick"), nickname = "test-new-nick"), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-new-nick", "someone-else"), mappingState = caseMappingState))
         val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
@@ -54,7 +41,7 @@ class NickHandlerTests {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick", "someone-else"), mappingState = caseMappingState))
         channelsState.joined += ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
 
-        handler.handle(NickMessage(source = Prefix(nick = "Test-Nick"), nickname = "test-new-nick"), TagStore())
+        handler.handle(NickMessage.Message(source = Prefix(nick = "Test-Nick"), nickname = "test-new-nick"), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-new-nick", "someone-else"), mappingState = caseMappingState))
         val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
@@ -66,7 +53,7 @@ class NickHandlerTests {
     @Test fun test_handle_UserChangesCaseInName_RetainsModes() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersWithModes(("me" to setOf('o', 'v')), mappingState = caseMappingState))
 
-        handler.handle(NickMessage(source = Prefix(nick = "me"), nickname = "me-new"), TagStore())
+        handler.handle(NickMessage.Message(source = Prefix(nick = "me"), nickname = "me-new"), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersWithModes(("me-new" to setOf('o', 'v')), mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
@@ -78,7 +65,7 @@ class NickHandlerTests {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone", "someone-else"), mappingState = caseMappingState))
         channelsState.joined += ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
 
-        handler.handle(NickMessage(source = Prefix(nick = "someone-else"), nickname = "someone-else-2"), TagStore())
+        handler.handle(NickMessage.Message(source = Prefix(nick = "someone-else"), nickname = "someone-else-2"), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone", "someone-else-2"), mappingState = caseMappingState))
         val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else-2"), mappingState = caseMappingState))

@@ -9,11 +9,11 @@ class RFC1459RegistrationExtension(private val sink: IMessageSink, private val n
 
     override fun startRegistration() {
         if (password != null) {
-            sink.write(PassMessage(password = password))
+            sink.write(PassMessage.Command(password = password))
         }
 
-        sink.write(NickMessage(nickname = nickname))
-        sink.write(UserMessage(username = username, mode = "8", realname = username))
+        sink.write(NickMessage.Command(nickname = nickname))
+        sink.write(UserMessage.Command(username = username, mode = "8", realname = username))
     }
 
     override fun onRegistrationSucceeded() {

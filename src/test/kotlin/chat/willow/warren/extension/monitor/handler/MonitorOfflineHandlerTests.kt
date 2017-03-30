@@ -1,6 +1,6 @@
 package chat.willow.warren.extension.monitor.handler
 
-import chat.willow.kale.irc.message.extension.monitor.rpl.RplMonOfflineMessage
+import chat.willow.kale.irc.message.extension.monitor.rpl.RplMonOffline
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.event.IWarrenEvent
@@ -26,7 +26,7 @@ class MonitorOfflineHandlerTests {
     }
 
     @Test fun test_handle_NoTargets_FiresNoEvents() {
-        sut.handle(RplMonOfflineMessage(Prefix(nick = "me"), nickOrStar = "*", targets = listOf()), tags = TagStore())
+        sut.handle(RplMonOffline.Message(Prefix(nick = "me"), nickOrStar = "*", targets = listOf()), metadata = TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }
@@ -36,7 +36,7 @@ class MonitorOfflineHandlerTests {
         val userTwo = Prefix(nick = "user2", user = "user2")
         val targets = listOf(userOne, userTwo)
 
-        sut.handle(RplMonOfflineMessage(Prefix(nick = "me"), nickOrStar = "*", targets = targets), tags = TagStore())
+        sut.handle(RplMonOffline.Message(Prefix(nick = "me"), nickOrStar = "*", targets = targets), metadata = TagStore())
 
         inOrder(mockEventDispatcher) {
             verify(mockEventDispatcher).fire(UserOfflineEvent(prefix = userOne))

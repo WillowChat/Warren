@@ -1,16 +1,17 @@
 package chat.willow.warren.extension.sasl
 
-import chat.willow.kale.IKale
+import chat.willow.kale.IKaleIrcMessageHandler
+import chat.willow.kale.IKaleRouter
 import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
+import chat.willow.kale.irc.message.extension.sasl.rpl.Rpl903Message
+import chat.willow.kale.irc.message.extension.sasl.rpl.Rpl904Message
+import chat.willow.kale.irc.message.extension.sasl.rpl.Rpl905Message
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.ICapManager
 import chat.willow.warren.state.AuthLifecycle
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.*
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -19,29 +20,29 @@ import org.junit.Test
 class SaslExtensionTests {
 
     private lateinit var sut: SaslExtension
-    private lateinit var mockKale: IKale
+    private lateinit var mockKaleRouter: IKaleRouter<IKaleIrcMessageHandler>
     private lateinit var capState: CapState
     private lateinit var mockSink: IMessageSink
     private lateinit var mockCapManager: ICapManager
 
     @Before fun setUp() {
-        mockKale = mock()
+        mockKaleRouter = mock()
         mockSink = mock()
         mockCapManager = mock()
 
         val capLifecycleState = CapLifecycle.NEGOTIATED
         capState = CapState(lifecycle = capLifecycleState, negotiate = setOf(), server = mapOf(), accepted = setOf(), rejected = setOf())
 
-        sut = SaslExtension(SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null), mockKale, mockCapManager, mockSink)
+        sut = SaslExtension(SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null), mockKaleRouter, mockCapManager, mockSink)
     }
 
     @Test fun test_setUp_RegistersCorrectHandlers() {
         sut.setUp()
 
-        verify(mockKale).register(any<AuthenticateHandler>())
-        verify(mockKale).register(any<Rpl903Handler>())
-        verify(mockKale).register(any<Rpl904Handler>())
-        verify(mockKale).register(any<Rpl905Handler>())
+        verify(mockKaleRouter).register(eq(AuthenticateMessage.command), any<AuthenticateHandler>())
+        verify(mockKaleRouter).register(eq(Rpl903Message.command), any<Rpl903Handler>())
+        verify(mockKaleRouter).register(eq(Rpl904Message.command), any<Rpl904Handler>())
+        verify(mockKaleRouter).register(eq(Rpl905Message.command), any<Rpl905Handler>())
     }
 
     @Test fun test_setUp_ShouldAuth_ChangesSaslLifecycleToAuthing() {
@@ -57,7 +58,7 @@ class SaslExtensionTests {
 
         sut.setUp()
 
-        verify(mockSink).write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
+        verify(mockSink).write(AuthenticateMessage.Command(payload = "PLAIN"))
     }
 
     @Test fun test_setUp_ShouldAuth_NoMechanisms_WriteAuthenticatePlainMessage() {
@@ -66,7 +67,7 @@ class SaslExtensionTests {
 
         sut.setUp()
 
-        verify(mockSink).write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
+        verify(mockSink).write(AuthenticateMessage.Command(payload = "PLAIN"))
     }
 
     @Test fun test_setUp_ShouldAuth_PLAINNotSupported_DoesNotWriteAuthenticatePlainMessage() {
@@ -89,10 +90,10 @@ class SaslExtensionTests {
     @Test fun test_tearDown_UnregistersCorrectHandlers() {
         sut.tearDown()
 
-        verify(mockKale).unregister(any<AuthenticateHandler>())
-        verify(mockKale).unregister(any<Rpl903Handler>())
-        verify(mockKale).unregister(any<Rpl904Handler>())
-        verify(mockKale).unregister(any<Rpl905Handler>())
+        verify(mockKaleRouter).unregister(AuthenticateMessage.command)
+        verify(mockKaleRouter).unregister(Rpl903Message.command)
+        verify(mockKaleRouter).unregister(Rpl904Message.command)
+        verify(mockKaleRouter).unregister(Rpl905Message.command)
     }
 
     @Test fun test_tearDown_SetsAuthLifecycleToAuthing() {

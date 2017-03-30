@@ -1,12 +1,11 @@
 package chat.willow.warren.extension.cap.handler
 
-import chat.willow.kale.irc.message.extension.cap.CapDelMessage
+import chat.willow.kale.irc.message.extension.cap.CapMessage
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.CapLifecycle
 import chat.willow.warren.extension.cap.CapState
 import chat.willow.warren.extension.cap.ICapManager
-import chat.willow.warren.extension.cap.handler.CapDelHandler
 import com.nhaarman.mockito_kotlin.*
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -32,7 +31,7 @@ class CapDelHandlerTests {
         capState.rejected = setOf()
         capState.accepted = setOf()
 
-        handler.handle(CapDelMessage(target = "", caps = listOf("cap1", "cap2")), TagStore())
+        handler.handle(CapMessage.Del.Message(target = "", caps = listOf("cap1", "cap2")), TagStore())
 
         verify(mockSink, never()).write(any())
     }
@@ -41,7 +40,7 @@ class CapDelHandlerTests {
         capState.rejected = setOf("cap1", "cap2")
         capState.accepted = setOf()
 
-        handler.handle(CapDelMessage(target = "", caps = listOf("cap1", "cap2")), TagStore())
+        handler.handle(CapMessage.Del.Message(target = "", caps = listOf("cap1", "cap2")), TagStore())
 
         verify(mockSink, never()).write(any())
     }
@@ -50,7 +49,7 @@ class CapDelHandlerTests {
         capState.rejected = setOf("cap1")
         capState.accepted = setOf("cap2", "cap3")
 
-        handler.handle(CapDelMessage(target = "", caps = listOf("cap1", "cap2", "cap3")), TagStore())
+        handler.handle(CapMessage.Del.Message(target = "", caps = listOf("cap1", "cap2", "cap3")), TagStore())
 
         assertEquals(setOf("cap1", "cap2", "cap3"), capState.rejected)
         assertEquals(setOf<String>(), capState.accepted)

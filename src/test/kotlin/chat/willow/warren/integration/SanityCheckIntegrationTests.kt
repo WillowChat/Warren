@@ -1,16 +1,13 @@
 package chat.willow.warren.integration
 
-import chat.willow.kale.IKale
-import chat.willow.kale.Kale
-import chat.willow.kale.KaleRouter
-import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.*
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.tag.KaleTagRouter
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.*
 import chat.willow.warren.event.ChannelMessageEvent
 import chat.willow.warren.event.ConnectionLifecycleEvent
-import chat.willow.warren.event.IWarrenEvent
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.internal.IWarrenInternalEvent
 import chat.willow.warren.event.internal.IWarrenInternalEventGenerator
@@ -22,10 +19,11 @@ import chat.willow.warren.extension.monitor.MonitorState
 import chat.willow.warren.extension.sasl.SaslState
 import chat.willow.warren.helper.IExecutionContext
 import chat.willow.warren.helper.ISleeper
-import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.registration.RegistrationManager
 import chat.willow.warren.state.*
-import com.nhaarman.mockito_kotlin.*
+import com.nhaarman.mockito_kotlin.inOrder
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.whenever
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -53,6 +51,7 @@ class SanityCheckIntegrationTests {
 
     lateinit var internalEventQueue: IntegrationTestLineGenerator
     lateinit var kale: IKale
+    lateinit var kaleRouter: IKaleRouter<IKaleIrcMessageHandler>
 
     @Before fun setUp() {
         val lifecycleState = LifecycleState.CONNECTING
@@ -75,7 +74,8 @@ class SanityCheckIntegrationTests {
 
         registrationManager = RegistrationManager()
 
-        kale = Kale(KaleRouter().useDefaults(), KaleTagRouter().useDefaults())
+        kaleRouter = KaleClientRouter()
+        kale = Kale(kaleRouter, KaleMetadataFactory(KaleTagRouter()))
         internalEventQueue = IntegrationTestLineGenerator(queueOf(), kale)
 
         mockSink = mock()
@@ -87,7 +87,7 @@ class SanityCheckIntegrationTests {
 
         val saslState = SaslState(shouldAuth = false, lifecycle = AuthLifecycle.NO_AUTH, credentials = null)
 
-        connection = IrcConnection(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, mockSink, initialState, initialCapState = capState, initialSaslState = saslState, initialMonitorState = monitorState, registrationManager = registrationManager, sleeper = mockSleeper, pingGeneratorExecutionContext = mockPingExecutionContext, lineGeneratorExecutionContext = mockLineExecutionContext)
+        connection = IrcConnection(mockEventDispatcher, internalEventQueue, mockNewLineGenerator, kale, kaleRouter, mockSink, initialState, initialCapState = capState, initialSaslState = saslState, initialMonitorState = monitorState, registrationManager = registrationManager, sleeper = mockSleeper, pingGeneratorExecutionContext = mockPingExecutionContext, lineGeneratorExecutionContext = mockLineExecutionContext)
 
         registrationManager.listener = connection
     }

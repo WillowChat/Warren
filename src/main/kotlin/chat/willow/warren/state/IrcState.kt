@@ -1,15 +1,14 @@
 package chat.willow.warren.state
 
-import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.helper.CaseInsensitiveNamedMap
+import chat.willow.kale.helper.CaseMapping
+import chat.willow.kale.helper.ICaseMapper
+import chat.willow.kale.helper.INamed
 import chat.willow.kale.irc.prefix.Prefix
 
 data class IrcState(val connection: ConnectionState, val parsing: ParsingState, val channels: ChannelsState)
 
 data class ChannelsState(val joining: JoiningChannelsState, val joined: JoinedChannelsState)
-
-interface INamed {
-    val name: String
-}
 
 class JoinedChannelsState(mappingState: CaseMappingState) : CaseInsensitiveNamedMap<ChannelState>(mappingState)
 
@@ -56,4 +55,15 @@ data class ChannelModesState(var typeA: Set<Char>, var typeB: Set<Char>, var typ
 
 data class ChannelTypesState(var types: Set<Char>)
 
-data class CaseMappingState(var mapping: CaseMapping)
+data class CaseMappingState(var mapping: CaseMapping): ICaseMapper {
+    override val current: CaseMapping
+        get() = mapping
+
+    override fun toLower(string: String): String {
+        return mapping.toLower(string)
+    }
+
+    override fun toString(): String {
+        return mapping.toString()
+    }
+}

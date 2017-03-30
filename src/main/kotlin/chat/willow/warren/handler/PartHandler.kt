@@ -1,28 +1,22 @@
 package chat.willow.warren.handler
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
+import chat.willow.kale.helper.equalsIgnoreCase
 import chat.willow.kale.irc.message.rfc1459.PartMessage
-import chat.willow.kale.irc.message.utility.equalsIgnoreCase
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.ConnectionState
 import chat.willow.warren.state.JoinedChannelsState
 
-class PartHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<PartMessage> {
+class PartHandler(val connectionState: ConnectionState, val channelsState: JoinedChannelsState, val caseMappingState: CaseMappingState) : KaleHandler<PartMessage.Message>(PartMessage.Message.Parser) {
 
     private val LOGGER = loggerFor<PartHandler>()
 
-    override val messageType = PartMessage::class.java
 
-    override fun handle(message: PartMessage, tags: ITagStore) {
+    override fun handle(message: PartMessage.Message, metadata: IMetadataStore) {
         val channelNames = message.channels
         val source = message.source
-
-        if (source == null) {
-            LOGGER.warn("got a PART but the source was null - not doing anything with it")
-            return
-        }
 
         val nick = source.nick
 

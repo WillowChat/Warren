@@ -1,8 +1,9 @@
 package chat.willow.warren.handler
 
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.kale.irc.message.rfc1459.QuitMessage
-import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
+import chat.willow.kale.irc.prefix.prefix
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.event.ConnectionLifecycleEvent
 import chat.willow.warren.event.IWarrenEvent
@@ -36,7 +37,7 @@ class QuitHandlerTests {
     @Test fun test_handle_SourceIsNull_DoesNothing() {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone", "someone-else"), mappingState = caseMappingState))
 
-        handler.handle(QuitMessage(), TagStore())
+        handler.handle(QuitMessage.Message(source = prefix("")), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("someone", "someone-else"), mappingState = caseMappingState))
         val expectedChannelsState = channelsStateWith(listOf(expectedChannelOneState), caseMappingState)
@@ -48,7 +49,7 @@ class QuitHandlerTests {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick", "someone-else"), mappingState = caseMappingState))
         channelsState.joined += ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
 
-        handler.handle(QuitMessage(source = Prefix(nick = "test-nick")), TagStore())
+        handler.handle(QuitMessage.Message(source = Prefix(nick = "test-nick")), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick", "someone-else"), mappingState = caseMappingState))
         val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
@@ -59,7 +60,7 @@ class QuitHandlerTests {
     }
 
     @Test fun test_handle_SourceIsSelf_FiresDisconnectedEvent() {
-        handler.handle(QuitMessage(source = Prefix(nick = "test-nick")), TagStore())
+        handler.handle(QuitMessage.Message(source = Prefix(nick = "test-nick")), TagStore())
 
         verify(mockEventDispatcher).fire(ConnectionLifecycleEvent(lifecycle = LifecycleState.DISCONNECTED))
     }
@@ -68,7 +69,7 @@ class QuitHandlerTests {
         channelsState.joined += ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick", "someone-else"), mappingState = caseMappingState))
         channelsState.joined += ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person", "someone-else"), mappingState = caseMappingState))
 
-        handler.handle(QuitMessage(source = Prefix(nick = "someone-else")), TagStore())
+        handler.handle(QuitMessage.Message(source = Prefix(nick = "someone-else")), TagStore())
 
         val expectedChannelOneState = ChannelState(name = "#channel", users = generateUsersFromNicks(listOf("test-nick"), mappingState = caseMappingState))
         val expectedChannelTwoState = ChannelState(name = "#channel2", users = generateUsersFromNicks(listOf("another-person"), mappingState = caseMappingState))
@@ -78,7 +79,7 @@ class QuitHandlerTests {
     }
 
     @Test fun test_handle_SourceIsOther_DoesNotFireDisconnectedEvent() {
-        handler.handle(QuitMessage(source = Prefix(nick = "someone-else")), TagStore())
+        handler.handle(QuitMessage.Message(source = Prefix(nick = "someone-else")), TagStore())
 
         verify(mockEventDispatcher, never()).fire(any<IWarrenEvent>())
     }

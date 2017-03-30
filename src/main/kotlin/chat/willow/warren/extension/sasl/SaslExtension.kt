@@ -1,7 +1,11 @@
 package chat.willow.warren.extension.sasl
 
-import chat.willow.kale.IKale
+import chat.willow.kale.IKaleIrcMessageHandler
+import chat.willow.kale.IKaleRouter
 import chat.willow.kale.irc.message.extension.sasl.AuthenticateMessage
+import chat.willow.kale.irc.message.extension.sasl.rpl.Rpl903Message
+import chat.willow.kale.irc.message.extension.sasl.rpl.Rpl904Message
+import chat.willow.kale.irc.message.extension.sasl.rpl.Rpl905Message
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.extension.cap.ICapExtension
 import chat.willow.warren.extension.cap.ICapManager
@@ -12,7 +16,7 @@ import chat.willow.warren.state.IStateCapturing
 
 data class SaslState(var shouldAuth: Boolean, var lifecycle: AuthLifecycle, var credentials: AuthCredentials?, var mechanisms: Set<String> = setOf())
 
-class SaslExtension(initialState: SaslState, private val kale: IKale, private val capManager: ICapManager, private val sink: IMessageSink) : ICapExtension, IStateCapturing<SaslState> {
+class SaslExtension(initialState: SaslState, private val kaleRouter: IKaleRouter<IKaleIrcMessageHandler>, private val capManager: ICapManager, private val sink: IMessageSink) : ICapExtension, IStateCapturing<SaslState> {
 
     private val LOGGER = loggerFor<SaslExtension>()
 
@@ -29,10 +33,10 @@ class SaslExtension(initialState: SaslState, private val kale: IKale, private va
     }
 
     override fun setUp() {
-        kale.register(authenticateHandler)
-        kale.register(rpl903Handler)
-        kale.register(rpl904Handler)
-        kale.register(rpl905Handler)
+        kaleRouter.register(AuthenticateMessage.command, authenticateHandler)
+        kaleRouter.register(Rpl903Message.command, rpl903Handler)
+        kaleRouter.register(Rpl904Message.command, rpl904Handler)
+        kaleRouter.register(Rpl905Message.command, rpl905Handler)
 
         // If we're enabled without any mechanisms, assume PLAIN is supported
         if (internalState.mechanisms.isEmpty()) {
@@ -49,15 +53,15 @@ class SaslExtension(initialState: SaslState, private val kale: IKale, private va
 
             internalState.lifecycle = AuthLifecycle.AUTHING
 
-            sink.write(AuthenticateMessage(payload = "PLAIN", isEmpty = false))
+            sink.write(AuthenticateMessage.Command(payload = "PLAIN"))
         }
     }
 
     override fun tearDown() {
-        kale.unregister(authenticateHandler)
-        kale.unregister(rpl903Handler)
-        kale.unregister(rpl904Handler)
-        kale.unregister(rpl905Handler)
+        kaleRouter.unregister(AuthenticateMessage.command)
+        kaleRouter.unregister(Rpl903Message.command)
+        kaleRouter.unregister(Rpl904Message.command)
+        kaleRouter.unregister(Rpl905Message.command)
 
         internalState.lifecycle = AuthLifecycle.AUTHING
         internalState.mechanisms = setOf()

@@ -1,7 +1,7 @@
 package chat.willow.warren.extension.away_notify
 
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.kale.irc.message.extension.away_notify.AwayMessage
-import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
@@ -22,12 +22,12 @@ class AwayHandlerTests {
     }
 
     @Test fun test_handle_TrackedUser_AwayMessageSet_UpdatedInAllChannels() {
-        channelsState["#channel"] = ChannelState("#channel", users = generateUsersFromNicks(listOf("test-user")), topic = null)
-        channelsState["#channel2"] = ChannelState("#channel2", users = generateUsersFromNicks(listOf("test-user")), topic = null)
+        channelsState += ChannelState("#channel", users = generateUsersFromNicks(listOf("test-user")), topic = null)
+        channelsState += ChannelState("#channel2", users = generateUsersFromNicks(listOf("test-user")), topic = null)
 
-        val message = AwayMessage(source = Prefix(nick = "test-user"), message = "away message")
+        val message = AwayMessage.Message(source = Prefix(nick = "test-user"), message = "away message")
 
-        sut.handle(message, tags = TagStore())
+        sut.handle(message, metadata = TagStore())
 
         assertEquals("away message", channelsState["#channel"]!!.users["test-user"]!!.awayMessage)
         assertEquals("away message", channelsState["#channel2"]!!.users["test-user"]!!.awayMessage)
@@ -35,22 +35,22 @@ class AwayHandlerTests {
 
     @Test fun test_handle_NonTrackedUser_AwayMessageSet_NothingChanges() {
         val someoneElse = generateUser("someone-else", awayMessage = null)
-        channelsState["#channel"] = ChannelState("#channel", users = generateChannelUsersState(someoneElse), topic = null)
+        channelsState += ChannelState("#channel", users = generateChannelUsersState(someoneElse), topic = null)
 
-        val message = AwayMessage(source = Prefix(nick = "test-user"), message = "away message")
+        val message = AwayMessage.Message(source = Prefix(nick = "test-user"), message = "away message")
 
-        sut.handle(message, tags = TagStore())
+        sut.handle(message, metadata = TagStore())
 
         assertNull(channelsState["#channel"]!!.users["someone-else"]!!.awayMessage)
     }
 
     @Test fun test_handle_TrackedUser_AwayMessageRemoved_UpdatedInAllChannels() {
-        channelsState["#channel"] = ChannelState("#channel", users = generateUsersFromNicks(listOf("test-user")), topic = null)
-        channelsState["#channel2"] = ChannelState("#channel2", users = generateUsersFromNicks(listOf("test-user")), topic = null)
+        channelsState += ChannelState("#channel", users = generateUsersFromNicks(listOf("test-user")), topic = null)
+        channelsState += ChannelState("#channel2", users = generateUsersFromNicks(listOf("test-user")), topic = null)
 
-        val message = AwayMessage(source = Prefix(nick = "test-user"), message = null)
+        val message = AwayMessage.Message(source = Prefix(nick = "test-user"), message = null)
 
-        sut.handle(message, tags = TagStore())
+        sut.handle(message, metadata = TagStore())
 
         assertNull(channelsState["#channel"]!!.users["test-user"]!!.awayMessage)
         assertNull(channelsState["#channel2"]!!.users["test-user"]!!.awayMessage)
@@ -58,11 +58,11 @@ class AwayHandlerTests {
 
     @Test fun test_handle_NonTrackedUser_AwayMessageRemoved_NothingChanges() {
         val someoneElse = generateUser("someone-else", awayMessage = "away message")
-        channelsState["#channel"] = ChannelState("#channel", users = generateChannelUsersState(someoneElse), topic = null)
+        channelsState += ChannelState("#channel", users = generateChannelUsersState(someoneElse), topic = null)
 
-        val message = AwayMessage(source = Prefix(nick = "test-user"), message = null)
+        val message = AwayMessage.Message(source = Prefix(nick = "test-user"), message = null)
 
-        sut.handle(message, tags = TagStore())
+        sut.handle(message, metadata = TagStore())
 
         assertEquals("away message", channelsState["#channel"]!!.users["someone-else"]!!.awayMessage)
     }

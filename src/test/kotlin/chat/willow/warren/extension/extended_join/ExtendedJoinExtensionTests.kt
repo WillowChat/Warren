@@ -1,14 +1,13 @@
 package chat.willow.warren.extension.extended_join
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.whenever
 import chat.willow.kale.IKale
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IKaleIrcMessageHandler
+import chat.willow.kale.IKaleMessageHandler
+import chat.willow.kale.IKaleRouter
+import chat.willow.kale.helper.CaseMapping
 import chat.willow.kale.irc.message.rfc1459.JoinMessage
-import chat.willow.kale.irc.message.utility.CaseMapping
 import chat.willow.warren.state.*
+import com.nhaarman.mockito_kotlin.*
 import org.junit.Before
 import org.junit.Test
 
@@ -16,7 +15,9 @@ class ExtendedJoinExtensionTests {
 
     private lateinit var sut: ExtendedJoinExtension
     private lateinit var mockKale: IKale
-    private lateinit var mockJoinHandler: IKaleHandler<JoinMessage>
+    private lateinit var mockKaleRouter: IKaleRouter<IKaleIrcMessageHandler>
+    private lateinit var mockJoinHandler: IKaleMessageHandler<JoinMessage.Message>
+    private lateinit var mockJoinIrcMessageHandler: IKaleIrcMessageHandler
     private lateinit var channelsState: ChannelsState
     private lateinit var connectionState: ConnectionState
 
@@ -24,27 +25,32 @@ class ExtendedJoinExtensionTests {
         val lifecycleState = LifecycleState.DISCONNECTED
 
         mockKale = mock()
+        mockKaleRouter = mock()
         mockJoinHandler = mock()
-        whenever(mockKale.handlerFor(JoinMessage::class.java)).thenReturn(mockJoinHandler)
+        mockJoinIrcMessageHandler = mock()
+        whenever(mockKaleRouter.handlerFor("JOIN")).thenReturn(mockJoinIrcMessageHandler)
 
         mockJoinHandler = mock()
         channelsState = emptyChannelsState(CaseMappingState(CaseMapping.RFC1459))
         connectionState = ConnectionState(server = "test.server", port = 6697, nickname = "test-nick", user = "test-nick", lifecycle = lifecycleState)
 
-        sut = ExtendedJoinExtension(mockKale, channelsState, CaseMappingState(CaseMapping.RFC1459))
+        sut = ExtendedJoinExtension(mockKaleRouter, channelsState, CaseMappingState(CaseMapping.RFC1459))
     }
 
     @Test fun test_setUp_RegistersCorrectHandlers() {
         sut.setUp()
 
-        verify(mockKale).register(any<ExtendedJoinHandler>())
+        verify(mockKaleRouter).register(eq("JOIN"), any<ExtendedJoinHandler>())
     }
 
     @Test fun test_tearDown_UnregistersCorrectHandlers() {
         sut.setUp()
         sut.tearDown()
 
-        verify(mockKale).unregister(any<ExtendedJoinHandler>())
+        inOrder(mockKaleRouter) {
+            verify(mockKaleRouter).unregister("JOIN")
+            verify(mockKaleRouter).register("JOIN", mockJoinIrcMessageHandler)
+        }
     }
 
 }

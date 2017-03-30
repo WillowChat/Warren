@@ -1,18 +1,17 @@
 package chat.willow.warren.extension.chghost
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
 import chat.willow.kale.irc.message.extension.chghost.ChgHostMessage
 import chat.willow.kale.irc.prefix.Prefix
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.JoinedChannelsState
 
-class ChgHostHandler(val channelsState: JoinedChannelsState) : IKaleHandler<ChgHostMessage> {
+class ChgHostHandler(val channelsState: JoinedChannelsState) : KaleHandler<ChgHostMessage.Message>(ChgHostMessage.Message.Parser) {
 
     private val LOGGER = loggerFor<ChgHostHandler>()
-    override val messageType = ChgHostMessage::class.java
 
-    override fun handle(message: ChgHostMessage, tags: ITagStore) {
+    override fun handle(message: ChgHostMessage.Message, metadata: IMetadataStore) {
         val newUser = message.newUser
         val newHost = message.newHost
 

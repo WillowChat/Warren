@@ -1,20 +1,20 @@
 package chat.willow.warren.handler.rpl
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
 import chat.willow.kale.irc.message.rfc1459.rpl.Rpl473Message
-import chat.willow.kale.irc.tag.ITagStore
+import chat.willow.kale.irc.message.rfc1459.rpl.Rpl473MessageType
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.JoiningChannelLifecycle
 import chat.willow.warren.state.JoiningChannelsState
 
-class Rpl473Handler(val channelsState: JoiningChannelsState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl473Message> {
+class Rpl473Handler(val channelsState: JoiningChannelsState, val caseMappingState: CaseMappingState) : KaleHandler<Rpl473MessageType>(Rpl473Message.Parser) {
 
     private val LOGGER = loggerFor<Rpl473Handler>()
 
-    override val messageType = Rpl473Message::class.java
 
-    override fun handle(message: Rpl473Message, tags: ITagStore) {
+    override fun handle(message: Rpl473MessageType, metadata: IMetadataStore) {
         val channel = channelsState[message.channel]
 
         if (channel == null) {

@@ -1,7 +1,7 @@
 package chat.willow.warren.handler.rpl
 
-import chat.willow.kale.irc.message.rfc1459.rpl.Rpl471Message
-import chat.willow.kale.irc.message.utility.CaseMapping
+import chat.willow.kale.helper.CaseMapping
+import chat.willow.kale.irc.message.rfc1459.rpl.Rpl471MessageType
 import chat.willow.kale.irc.tag.TagStore
 import chat.willow.warren.state.*
 import org.junit.Assert.assertEquals
@@ -20,7 +20,7 @@ class Rpl471HandlerTests {
     }
 
     @Test fun test_handle_NonexistentChannel_DoesNothing() {
-        handler.handle(Rpl471Message(source = "", target = "", channel = "#somewhere", contents = ""), TagStore())
+        handler.handle(Rpl471MessageType(source = "", target = "", channel = "#somewhere", content = ""), TagStore())
 
         assertEquals(emptyChannelsState(caseMappingState), channelsState)
     }
@@ -28,7 +28,7 @@ class Rpl471HandlerTests {
     @Test fun test_handle_ValidChannel_SetsStatusToFailed() {
         channelsState.joining += JoiningChannelState("#channel", status = JoiningChannelLifecycle.JOINING)
 
-        handler.handle(Rpl471Message(source = "", target = "", channel = "#channel", contents = ""), TagStore())
+        handler.handle(Rpl471MessageType(source = "", target = "", channel = "#channel", content = ""), TagStore())
 
         val expectedChannelState = JoiningChannelState("#channel", status = JoiningChannelLifecycle.FAILED)
 

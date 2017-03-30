@@ -1,24 +1,22 @@
 package chat.willow.warren.handler.rpl
 
-import chat.willow.kale.IKaleHandler
+import chat.willow.kale.IMetadataStore
+import chat.willow.kale.KaleHandler
 import chat.willow.kale.irc.message.rfc1459.rpl.Rpl353Message
 import chat.willow.kale.irc.prefix.Prefix
 import chat.willow.kale.irc.prefix.PrefixParser
-import chat.willow.kale.irc.prefix.PrefixSerialiser
-import chat.willow.kale.irc.tag.ITagStore
 import chat.willow.warren.helper.loggerFor
 import chat.willow.warren.state.CaseMappingState
 import chat.willow.warren.state.JoinedChannelsState
 import chat.willow.warren.state.UserPrefixesState
 import chat.willow.warren.state.generateUser
 
-class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : IKaleHandler<Rpl353Message> {
+class Rpl353Handler(val channelsState: JoinedChannelsState, val userPrefixesState: UserPrefixesState, val caseMappingState: CaseMappingState) : KaleHandler<Rpl353Message.Message>(Rpl353Message.Message.Parser) {
 
     private val LOGGER = loggerFor<Rpl353Handler>()
 
-    override val messageType = Rpl353Message::class.java
 
-    override fun handle(message: Rpl353Message, tags: ITagStore) {
+    override fun handle(message: Rpl353Message.Message, metadata: IMetadataStore) {
         val names = message.names
 
         val channel = channelsState[message.channel]

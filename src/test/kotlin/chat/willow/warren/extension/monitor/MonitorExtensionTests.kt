@@ -1,53 +1,52 @@
 package chat.willow.warren.extension.monitor
 
-import chat.willow.kale.IKale
+import chat.willow.kale.IKaleIrcMessageHandler
+import chat.willow.kale.IKaleRouter
 import chat.willow.kale.irc.message.IMessage
-import chat.willow.kale.irc.message.extension.monitor.MonitorAddMessage
+import chat.willow.kale.irc.message.extension.monitor.MonitorMessage
+import chat.willow.kale.irc.message.extension.monitor.rpl.*
 import chat.willow.warren.IMessageSink
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.extension.monitor.handler.*
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.never
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.*
 import org.junit.Before
 import org.junit.Test
 
 class MonitorExtensionTests {
 
     private lateinit var sut: MonitorExtension
-    private lateinit var mockKale: IKale
+    private lateinit var mockKaleRouter: IKaleRouter<IKaleIrcMessageHandler>
     private lateinit var mockSink: IMessageSink
     private lateinit var mockEventDispatcher: IWarrenEventDispatcher
 
     @Before fun setUp() {
         val initialState = MonitorState(maxCount = 100)
 
-        mockKale = mock()
+        mockKaleRouter = mock()
         mockSink = mock()
         mockEventDispatcher = mock()
 
-        sut = MonitorExtension(initialState, mockKale, mockSink, mockEventDispatcher)
+        sut = MonitorExtension(initialState, mockKaleRouter, mockSink, mockEventDispatcher)
     }
 
     @Test fun test_setUp_RegistersHandlers() {
         sut.setUp()
 
-        verify(mockKale).register(any<MonitorOnlineHandler>())
-        verify(mockKale).register(any<MonitorOfflineHandler>())
-        verify(mockKale).register(any<MonitorListHandler>())
-        verify(mockKale).register(any<MonitorEndOfListHandler>())
-        verify(mockKale).register(any<MonitorListFullHandler>())
+        verify(mockKaleRouter).register(eq(RplMonOnline.command), any<MonitorOnlineHandler>())
+        verify(mockKaleRouter).register(eq(RplMonOffline.command), any<MonitorOfflineHandler>())
+        verify(mockKaleRouter).register(eq(RplMonList.command), any<MonitorListHandler>())
+        verify(mockKaleRouter).register(eq(RplEndOfMonList.command), any<MonitorEndOfListHandler>())
+        verify(mockKaleRouter).register(eq(RplMonListIsFull.command), any<MonitorListFullHandler>())
     }
 
     @Test fun test_tearDown_UnregistersHandlers() {
         sut.tearDown()
 
-        verify(mockKale).unregister(any<MonitorOnlineHandler>())
-        verify(mockKale).unregister(any<MonitorOfflineHandler>())
-        verify(mockKale).unregister(any<MonitorListHandler>())
-        verify(mockKale).unregister(any<MonitorEndOfListHandler>())
-        verify(mockKale).unregister(any<MonitorListFullHandler>())
+        verify(mockKaleRouter).unregister(RplMonOnline.command)
+        verify(mockKaleRouter).unregister(RplMonOffline.command)
+        verify(mockKaleRouter).unregister(RplMonList.command)
+        verify(mockKaleRouter).unregister(RplEndOfMonList.command)
+        verify(mockKaleRouter).unregister(RplMonListIsFull.command)
     }
 
     @Test fun test_setUp_NoUsersToMonitor_SendsNothing() {
@@ -63,7 +62,7 @@ class MonitorExtensionTests {
 
         sut.setUp()
 
-        verify(mockSink).write(MonitorAddMessage(targets = listOf("user1", "user2", "user3")))
+        verify(mockSink).write(MonitorMessage.Add.Command(targets = listOf("user1", "user2", "user3")))
     }
 
 }

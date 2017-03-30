@@ -1,13 +1,13 @@
 package chat.willow.warren.registration
 
-import com.nhaarman.mockito_kotlin.any
-import com.nhaarman.mockito_kotlin.inOrder
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
 import chat.willow.kale.irc.message.rfc1459.NickMessage
 import chat.willow.kale.irc.message.rfc1459.PassMessage
 import chat.willow.kale.irc.message.rfc1459.UserMessage
 import chat.willow.warren.IMessageSink
+import com.nhaarman.mockito_kotlin.any
+import com.nhaarman.mockito_kotlin.inOrder
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.never
@@ -43,8 +43,8 @@ class RFC1459RegistrationExtensionTests {
         sut.startRegistration()
 
         inOrder(mockSink) {
-            verify(mockSink).write(PassMessage(password = "something"))
-            verify(mockSink).write(any<NickMessage>())
+            verify(mockSink).write(PassMessage.Command(password = "something"))
+            verify(mockSink).write(any<NickMessage.Command>())
         }
     }
 
@@ -52,8 +52,8 @@ class RFC1459RegistrationExtensionTests {
         sut.startRegistration()
 
         inOrder(mockSink) {
-            verify(mockSink).write(NickMessage(nickname = "test-user"))
-            verify(mockSink).write(UserMessage(username = "test-user", mode = "8", realname = "test-user"))
+            verify(mockSink).write(NickMessage.Command(nickname = "test-user"))
+            verify(mockSink).write(UserMessage.Command(username = "test-user", mode = "8", realname = "test-user"))
         }
     }
 

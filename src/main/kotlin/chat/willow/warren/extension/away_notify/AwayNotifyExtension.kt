@@ -1,19 +1,21 @@
 package chat.willow.warren.extension.away_notify
 
-import chat.willow.kale.IKale
+import chat.willow.kale.IKaleIrcMessageHandler
+import chat.willow.kale.IKaleRouter
+import chat.willow.kale.irc.message.extension.away_notify.AwayMessage
 import chat.willow.warren.extension.cap.ICapExtension
 import chat.willow.warren.state.JoinedChannelsState
 
-class AwayNotifyExtension(private val kale: IKale, private val channelsState: JoinedChannelsState) : ICapExtension {
+class AwayNotifyExtension(private val kaleRouter: IKaleRouter<IKaleIrcMessageHandler>, private val channelsState: JoinedChannelsState) : ICapExtension {
 
     val handler: AwayHandler by lazy { AwayHandler(channelsState) }
 
     override fun setUp() {
-        kale.register(handler)
+        kaleRouter.register(AwayMessage.command, handler)
     }
 
     override fun tearDown() {
-        kale.unregister(handler)
+        kaleRouter.unregister(AwayMessage.command)
     }
 
 }

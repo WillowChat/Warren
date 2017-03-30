@@ -8,8 +8,6 @@ import chat.willow.warren.state.ChannelState
 import chat.willow.warren.state.ChannelUserState
 import chat.willow.warren.state.generateUsersFromNicks
 import com.nhaarman.mockito_kotlin.*
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 
@@ -35,19 +33,19 @@ class WarrenClientTests {
     @Test fun test_join_ChannelOnly_SendsJoinMessageWithoutKey() {
         sut.join("#channel")
 
-        verify(mockConnection, only()).send(JoinMessage(channels = listOf("#channel")))
+        verify(mockConnection, only()).send(JoinMessage.Command(channels = listOf("#channel")))
     }
 
     @Test fun test_join_ChannelAndKey_SendsJoinMessageWithKey() {
         sut.join("#channel", "key")
 
-        verify(mockConnection, only()).send(JoinMessage(channels = listOf("#channel"), keys = listOf("key")))
+        verify(mockConnection, only()).send(JoinMessage.Command(channels = listOf("#channel"), keys = listOf("key")))
     }
 
     @Test fun test_leave_SendsPartMessage() {
         sut.leave("#channel")
 
-        verify(mockConnection, only()).send(PartMessage(channels = listOf("#channel")))
+        verify(mockConnection, only()).send(PartMessage.Command(channels = listOf("#channel")))
     }
 
     @Test fun test_builder_SanityCheck() {
@@ -93,26 +91,26 @@ class WarrenChannelTests {
         sut.addMode('a', user = "user1")
 
         val modeModifier = ModeMessage.ModeModifier(type = CharacterCodes.PLUS, mode = 'a', parameter = "user1")
-        verify(mockClient, only()).send(ModeMessage(target = "#channel", modifiers = listOf(modeModifier)))
+        verify(mockClient, only()).send(ModeMessage.Command(target = "#channel", modifiers = listOf(modeModifier)))
     }
 
     @Test fun test_removeMode_SendsModeMessage() {
         sut.removeMode('a', user = "user1")
 
         val modeModifier = ModeMessage.ModeModifier(type = CharacterCodes.MINUS, mode = 'a', parameter = "user1")
-        verify(mockClient, only()).send(ModeMessage(target = "#channel", modifiers = listOf(modeModifier)))
+        verify(mockClient, only()).send(ModeMessage.Command(target = "#channel", modifiers = listOf(modeModifier)))
     }
 
     @Test fun test_kick_SendsKickMessage() {
         sut.kick("user1")
 
-        verify(mockClient, only()).send(KickMessage(users = listOf("user1"), channels = listOf("#channel")))
+        verify(mockClient, only()).send(KickMessage.Command(users = listOf("user1"), channels = listOf("#channel")))
     }
 
     @Test fun test_invite_SendsInviteMessage() {
         sut.invite("user1")
 
-        verify(mockClient, only()).send(InviteMessage(user = "user1", channel = "#channel"))
+        verify(mockClient, only()).send(InviteMessage.Command(user = "user1", channel = "#channel"))
     }
 
 }
