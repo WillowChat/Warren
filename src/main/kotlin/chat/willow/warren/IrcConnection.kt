@@ -29,6 +29,7 @@ import chat.willow.warren.state.AuthLifecycle
 import chat.willow.warren.state.IStateCapturing
 import chat.willow.warren.state.IrcState
 import chat.willow.warren.state.LifecycleState
+import java.util.concurrent.atomic.AtomicBoolean
 
 interface IIrcConnection : IStateCapturing<IrcState>, IClientMessageSending, IStringMessageSending {
 
@@ -42,6 +43,7 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
 
     private val LOGGER = loggerFor<IrcConnection>()
 
+    private var hasSetUp = AtomicBoolean(false)
     private var internalState = initialState
     @Volatile override var state: IrcState = initialState.copy()
 
@@ -57,6 +59,11 @@ class IrcConnection(val eventDispatcher: IWarrenEventDispatcher, private val int
     }
 
     override fun start() {
+        if (!hasSetUp.compareAndSet(false, true)) {
+            LOGGER.error("can't run IrcConnections twice - make a new one")
+            return
+        }
+
         if (!sink.setUp()) {
             LOGGER.warn("couldn't set up sink - bailing out")
             return
