@@ -2,6 +2,7 @@ package chat.willow.warren
 
 import chat.willow.kale.irc.CharacterCodes
 import chat.willow.kale.irc.message.rfc1459.*
+import chat.willow.kale.irc.prefix.PrefixSerialiser
 import chat.willow.warren.event.IWarrenEventDispatcher
 import chat.willow.warren.event.WarrenEventDispatcher
 import chat.willow.warren.extension.cap.CapKeys
@@ -81,14 +82,23 @@ data class WarrenChannelUser(private val state: ChannelUserState, private val ch
         channel.kick(nick)
     }
 
+    override fun toString(): String {
+        return PrefixSerialiser.serialise(prefix)
+    }
 }
 
 data class WarrenChannelUsers(private val state: ChannelUsersState, private val channel: IWarrenChannel) {
+
+    val all get() = state.all
 
     operator fun get(user: String): WarrenChannelUser? {
         val userState = state[user] ?: return null
 
         return WarrenChannelUser(userState, channel = channel)
+    }
+
+    override fun toString(): String {
+        return "[${all.values.joinToString { PrefixSerialiser.serialise(it.prefix) }}]"
     }
 
 }
@@ -135,6 +145,10 @@ data class WarrenChannel(private val state: ChannelState, private val client: IC
 
     override fun hashCode(): Int {
         return state.hashCode()
+    }
+
+    override fun toString(): String {
+        return "${state.name}(users=$users)"
     }
 }
 
